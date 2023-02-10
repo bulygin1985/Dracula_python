@@ -1,0 +1,92 @@
+1 Customs Search(DK)
+1 Darkness Returns(DK)
+2 Devilish Power(DK)
+1 Dracula's Brides(DA)
+1 Enraged(DK)
+2 False Tip(DK)
+1 Great Wolf(DA)
+2 Hidden Schemes(DK)
+1 Immanuel Hildesheim(DA)
+1 Nocturnal Visit(DK)
+3 Roadblock(DK)
+1 Seduction(DK)
+1 Sensationalist Press(DK)
+2 Summon Storms(DK)
+1 Unearthly Swiftness(DK)
+2 Vampiric Influence(DI)
+2 Wild Horses(DK)
+1 Behind the Veil(HI)
+2 Blood Transfusion(HK)
+3 Chartered Carriage(HK)
+1 Consecrated Ground(HK)
+2 Escape Route(HK)
+2 Evil Presence(HI)
+2 Excellent Weather(HK)
+2 Forewarned(HK)
+2 Good Luck(HK)
+1 Great Strength(HK)
+1 Heroic Leap(HK)
+4 Hired Scouts(HI)
+1 Hypnosis(MK)
+1 Jonathan Harker(HA)
+2 Local Rumors(HI)
+2 Long Night(HK)
+1 Lucky Find(HK)
+1 Lucy's Revenge(GK)
+1 Money Trail(HK)
+1 Mystic Research(VK)
+3 Newspaper Reports(HK)
+2 Planned Ambush(HK)
+2 Renewed Vigour(HK)
+1 Rufus Smith(HA)
+2 Sense of Emergency(HK)
+1 Sister Agatha(HA)
+2 Speedy Telegraph(HK)
+2 Surprising Return(HK)
+1 Vampire Lair(HK)
+1 Wax Cylinders(SK)
+
+Items
+2 Crucifix
+4 Dogs
+3 Fast Horses
+3 Garlic
+3 Garlic Wreath
+3 Heavenly Host
+3 Holy Bullets
+2 Holy Circle
+3 Knife(W)
+4 Pistol(W)
+4 Rifle(W)
+4 Stake
+
+Encounters
+3 Aristocratic Vampire
+2 Bats
+2 Desecrated Soil
+2 Hoax
+2 New Vampire
+2 Rats
+3 Reckless Vampire
+2 Saboteur
+2 Spy
+2 Szgany Bodyguards
+2 Szgany Mob
+2 Unnatural Fog
+2 Wolves
+
+Tickets
+3 1
+2 1/1
+3 2/1
+4 2/2
+4 3/2
+
+Dracula Combat
+2 Claws
+2 Escape as Bat
+1 Escape as Mist
+2 Fangs
+2 Mesmerise
+2 Plotting
+2 Strength
