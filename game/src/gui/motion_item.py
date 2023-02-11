@@ -5,11 +5,9 @@ from PyQt6.QtCore import Qt
 
 
 class MotionItem(QGraphicsPixmapItem):
-    def __init__(self, periods=0):
+    def __init__(self):
         super().__init__()
         self.setTransformationMode(Qt.TransformationMode.SmoothTransformation)
-        self.periods = periods
-        self.current_period = -1
         self.timer = QTimer()
         self.scale_changing = 0
         self.frame = 0
@@ -18,12 +16,18 @@ class MotionItem(QGraphicsPixmapItem):
         self.parent = None
         self.name = None
 
+    def stop(self):
+        self.timer.stop()
+        self.frame = 0
+        self.setScale(1.0)
+
     def set_parent(self, parent):
         self.parent = parent
 
     def show(self):
         super().show()
-        self.timer.start(20)
+        if self.scale_changing != 0:
+            self.timer.start(20)
 
     def hide(self):
         super().hide()
@@ -34,13 +38,6 @@ class MotionItem(QGraphicsPixmapItem):
                                      self.pixmap().height() / 2)  # TODO - the same for mapView
         if self.scale_changing != 0:
             self.frame %= self.frame_num
-            if self.frame % (self.frame_num / 4) == 0 and self.periods > 0:
-                self.current_period += 1
-            if self.current_period == self.periods:
-                self.current_period = -1
-                self.frame = 0
-                self.scale_changing = 0
-                return
             self.setScale(1 + self.scale_changing * math.sin(2 * math.pi * self.frame / self.frame_num))
             self.frame += 1
 

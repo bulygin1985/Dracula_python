@@ -83,8 +83,10 @@ if __name__ == '__main__':
 
     app = QApplication(sys.argv)
 
-    import os
-    logger.info("working dir = {}".format(os.path.abspath(os.getcwd())) )
+    loader = Loader()
+
+    # import os
+    # logger.info("working dir = {}".format(os.path.abspath(os.getcwd())) )
 
     # from gamestate.player import *
     # loader = Loader()  # load media files : images, fonts, sounds, animations, etc

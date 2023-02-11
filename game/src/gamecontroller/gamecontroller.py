@@ -3,59 +3,6 @@ from loader import Loader
 from common.logger import logger
 from PyQt6.QtCore import *
 
-# class Action:
-#     def __init__(self, num):
-#         self.num = num
-#
-#     def __str__(self):
-#         return self.__class__.__name__
-#
-#     def __repr__(self):
-#         return self.__str__()
-#
-#     def __eq__(self, other):
-#         return True if isinstance(other, self.__class__) else False
-#
-#
-# class ActionLocation(Action):
-#     def __init__(self, num):
-#         super().__init__(num)
-#
-#     def __repr__(self):
-#         return self.__str__()
-#
-#     def __str__(self):
-#         return "ActionLocation={}".format(self.num)
-#
-#     def __eq__(self, other):
-#         if isinstance(other, ActionLocation) and other.num == self.num:
-#             return True
-#         else:
-#             return False
-#
-#     def __hash__(self):
-#         return self.num
-#
-#
-# class ActionNext(Action):
-#     def __init__(self):
-#         super().__init__(0)
-#
-#
-# class ActionMoveByRoad(Action):
-#     def __init__(self):
-#         super().__init__(0)
-#
-#
-# class ActionMoveByRailWay(Action):
-#     def __init__(self):
-#         super().__init__(0)
-#
-#
-# class ActionMoveBySea(Action):
-#     def __init__(self):
-#         super().__init__(0)
-
 
 # TODO - save previous states
 class GameController(QObject):
@@ -63,6 +10,8 @@ class GameController(QObject):
     def __init__(self):
         super().__init__()
         self.state = GameState()
+        self.states = []
+        self.states.append(self.state)
         self.possible_actions = self.get_first_turn_actions()
         logger.info("The first round! The first player is {}, possible action:{}".format(self.state.who_moves,
                                                                                           self.possible_actions))
@@ -90,16 +39,16 @@ class GameController(QObject):
             logger.info("turn of player: {}".format(self.state.who_moves) )
 
         elif self.state.phase == Phase.MOVEMENT:
+            logger.info("before 'ActionLocation' in action")
             if action == "ActionNext":
                 self.state.who_moves = (self.state.who_moves + 1) % len(self.state.players)
-                logger.info("turn of player: {}".format(self.state.who_moves) )
+                logger.info("turn of player: {}".format(self.state.who_moves))
                 if self.state.who_moves == 0:
                     # TODO - track
                     if len(self.get_who_move_loc_dict()["roads"]) > 0:
                         self.possible_actions.append("ActionMoveByRoad")
                     if len(self.get_who_move_loc_dict()["seas"]) > 0:
                         self.possible_actions.append("ActionMoveBySea")
-                    self.possible_actions = ["ActionMoveByRoad", "ActionMoveBySea"]
                 else:
                     # TODO - tickets
                     if len(self.get_who_move_loc_dict()["roads"]) > 0:
@@ -108,6 +57,7 @@ class GameController(QObject):
                         self.possible_actions.append("ActionMoveBySea")
                     if len(self.get_who_move_loc_dict()["railways"]) > 0:
                         self.possible_actions.append("ActionMoveByRailWay")
+                    self.possible_actions.append("ActionNext")
 
             elif action == "ActionMoveByRoad":
                 # TODO - track
@@ -120,11 +70,13 @@ class GameController(QObject):
                 self.possible_actions = ["ActionLocation_"+loc for loc in self.get_who_move_loc_dict()["railways"]]
 
             elif "ActionLocation" in action:
-                logger.info("player {} is moved to {}".format(self.state.who_moves, action.num))
+                logger.info("after 'ActionLocation' in action")
+                logger.info("player {} is moved to {}".format(self.state.who_moves, action.split("_")[-1]))
                 self.state.players[self.state.who_moves].location_num = action.split("_")[-1]
                 self.possible_actions = ["ActionNext"]
 
         logger.info("possible_actions = {}".format(self.possible_actions))
+        self.states.append(self.state)
         self.gamestate_is_changed.emit()
 
     def get_possible_actions(self):

@@ -35,11 +35,11 @@ class ActionView(QGraphicsView):
         w = self.scene.width()
         self.actions = []
         for action_icon in self.action2draw:
-            setattr(self, action_icon, MotionItem(periods=1))
+            #setattr(self, action_icon, MotionItem(periods=1))
+            setattr(self, action_icon, MotionItem())
             image = getattr(Loader, action_icon).scaledToWidth(0.8 * w, Qt.TransformationMode.SmoothTransformation)
             getattr(self, action_icon).setPixmap(QPixmap.fromImage(image))
-            getattr(self, action_icon).frame = 3 * getattr(self, action_icon).frame_num / 4  #start from 3*pi / 2
-            getattr(self, action_icon).scale_changing = 1.0
+            getattr(self, action_icon).scale_changing = 0.1
             self.scene.addItem(getattr(self, action_icon))
             getattr(self, action_icon).name = action_icon
             getattr(self, action_icon).set_parent(self)
@@ -53,6 +53,7 @@ class ActionView(QGraphicsView):
                 w = self.scene.width()
                 getattr(self, action).setPos(0.1 * w, 0.1 * w + i * (0.8 * w + 0.2 * w))
                 i += 1
+                getattr(self, action).frame = 0
                 getattr(self, action).show()
 
     def process_action_done(self, name):

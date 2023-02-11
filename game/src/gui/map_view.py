@@ -1,3 +1,4 @@
+import logging
 import math
 from PyQt6.QtGui import *
 from PyQt6.QtWidgets import *
@@ -40,13 +41,11 @@ class MapView(QGraphicsView):
         self.locationRad = 50.0 / 3240.0 * map_image.width()
         for i in range(5):
             player_fig_image = Loader.player_figs[i].scaledToWidth(2 * self.locationRad, Qt.TransformationMode.SmoothTransformation)
-            player_fig_item = MotionItem(periods=1)
-            player_fig_item.frame = 3 * player_fig_item.frame_num / 4  #start from 3*pi / 2
+            player_fig_item = MotionItem()
             player_fig_item.setPixmap(QPixmap.fromImage(player_fig_image))
             self.player_fig_items.append(player_fig_item)
             player_fig_item.setParentItem(self.map_item)
             player_fig_item.hide()
-            player_fig_item.scale_changing = 1.0  # TODO - only for whoMoves, first apperance - from 0 to 1 and stop
 
         self.draw_location_names()
 
@@ -65,7 +64,6 @@ class MapView(QGraphicsView):
         self.remove_actions()
         logger.info("mousePressEvent with on action : {}".format(name))
         self.action_done.emit(name)
-
 
     def draw_location_names(self):
         fontLand = QFont()
@@ -109,7 +107,7 @@ class MapView(QGraphicsView):
 
     def visualize(self):
         logger.info("visualize()")
-        self.locate_players(self.controller.state)
+        self.locate_players(self.controller)
         possible_movements = []
         for action in self.controller.possible_actions:
             if "ActionLocation" in action:
@@ -117,13 +115,35 @@ class MapView(QGraphicsView):
         logger.info("possible_movements = {}".format(possible_movements))
         self.visualize_action_movements(possible_movements)
 
-    def locate_players(self, state):
-        for i, player in enumerate(state.players):
-            if player.location_num != -1:
-                loc = Loader.location_dict[str(player.location_num)]
+    def locate_players(self, controller):
+        for i, player in enumerate(controller.state.players):
+            if controller.state.who_moves == i:  # Motion for player, who moves
+                self.player_fig_items[i].scale_changing = 0.2
+            else:  # to stop the motion for player who does not move
+                self.player_fig_items[i].stop()
+                self.player_fig_items[i].scale_changing = 0.0
+
+        # create group of players
+        groups = []
+        player_num = [0, 1, 2, 3, 4]
+        for i, player in enumerate(controller.state.players):
+            if player.location_num != -1 and i in player_num:
+                group = []
+                for j in range(i, len(controller.state.players)):
+                    if player.location_num == controller.state.players[j].location_num:
+                        player_num.remove(j)
+                        group.append(j)
+                groups.append(group)
+        logger.info("groups = {}".format(groups))
+        for group in groups:
+            loc = Loader.location_dict[str(controller.state.players[group[0]].location_num)]
+            for idx, i in enumerate(group):
+                phi = 2 * math.pi * idx / len(group)
                 x = loc["coor"][0] * self.map_width
                 y = loc["coor"][1] * self.map_height
-                self.player_fig_items[i].setPos(x - self.locationRad, y - self.locationRad)
+                rad = self.locationRad
+                self.player_fig_items[i].setPos(x + rad * (math.cos(phi) - 1 - int(len(group) == 1)), \
+                                                           y + rad * (math.sin(phi) - 1))
                 self.player_fig_items[i].show()
 
     #TODO like in QT - add QGraphicsEllipseItem with hover events and remove after emit signal
