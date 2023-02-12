@@ -19,6 +19,7 @@ class Loader:
         QFontDatabase.addApplicationFont("./game/fonts/BadScript-Regular.ttf")
         QFontDatabase.addApplicationFont("./game/fonts/Lobster-Regular.ttf")
         QFontDatabase.addApplicationFont("./game/fonts/CormorantSC-Regular.ttf")
+
         Loader.ActionNext = QImage("./game/images/actions/next.png")
         Loader.ActionMoveByRailWay = QImage("./game/images/actions/movement_train.png")
         Loader.ActionMoveBySea = QImage("./game/images/actions/movement_sea.png")
@@ -28,5 +29,7 @@ class Loader:
         Loader.ActionHealing = QImage("./game/images/actions/healing.png")
         Loader.ActionExchange = QImage("./game/images/actions/exchange.png")
         Loader.ActionSpecial = QImage("./game/images/actions/play_special_card_icon.png")
+
+        Loader.loc_pointer = QImage("./game/images/locations/location_pointer4.png")
 
         logger.info("all file are successfully loaded")

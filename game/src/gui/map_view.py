@@ -15,11 +15,14 @@ from gui.motion_item import MotionItem
 class MapView(QGraphicsView):
     #action_done = pyqtSignal(str, int)
     action_done = pyqtSignal(str)
+    player_movement = {"old_x": 0, "old_y": 0, "new_x": 0, "new_y": 0, "frame_num": 100, "frame": 0, "player_ind":-1}  # for player motion
     def __init__(self, width, height, controller):
         super().__init__()
         self.controller = controller
         self.scene = QGraphicsScene()
         self.setScene(self.scene)
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.player_motion)
 
         self.setDragMode(QGraphicsView.DragMode(1))
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
@@ -46,7 +49,7 @@ class MapView(QGraphicsView):
             self.player_fig_items.append(player_fig_item)
             player_fig_item.setParentItem(self.map_item)
             player_fig_item.hide()
-
+        self.loc_pointer = Loader.loc_pointer.scaledToWidth(2 * self.locationRad, Qt.TransformationMode.SmoothTransformation)
         self.draw_location_names()
 
         self.scene.setSceneRect(0, 0, scale * map_image.width(), scale * map_image.height())
@@ -142,9 +145,32 @@ class MapView(QGraphicsView):
                 x = loc["coor"][0] * self.map_width
                 y = loc["coor"][1] * self.map_height
                 rad = self.locationRad
-                self.player_fig_items[i].setPos(x + rad * (math.cos(phi) - 1 - int(len(group) == 1)), \
-                                                           y + rad * (math.sin(phi) - 1))
+                new_x = x + rad * (math.cos(phi) - 1 - int(len(group) == 1))
+                new_y = y + rad * (math.sin(phi) - 1)
+                logger.info("controller.state.phase = {}".format(controller.state.phase))
+                if (controller.state.phase == Phase.MOVEMENT) and i == controller.state.who_moves: # if the first each player is placed
+                    self.player_movement["old_x"] = self.player_fig_items[i].pos().x()
+                    self.player_movement["old_y"] = self.player_fig_items[i].pos().y()
+                    self.player_movement["new_x"] = new_x
+                    self.player_movement["new_y"] = new_y
+                    self.player_movement["player_ind"] = i
+                    self.player_movement["frame"] = 0
+                    self.timer.start(10)
+                else:
+                    logger.info("new_x = {}, new_y = {}".format(new_x, new_y))
+                    self.player_fig_items[i].setPos(new_x, new_y)
                 self.player_fig_items[i].show()
+
+    def player_motion(self):
+        if self.player_movement["frame"] == self.player_movement["frame_num"]:
+            self.player_movement["frame"] = 0
+            self.timer.stop()
+            return
+        part = self.player_movement["frame"] / self.player_movement["frame_num"]
+        x = self.player_movement["old_x"] + part * (self.player_movement["new_x"] - self.player_movement["old_x"])
+        y = self.player_movement["old_y"] + part * (self.player_movement["new_y"] - self.player_movement["old_y"])
+        self.player_fig_items[self.player_movement["player_ind"]].setPos(x, y)
+        self.player_movement["frame"] += 1
 
     #TODO like in QT - add QGraphicsEllipseItem with hover events and remove after emit signal
     def visualize_action_movements(self, possible_movements):
@@ -153,10 +179,18 @@ class MapView(QGraphicsView):
             x = val["coor"][0] * self.map_width
             y = val["coor"][1] * self.map_height
             item = EllipseItem(x, y, self.locationRad, int(location_num), self)
-            #item.setOpacity(0.001)
+            item.setOpacity(0.001)
             self.location_items.append(item)
             item.setParentItem(self.map_item)
             item.show()
+            loc_pointer_item = MotionItem()
+            loc_pointer_item.scale_changing = 0.4
+            loc_pointer_item.frame_num = 120
+            loc_pointer_item.setPixmap(QPixmap.fromImage(self.loc_pointer))
+            loc_pointer_item.setPos(x - self.locationRad, y - self.locationRad)
+            self.location_items.append(loc_pointer_item)
+            loc_pointer_item.setParentItem(self.map_item)
+            loc_pointer_item.show()
 
     def remove_actions(self):
         for item in self.location_items:
