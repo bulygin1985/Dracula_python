@@ -28,7 +28,7 @@ class GameController(QObject):
 
         self.possible_actions = []
         if self.state.phase == Phase.FIRST_TURN:
-            self.state.players[self.state.who_moves].location_num = action.split("_")[-1]
+            self.state.players[self.state.who_moves].set_location(action.split("_")[-1])
             if self.state.who_moves == 0:
                 self.state.phase = Phase.MOVEMENT  # Players located and the game begins!
                 self.possible_actions = ["ActionNext"]
@@ -59,28 +59,27 @@ class GameController(QObject):
                         self.possible_actions.append("ActionMoveByRailWay")
                     self.possible_actions.append("ActionNext")
 
-            elif action == "ActionMoveByRoad":
-                # TODO - track
-                self.possible_actions = ["ActionLocation_"+loc for loc in self.get_who_move_loc_dict()["roads"]]
-            elif action == "ActionMoveBySea":
-                # TODO - track, cannot revert
-                self.possible_actions = ["ActionLocation_"+loc for loc in self.get_who_move_loc_dict()["seas"]]
-            elif action == "ActionMoveByRailWay":
-                # TODO - track, cannot revert
-                self.possible_actions = ["ActionLocation_"+loc for loc in self.get_who_move_loc_dict()["railways"]]
+            elif action == "ActionMoveByRoad" or action == "ActionMoveBySea" or action == "ActionMoveByRailWay":
+                self.possible_actions = self.get_possible_actions(action)
 
             elif "ActionLocation" in action:
-                logger.info("after 'ActionLocation' in action")
                 logger.info("player {} is moved to {}".format(self.state.who_moves, action.split("_")[-1]))
-                self.state.players[self.state.who_moves].location_num = action.split("_")[-1]
+                self.state.players[self.state.who_moves].set_location(action.split("_")[-1])
                 self.possible_actions = ["ActionNext"]
 
         logger.info("possible_actions = {}".format(self.possible_actions))
         self.states.append(self.state)
         self.gamestate_is_changed.emit()
 
-    def get_possible_actions(self):
-        return self.possible_actions
+    def get_possible_actions(self, action):
+        action_to_type = {"ActionMoveByRoad": "roads", "ActionMoveBySea": "seas", "ActionMoveByRailWay": "railways"}
+        locations = [loc for loc in self.get_who_move_loc_dict()[action_to_type[action]]]
+        if self.state.who_moves == 0:   # remove Dracula track from Dracula's possible movements
+            for elem in self.state.players[0].track:
+                if elem.location_num in locations:
+                    locations.remove(elem.location_num)
+        possible_actions = ["ActionLocation_" + str(loc) for loc in locations]
+        return possible_actions
 
     def get_who_move_loc_dict(self):
         return Loader.location_dict[str(self.state.players[self.state.who_moves].location_num)]

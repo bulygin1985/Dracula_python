@@ -49,6 +49,7 @@ class MapView(QGraphicsView):
             self.player_fig_items.append(player_fig_item)
             player_fig_item.setParentItem(self.map_item)
             player_fig_item.hide()
+            player_fig_item.setZValue(1)
         self.loc_pointer = Loader.loc_pointer.scaledToWidth(2 * self.locationRad, Qt.TransformationMode.SmoothTransformation)
         self.draw_location_names()
 
@@ -100,7 +101,6 @@ class MapView(QGraphicsView):
                 item.setPos(pos.x() - 0 * xShift, pos.y() - 1.5 * xShift)
             if i == 70:
                 item.setPos(pos.x() - 2 * xShift, pos.y() - 1 * xShift)
-
             item.setParentItem(self.map_item)
             item.setFont(fontLand)
             if i > 60:
@@ -182,6 +182,7 @@ class MapView(QGraphicsView):
             item.setOpacity(0.001)
             self.location_items.append(item)
             item.setParentItem(self.map_item)
+            item.setZValue(2)
             item.show()
             loc_pointer_item = MotionItem()
             loc_pointer_item.scale_changing = 0.4
@@ -197,7 +198,6 @@ class MapView(QGraphicsView):
             self.scene.removeItem(item)
 
     def locate_marker(self, location_num):
-        print("locate_marker")
         val = Loader.location_dict[str(location_num)]
         x = val["coor"][0] * self.map_width
         y = val["coor"][1] * self.map_height

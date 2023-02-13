@@ -4,6 +4,20 @@ class Player:
         self.health = -1
         self.max_health = -1
 
+    def set_location(self, location_num):
+        self.location_num = location_num
+
+class TrackElement:
+    def __init__(self):
+        self.location_num = 0
+        self.is_opened_location = False
+
+    def __str__(self):
+        return "location_num={}, is_opened_location={}".format(self.location_num, self.is_opened_location)
+
+    def __repr__(self):
+        return self.__str__()
+
 
 class Dracula(Player):
     def __init__(self):
@@ -11,6 +25,16 @@ class Dracula(Player):
         self.health = 15
         self.max_health = 15
         self.track = []  # [ (loc_num_1,  isOpen_1, encounter_1) ,..., (loc_num_6,  isOpen_6, encounter_6)]
+
+    def set_location(self, location_num):
+        super().set_location(location_num)
+        element = TrackElement()
+        element.location_num = location_num
+        self.track.insert(0, element)
+        if len(self.track) > 6:
+            self.track.pop()
+        #TODO - matured
+
 
 
 class Lord(Player):

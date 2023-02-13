@@ -1,5 +1,4 @@
 import math
-
 from PyQt6.QtGui import *
 from PyQt6.QtCore import *
 from PyQt6.QtWidgets import *
@@ -9,22 +8,20 @@ import PyQt6.QtGui
 import json
 from loader import Loader
 from PyQt6.QtCore import Qt
+from common.logger import logger
 
 
 class TrackView(QGraphicsView):
     inside_track = pyqtSignal(int)
     outside_track = pyqtSignal()
-    def __init__(self, width, height):
+
+    def __init__(self, width, height, controller):
         super().__init__()
-        # QObject.__init__()
-        # self.setWindowState(PyQt6.QtCore.Qt.WindowState.WindowMaximized)
+        self.controller = controller
         self.scene = QGraphicsScene()
         self.setScene(self.scene)
-        # self.scene.setBackgroundBrush(PyQt6.QtCore.Qt.GlobalColor.darkBlue)
+
         gradient = QLinearGradient(0, 0, width, height)
-        # gradient.setColorAt(0, PyQt6.QtCore.Qt.GlobalColor.yellow)
-        # gradient.setColorAt(1, PyQt6.QtCore.Qt.GlobalColor.darkYellow)
-        # gradient.setSpread(PyQt6.QtGui.QGradient.Spread.ReflectSpread)
         self.scene.setBackgroundBrush(gradient)
 
         self.setHorizontalScrollBarPolicy(PyQt6.QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
@@ -32,23 +29,7 @@ class TrackView(QGraphicsView):
 
         self.scene.setSceneRect(0, 0, width, height)
         self.setSceneRect(0, 0, width, height)
-
-        # self.icon = QImage("./game/images/locations/back.png")
-        #
-        # w = self.scene.width()
-        # for i in range(6):
-        #     item = QGraphicsPixmapItem()
-        #     icon_scaled = self.icon.scaledToWidth(0.8 * w, PyQt6.QtCore.Qt.TransformationMode.SmoothTransformation)
-        #     item.setPixmap(QPixmap.fromImage(icon_scaled))
-        #     h = item.pixmap().height()
-        #     item.setPos(0.1 * w, 0.1 * w + i * (0.8 * h + 0.2 * w))
-        #     self.scene.addItem(item)
-
         self.track_items = []
-        for i in range(6):
-            map_item = TrackItem(width, height, 13 + i, i, self)
-            self.track_items.append(map_item)
-            self.scene.addItem(map_item)
 
     def emitSignalInsideTrack(self, i):
         print("emitSignalInsideTrack")
@@ -57,45 +38,80 @@ class TrackView(QGraphicsView):
     def emitSignalOutsideTrack(self):
         self.outside_track.emit()
 
+    def visualize(self):
+        logger.info("track = {}".format(self.controller.state.players[0].track))
+        self.remove_items()
+        for idx, elem in enumerate(self.controller.state.players[0].track):
+            map_item = TrackItem(int(elem.location_num), elem.is_opened_location, self)
+            map_item.setZValue(1)
+            shift = self.scene.width()
+            step = (self.scene.height() - 0.1 * shift) / 6
+            map_item.setPos(0.1 * shift, 0.1 * shift + idx * step)
+            self.track_items.append(map_item)
+            self.scene.addItem(map_item)
+
+            #draw arrow after location
+            if idx < 5:
+                arrow_height = step - map_item.pixmap().height() * map_item.scale()
+                logger.info("arrow_height = {}".format(arrow_height))
+                image = Loader.arrow.scaledToWidth(int(arrow_height), Qt.TransformationMode.SmoothTransformation)
+                arrow_item = QGraphicsPixmapItem(QPixmap.fromImage(image))
+                y = 0.1 * shift + map_item.pixmap().height() * map_item.scale() + idx * step
+                arrow_item.setPos(int(self.scene.width() / 2.0 - arrow_item.pixmap().width() / 2.0), y)
+                arrow_item.setZValue(0)
+                self.track_items.append(arrow_item)
+                self.scene.addItem(arrow_item)
+
+    def remove_items(self):
+        for item in self.track_items:
+            self.scene.removeItem(item)
+
 
 class TrackItem(QGraphicsPixmapItem):
-    def __init__(self, view_width, view_height, location_num, number, view):
+    def __init__(self,  location_num, is_opened, parent):
         super().__init__()
         self.setTransformationMode(Qt.TransformationMode.SmoothTransformation)
         self.setAcceptHoverEvents(True)
-        self.view = view
-        self.view_width = view_width
-        self.view_height = view_height
+        self.parent = parent
+        self.is_opened = is_opened
         self.location_num = location_num
-        self.number = number
-        self.icon, marker_x, marker_y, marker_rad = self.generate_image(location_num)
+        self.back_image = Loader.back
         self.name = Loader.location_dict[str(location_num)]["name"]
-        #self.icon = self.image.scaledToWidth(0.5 * self.view_width, Qt.TransformationMode.SmoothTransformation)
-
-        self.setPixmap(QPixmap.fromImage(self.icon))
-        scale = 0.5 * self.view_width / self.pixmap().width()
+        self.front_image, self.marker_x, self.marker_y, self.marker_rad = self.generate_image(location_num)
+        self.setPixmap(QPixmap.fromImage(self.front_image))
+        self.marker_item = self.generate_marker(self.marker_x, self.marker_y, self.marker_rad)
+        self.text_item = self.generate_text_item()
+        self.show_front_back()
+        scale = 0.5 * self.parent.scene.width() / self.pixmap().width()
         self.setScale(scale)
-        self.setPos(0.1 * self.view_width, 0.1 * self.view_width + number * (self.pixmap().height() * scale + 0.1 * self.view_width))
-        self.generate_text_item()
-        self.add_marker(marker_x, marker_y, marker_rad)
+
+    def show_front_back(self):
+        if self.is_opened:
+            self.setPixmap(QPixmap.fromImage(self.front_image))
+            self.text_item.show()
+            self.marker_item.show()
+        else:
+            self.setPixmap(QPixmap.fromImage(self.back_image))
+            self.text_item.hide()
+            self.marker_item.hide()
 
     def hoverEnterEvent(self, event):
         super().hoverEnterEvent(event)
-        #self.icon = self.image.scaledToWidth(0.9 * self.view_width, Qt.TransformationMode.SmoothTransformation)
-        #self.setPixmap(QPixmap.fromImage(self.icon))
-        scale = 0.9*self.view_width / self.pixmap().width()
+        self.setPixmap(QPixmap.fromImage(self.front_image))  #TODO - if you_are_dracula
+        self.text_item.show()
+        self.marker_item.show()
+        scale = 0.9 * self.parent.scene.width() / self.pixmap().width()
         self.setScale(scale)
-        self.setZValue(1)
-        self.view.emitSignalInsideTrack(self.location_num)
+        self.setZValue(2)
+        self.parent.emitSignalInsideTrack(self.location_num)
 
     def hoverLeaveEvent(self, event):
         super().hoverLeaveEvent(event)
-        # self.icon = self.image.scaledToWidth(0.5 * self.view_width, Qt.TransformationMode.SmoothTransformation)
-        # self.setPixmap(QPixmap.fromImage(self.icon))
-        scale = 0.5*self.view_width / self.pixmap().width()
+        self.show_front_back()
+        scale = 0.5 * self.parent.scene.width() / self.pixmap().width()
         self.setScale(scale)
-        self.setZValue(0)
-        self.view.emitSignalOutsideTrack()
+        self.setZValue(1)
+        self.parent.emitSignalOutsideTrack()
 
     def generate_image(self, location_num):
         map_image = Loader.map_image
@@ -128,9 +144,9 @@ class TrackItem(QGraphicsPixmapItem):
         return crop, w_l, h_t, locationRad
 
     def generate_text_item(self):
-        fontLand = QFont()
-        fontLand.setFamily("Cormorant SC")
-        fontLand.setBold(True)
+        font_land = QFont()
+        font_land.setFamily("Cormorant SC")
+        font_land.setBold(True)
         text_item = TextItemPainted(self.name)  # TODO - alignment, auto-scale - see QtCreator
         ratio = self.pixmap().width() / text_item.boundingRect().width()
 
@@ -139,15 +155,19 @@ class TrackItem(QGraphicsPixmapItem):
 
         text_item.setPos(self.pixmap().width() / 2 - (text_item.boundingRect().width() * text_scale) / 2, 0)
         text_item.setParentItem(self)
-        text_item.setFont(fontLand)
+        text_item.setFont(font_land)
+        text_item.hide()
+        return text_item
 
-    def add_marker(self, marker_x, marker_y, marker_rad):
+    def generate_marker(self, marker_x, marker_y, marker_rad):
         marker = Loader.marker.scaledToWidth(int(4 * marker_rad), Qt.TransformationMode.SmoothTransformation)
         marker_item = QGraphicsPixmapItem()
         marker_item.setPixmap(QPixmap.fromImage(marker))
         marker_item.setPos(marker_x - marker.width() / 2, marker_y - marker.height() / 2)
         marker_item.setTransformationMode(PyQt6.QtCore.Qt.TransformationMode.SmoothTransformation)
         marker_item.setParentItem(self)
+        marker_item.hide()
+        return marker_item
 
     def paint(self, painter, option, widget):
         brush = QBrush(self.pixmap())

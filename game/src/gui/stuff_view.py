@@ -43,20 +43,13 @@ class ScalableStuff(QGraphicsPixmapItem):
 class StuffView(QGraphicsView):
     def __init__(self, width, height):
         super().__init__()
-        # self.setWindowState(PyQt6.QtCore.Qt.WindowState.WindowMaximized)
         self.scene = QGraphicsScene()
         self.setScene(self.scene)
 
-        # self.scene.setBackgroundBrush(PyQt6.QtCore.Qt.GlobalColor.blue)
         gradient = QRadialGradient(0, 0, 200)
-        # gradient.setColorAt(0, PyQt6.QtCore.Qt.GlobalColor.red)
-        # gradient.setColorAt(0.5, PyQt6.QtCore.Qt.GlobalColor.blue)
-        # gradient.setColorAt(1, PyQt6.QtCore.Qt.GlobalColor.green)
-        #gradient.setSpread(PyQt6.QtGui.QGradient.Spread.RepeatSpread)
         gradient.setSpread(PyQt6.QtGui.QGradient.Spread.ReflectSpread)
 
         self.scene.setBackgroundBrush(gradient)
-
 
         self.setHorizontalScrollBarPolicy(PyQt6.QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(PyQt6.QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOff)

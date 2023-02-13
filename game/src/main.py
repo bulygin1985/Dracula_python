@@ -47,12 +47,13 @@ class MainScreen(QMainWindow):
         self.actions.action_done.connect(self.controller.process_action)
 
         track_part = layout_ratio[3] / sum(layout_ratio)
-        self.track = TrackView(track_part * self.width(), self.height())
+        self.track = TrackView(track_part * self.width(), self.height(), self.controller)
 
         self.track.inside_track.connect(self.map_view.locate_marker)
         self.track.outside_track.connect(self.map_view.hide_marker)
         self.controller.gamestate_is_changed.connect(self.map_view.visualize)
         self.controller.gamestate_is_changed.connect(self.actions.visualize)
+        self.controller.gamestate_is_changed.connect(self.track.visualize)
 
         central_widget = QWidget()
         layout = QHBoxLayout(central_widget)
