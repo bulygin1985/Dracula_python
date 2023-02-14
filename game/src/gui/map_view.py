@@ -10,6 +10,7 @@ from PyQt6.QtCore import Qt
 from gamecontroller.gamecontroller import *
 from common.logger import logger
 from gui.motion_item import MotionItem
+from game_param import Param
 
 
 class MapView(QGraphicsView):
@@ -17,6 +18,7 @@ class MapView(QGraphicsView):
     action_done = pyqtSignal(str)
     player_movement = {"old_x": 0, "old_y": 0, "new_x": 0, "new_y": 0, "frame_num": 100, "frame": 0, "player_ind":-1}  # for player motion
     def __init__(self, width, height, controller):
+        logger.info("MapView contructor")
         super().__init__()
         self.controller = controller
         self.scene = QGraphicsScene()

@@ -32,14 +32,15 @@ class TrackView(QGraphicsView):
         self.track_items = []
 
     def emitSignalInsideTrack(self, i):
-        print("emitSignalInsideTrack")
+        logger.info("emitSignalInsideTrack")
         self.inside_track.emit(i)
 
     def emitSignalOutsideTrack(self):
+        logger.info("emitSignalOutsideTrack")
         self.outside_track.emit()
 
     def visualize(self):
-        logger.info("track = {}".format(self.controller.state.players[0].track))
+        logger.info("visualize track = {}".format(self.controller.state.players[0].track))
         self.remove_items()
         for idx, elem in enumerate(self.controller.state.players[0].track):
             map_item = TrackItem(int(elem.location_num), elem.is_opened_location, self)
@@ -53,7 +54,6 @@ class TrackView(QGraphicsView):
             #draw arrow after location
             if idx < 5:
                 arrow_height = step - map_item.pixmap().height() * map_item.scale()
-                logger.info("arrow_height = {}".format(arrow_height))
                 image = Loader.arrow.scaledToWidth(int(arrow_height), Qt.TransformationMode.SmoothTransformation)
                 arrow_item = QGraphicsPixmapItem(QPixmap.fromImage(image))
                 y = 0.1 * shift + map_item.pixmap().height() * map_item.scale() + idx * step

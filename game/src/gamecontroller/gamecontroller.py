@@ -2,6 +2,7 @@ from gamestate.gamestate import *
 from loader import Loader
 from common.logger import logger
 from PyQt6.QtCore import *
+from game_param import Param
 
 
 # TODO - save previous states
@@ -44,11 +45,11 @@ class GameController(QObject):
                 self.state.who_moves = (self.state.who_moves + 1) % len(self.state.players)
                 logger.info("turn of player: {}".format(self.state.who_moves))
                 if self.state.who_moves == 0:
-                    # TODO - track
-                    if len(self.get_who_move_loc_dict()["roads"]) > 0:
-                        self.possible_actions.append("ActionMoveByRoad")
-                    if len(self.get_who_move_loc_dict()["seas"]) > 0:
-                        self.possible_actions.append("ActionMoveBySea")
+                    self.add_dracula_possible_movements()
+                    if len(self.possible_actions) == 0:
+                        logger.info("Dracula has no possible actions => track is cleared")
+                        self.state.players[0].track = []
+                        self.add_dracula_possible_movements()
                 else:
                     # TODO - tickets
                     if len(self.get_who_move_loc_dict()["roads"]) > 0:
@@ -60,7 +61,7 @@ class GameController(QObject):
                     self.possible_actions.append("ActionNext")
 
             elif action == "ActionMoveByRoad" or action == "ActionMoveBySea" or action == "ActionMoveByRailWay":
-                self.possible_actions = self.get_possible_actions(action)
+                self.possible_actions = self.get_possible_movements(action)
 
             elif "ActionLocation" in action:
                 logger.info("player {} is moved to {}".format(self.state.who_moves, action.split("_")[-1]))
@@ -68,10 +69,27 @@ class GameController(QObject):
                 self.possible_actions = ["ActionNext"]
 
         logger.info("possible_actions = {}".format(self.possible_actions))
+        self.reveal_track()
         self.states.append(self.state)
         self.gamestate_is_changed.emit()
 
-    def get_possible_actions(self, action):
+    def add_dracula_possible_movements(self):
+        if len(self.get_possible_movements("ActionMoveByRoad")) > 0:
+            self.possible_actions.append("ActionMoveByRoad")
+        if len(self.get_possible_movements("ActionMoveBySea")) > 0:
+            self.possible_actions.append("ActionMoveBySea")
+
+    def reveal_track(self):
+        logger.info("reveal_track")
+        for i in range(1, 5):
+            loc = self.state.players[i].location_num
+            for elem in self.state.players[0].track:
+                if loc == elem.location_num and not Loader.location_dict[loc]["isSea"]:
+                    logger.info("Reveal location {}".format(loc))
+                    elem.is_opened_location = True
+
+    def get_possible_movements(self, action):
+        logger.info("get_possible_movements({})".format(action))
         action_to_type = {"ActionMoveByRoad": "roads", "ActionMoveBySea": "seas", "ActionMoveByRailWay": "railways"}
         locations = [loc for loc in self.get_who_move_loc_dict()[action_to_type[action]]]
         if self.state.who_moves == 0:   # remove Dracula track from Dracula's possible movements

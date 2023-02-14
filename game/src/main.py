@@ -12,6 +12,8 @@ from gui.track_view import TrackView
 from gamecontroller.gamecontroller import *
 from info_creation import create_json
 from loader import Loader
+from game_param import Param
+from ai.dracula_agent import DraculaAgent
 import logging
 
 
@@ -23,6 +25,10 @@ class MainScreen(QMainWindow):
 
         loader = Loader()  # load media files : images, fonts, sounds, animations, etc
         self.controller = GameController()  # TODO - guimanager
+        if Param.is_dracula_ai:
+            self.dracula_ai = DraculaAgent(self.controller)
+            self.controller.gamestate_is_changed.connect(self.dracula_ai.act)
+            self.dracula_ai.action_done.connect(self.controller.process_action)
 
         # QObject.__init__()
         #self.setWindowFlags(PyQt6.QtCore.Qt.WindowType.WindowStaysOnTopHint | PyQt6.QtCore.Qt.WindowType.Window)
@@ -35,7 +41,7 @@ class MainScreen(QMainWindow):
         layout_ratio = [4, 1, 20, 4]
 
         stuffView_part = layout_ratio[0] / sum(layout_ratio)
-        self.stuff = StuffView(stuffView_part * self.width(), self.height())
+        self.stuff = StuffView(stuffView_part * self.width(), self.height(), self.controller)
 
         stuffAction_part = layout_ratio[1] / sum(layout_ratio)
         self.actions = ActionView(stuffAction_part * self.width(), self.height(), self.controller)
@@ -54,6 +60,7 @@ class MainScreen(QMainWindow):
         self.controller.gamestate_is_changed.connect(self.map_view.visualize)
         self.controller.gamestate_is_changed.connect(self.actions.visualize)
         self.controller.gamestate_is_changed.connect(self.track.visualize)
+        self.controller.gamestate_is_changed.connect(self.stuff.visualize)
 
         central_widget = QWidget()
         layout = QHBoxLayout(central_widget)
@@ -81,6 +88,8 @@ class MainScreen(QMainWindow):
 if __name__ == '__main__':
 
     logging.basicConfig(level=logging.INFO)
+    Param.who_are_you = [1, 2, 3, 4]
+    Param.is_dracula_ai = True
 
     app = QApplication(sys.argv)
 

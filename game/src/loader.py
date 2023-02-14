@@ -3,6 +3,7 @@ from PyQt6.QtWidgets import *
 import json
 from common.logger import logger
 
+
 class Loader:
     def __init__(self):
         Loader.map_image = QImage("./game/images/map.jpg")

@@ -8,6 +8,9 @@ import PyQt6.QtGui
 import json
 from loader import Loader
 from PyQt6.QtCore import Qt
+from common.logger import logger
+from gui.motion_item import MotionItem
+from game_param import Param
 
 
 class ScalableStuff(QGraphicsPixmapItem):
@@ -41,8 +44,10 @@ class ScalableStuff(QGraphicsPixmapItem):
 
 
 class StuffView(QGraphicsView):
-    def __init__(self, width, height):
+    def __init__(self, width, height, controller):
+        logger.info("StuffView contructor")
         super().__init__()
+        self.controller = controller
         self.scene = QGraphicsScene()
         self.setScene(self.scene)
 
@@ -83,9 +88,9 @@ class StuffView(QGraphicsView):
         self.dracula_event3 = QImage("./game/images/events/dracula/summon_storms.png")
         self.dracula_event4 = QImage("./game/images/events/dracula/vampiric_influence.png")
         self.dracula_event5 = QImage("./game/images/events/dracula/wild_horses.png")
-
-        self.set_player_icons()
-        self.set_stuff()
+        self.player_card_items = []
+        self.visualize()
+        self.set_stuff()  # TODO   : move to visualize
 
 
     def set_stuff(self):
@@ -106,16 +111,29 @@ class StuffView(QGraphicsView):
         event2_item = ScalableStuff(self.hunter_event2, 0.55 * w, 0.1 * w + 2 * (h + 0.1 * w), w, False)
         self.scene.addItem(event2_item)
 
-    def set_player_icons(self):
+    def visualize(self):
+        logger.info("visualize who_moves = {}".format(self.controller.state.who_moves))
+        self.remove_items()
         for i in range(5):
             player_card_image = Loader.player_cards[i].scaledToWidth(0.3 * self.scene.width(), Qt.TransformationMode.SmoothTransformation)
             phi = 2 * math.pi * i / 5
             half = player_card_image.width() / 2.0
             x_c = self.scene.width() / 2.0
-            y_c = self.scene.height() - self.scene.width() / 2.0 - 2 * half
+            #y_c = self.scene.height() - self.scene.width() / 2.0 - 2 * half
             rad = self.scene.width() / 2.0 - half
-            player_card_item = QGraphicsPixmapItem()
+            y_c = self.scene.height() - 2 * rad - 2 * half
+            player_card_item = MotionItem()
             player_card_item.setPixmap(QPixmap.fromImage(player_card_image))
-            player_card_item.setPos(rad * math.sin(phi) + x_c - half, rad * (1 - math.cos(phi)) + y_c - half)
+            player_card_item.setPos(rad * math.sin(phi) + x_c - half, rad * (1 - math.cos(phi)) + y_c)
+            if i == self.controller.state.who_moves:
+                logger.info("set bouncing motion for player #{}".format(i))
+                player_card_item.scale_changing = 0.1
+            self.player_card_items.append(player_card_item)
             self.scene.addItem(player_card_item)
+            player_card_item.show()
+
+    def remove_items(self):
+        logger.info("remove_items")
+        for item in self.player_card_items:
+            self.scene.removeItem(item)
 

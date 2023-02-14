@@ -8,6 +8,8 @@ import PyQt6.QtGui
 from gui.motion_item import MotionItem
 from loader import Loader
 from PyQt6.QtCore import Qt
+from common.logger import logger
+from game_param import Param
 
 
 class ActionView(QGraphicsView):
@@ -15,6 +17,7 @@ class ActionView(QGraphicsView):
     action2draw = ["ActionNext", "ActionMoveByRoad", "ActionMoveByRailWay", "ActionMoveBySea", "ActionSearch",
                    "ActionSupply", "ActionHealing", "ActionExchange", "ActionSpecial"]
     def __init__(self, width, height, controller):
+        logger.info("ActionView constructor")
         super().__init__()
         self.controller = controller
         self.scene = QGraphicsScene()
@@ -47,6 +50,7 @@ class ActionView(QGraphicsView):
             self.actions.append(getattr(self, action_icon))
 
     def visualize(self):
+        logger.info("visualize possible_actions = {}".format(self.controller.possible_actions))
         i = 0
         for action in self.controller.possible_actions:
             if action in self.action2draw:
