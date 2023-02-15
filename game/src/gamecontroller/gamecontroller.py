@@ -58,7 +58,8 @@ class GameController(QObject):
                         self.possible_actions.append("ActionMoveBySea")
                     if len(self.get_who_move_loc_dict()["railways"]) > 0:
                         self.possible_actions.append("ActionMoveByRailWay")
-                    self.possible_actions.append("ActionNext")
+                    if not self.get_who_move_loc_dict()["isSea"]:  # Hunters cannot pass during day if they are on Sea
+                        self.possible_actions.append("ActionNext")
 
             elif action == "ActionMoveByRoad" or action == "ActionMoveBySea" or action == "ActionMoveByRailWay":
                 self.possible_actions = self.get_possible_movements(action)

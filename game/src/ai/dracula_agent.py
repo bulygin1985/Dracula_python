@@ -12,6 +12,7 @@ class DraculaAgent(QObject):
         self.controller = controller
 
     def act(self):
+        # Simple AI - choose location with the largest possible movements number, but without Hunter inside
         logger.info("act")
         if self.controller.state.who_moves == 0:
             logger.info("possible actions: {}".format(self.controller.possible_actions))

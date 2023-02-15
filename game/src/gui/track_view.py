@@ -9,6 +9,7 @@ import json
 from loader import Loader
 from PyQt6.QtCore import Qt
 from common.logger import logger
+from game_param import Param
 
 
 class TrackView(QGraphicsView):
@@ -42,12 +43,21 @@ class TrackView(QGraphicsView):
     def visualize(self):
         logger.info("visualize track = {}".format(self.controller.state.players[0].track))
         self.remove_items()
+        # from gamestate.player import TrackElement
+        # self.controller.state.players[0].track = [TrackElement(i) for i in range(6)]
         for idx, elem in enumerate(self.controller.state.players[0].track):
             map_item = TrackItem(int(elem.location_num), elem.is_opened_location, self)
             map_item.setZValue(1)
             shift = self.scene.width()
             step = (self.scene.height() - 0.1 * shift) / 6
-            map_item.setPos(0.1 * shift, 0.1 * shift + idx * step)
+            if idx == 5:  # the last track element
+                h = map_item.pixmap().height() * map_item.scale()
+                logger.info("map_item.scale() = {}".format(map_item.scale()))
+                # 1.11 is magic number. I cannot understand how setTransformOriginPoint + setPos are worked
+                map_item.setPos(0.1 * shift, 0.1 * shift + idx * step - h*1.11)
+                map_item.setTransformOriginPoint(0, map_item.pixmap().height())
+            else:
+                map_item.setPos(0.1 * shift, 0.1 * shift + idx * step)
             self.track_items.append(map_item)
             self.scene.addItem(map_item)
 
@@ -75,7 +85,8 @@ class TrackItem(QGraphicsPixmapItem):
         self.parent = parent
         self.is_opened = is_opened
         self.location_num = location_num
-        self.back_image = Loader.back
+        self.back_land = Loader.back_land
+        self.back_sea = Loader.back_sea
         self.name = Loader.location_dict[str(location_num)]["name"]
         self.front_image, self.marker_x, self.marker_y, self.marker_rad = self.generate_image(location_num)
         self.setPixmap(QPixmap.fromImage(self.front_image))
@@ -86,24 +97,27 @@ class TrackItem(QGraphicsPixmapItem):
         self.setScale(scale)
 
     def show_front_back(self):
+        logger.info("show_front_back")
         if self.is_opened:
             self.setPixmap(QPixmap.fromImage(self.front_image))
             self.text_item.show()
             self.marker_item.show()
         else:
-            self.setPixmap(QPixmap.fromImage(self.back_image))
+            image = self.back_sea if Loader.location_dict[str(self.location_num)]["isSea"] else self.back_land
+            self.setPixmap(QPixmap.fromImage(image))
             self.text_item.hide()
             self.marker_item.hide()
 
     def hoverEnterEvent(self, event):
-        super().hoverEnterEvent(event)
-        self.setPixmap(QPixmap.fromImage(self.front_image))  #TODO - if you_are_dracula
-        self.text_item.show()
-        self.marker_item.show()
-        scale = 0.9 * self.parent.scene.width() / self.pixmap().width()
-        self.setScale(scale)
-        self.setZValue(2)
-        self.parent.emitSignalInsideTrack(self.location_num)
+        if self.is_opened or 0 in Param.who_are_you:  # or card is Opened, or you are Dracula
+            super().hoverEnterEvent(event)
+            self.setPixmap(QPixmap.fromImage(self.front_image))  #TODO - if you_are_dracula
+            self.text_item.show()
+            self.marker_item.show()
+            scale = 0.9 * self.parent.scene.width() / self.pixmap().width()
+            self.setScale(scale)
+            self.setZValue(2)
+            self.parent.emitSignalInsideTrack(self.location_num)
 
     def hoverLeaveEvent(self, event):
         super().hoverLeaveEvent(event)

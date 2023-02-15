@@ -8,9 +8,9 @@ class Player:
         self.location_num = location_num
 
 class TrackElement:
-    def __init__(self):
-        self.location_num = 0
-        self.is_opened_location = False
+    def __init__(self, location_num, is_opened_location=False):
+        self.location_num = location_num
+        self.is_opened_location = is_opened_location
 
     def __str__(self):
         return "location_num={}, is_opened_location={}".format(self.location_num, self.is_opened_location)
@@ -28,8 +28,7 @@ class Dracula(Player):
 
     def set_location(self, location_num):
         super().set_location(location_num)
-        element = TrackElement()
-        element.location_num = location_num
+        element = TrackElement(location_num)
         self.track.insert(0, element)
         if len(self.track) > 6:
             self.track.pop()

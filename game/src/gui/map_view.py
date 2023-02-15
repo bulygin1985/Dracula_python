@@ -162,6 +162,8 @@ class MapView(QGraphicsView):
                     logger.info("new_x = {}, new_y = {}".format(new_x, new_y))
                     self.player_fig_items[i].setPos(new_x, new_y)
                 self.player_fig_items[i].show()
+        if 0 not in Param.who_are_you:  # do not show Dracula if you are not Dracula
+            self.player_fig_items[0].hide()
 
     def player_motion(self):
         if self.player_movement["frame"] == self.player_movement["frame_num"]:

@@ -32,7 +32,8 @@ class Loader:
         Loader.ActionSpecial = QImage("./game/images/actions/play_special_card_icon.png")
 
         Loader.loc_pointer = QImage("./game/images/locations/location_pointer4.png")
-        Loader.back = QImage("./game/images/locations/back.png")
+        Loader.back_land = QImage("./game/images/locations/back.png")
+        Loader.back_sea = QImage("./game/images/locations/back_sea.png")
         Loader.arrow = QImage("./game/images/locations/arrow.png")
 
         logger.info("all file are successfully loaded")
