@@ -89,8 +89,8 @@ class StuffView(QGraphicsView):
         self.dracula_event4 = QImage("./game/images/events/dracula/vampiric_influence.png")
         self.dracula_event5 = QImage("./game/images/events/dracula/wild_horses.png")
         self.player_card_items = []
-        self.visualize()
-        self.set_stuff()  # TODO   : move to visualize
+        #self.visualize()
+        #self.set_stuff()  # TODO   : move to visualize
 
 
     def set_stuff(self):

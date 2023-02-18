@@ -159,8 +159,8 @@ class TrackItem(QGraphicsPixmapItem):
 
     def generate_text_item(self):
         font_land = QFont()
-        font_land.setFamily("Cormorant SC")
-        font_land.setBold(True)
+        #font_land.setFamily("Cormorant SC")
+        #font_land.setBold(True)
         text_item = TextItemPainted(self.name)  # TODO - alignment, auto-scale - see QtCreator
         ratio = self.pixmap().width() / text_item.boundingRect().width()
 

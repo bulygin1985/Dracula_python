@@ -1,6 +1,6 @@
 class Player:
     def __init__(self):
-        self.location_num = -1
+        self.location_num = ""  # it is string integer
         self.health = -1
         self.max_health = -1
 

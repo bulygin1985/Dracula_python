@@ -16,6 +16,7 @@ from game_param import Param
 class MapView(QGraphicsView):
     #action_done = pyqtSignal(str, int)
     action_done = pyqtSignal(str)
+    map_moved = pyqtSignal()
     player_movement = {"old_x": 0, "old_y": 0, "new_x": 0, "new_y": 0, "frame_num": 100, "frame": 0, "player_ind":-1}  # for player motion
     def __init__(self, width, height, controller):
         logger.info("MapView contructor")
@@ -36,7 +37,7 @@ class MapView(QGraphicsView):
         # scale = width / map_image.width()
         scale = max(height/map_image.height(), width/map_image.width())
         print("calculated scale = ", scale)
-        self.map_item = MapItem()
+        self.map_item = MapItem(self)
         self.map_item.setTransformationMode(Qt.TransformationMode.SmoothTransformation)
         self.map_item.init_scale = scale
 
@@ -64,12 +65,18 @@ class MapView(QGraphicsView):
 
         self.marker_item = QGraphicsPixmapItem()
         self.location_items = []
-        self.visualize()
+        #self.visualize()
 
+    def mouseMoveEvent(self, QMouseEvent):
+        super().mouseMoveEvent(QMouseEvent)
+        self.map_moved.emit()
     def process_action_done(self, name):
         self.remove_actions()
         logger.info("mousePressEvent with on action : {}".format(name))
         self.action_done.emit(name)
+
+    def map_moved_done(self):
+        self.map_moved.emit()
 
     def draw_location_names(self):
         fontLand = QFont()
@@ -132,7 +139,7 @@ class MapView(QGraphicsView):
         groups = []
         player_num = [0, 1, 2, 3, 4]
         for i, player in enumerate(controller.state.players):
-            if player.location_num != -1 and i in player_num:
+            if player.location_num != "" and i in player_num:
                 group = []
                 for j in range(i, len(controller.state.players)):
                     if player.location_num == controller.state.players[j].location_num:
@@ -150,7 +157,7 @@ class MapView(QGraphicsView):
                 new_x = x + rad * (math.cos(phi) - 1 - int(len(group) == 1))
                 new_y = y + rad * (math.sin(phi) - 1)
                 logger.info("controller.state.phase = {}".format(controller.state.phase))
-                if (controller.state.phase == Phase.MOVEMENT) and i == controller.state.who_moves: # if the first each player is placed
+                if (controller.state.phase != Phase.FIRST_TURN) and i == controller.state.who_moves: # if the first each player is placed
                     self.player_movement["old_x"] = self.player_fig_items[i].pos().x()
                     self.player_movement["old_y"] = self.player_fig_items[i].pos().y()
                     self.player_movement["new_x"] = new_x
@@ -229,10 +236,11 @@ class EllipseItem(QGraphicsEllipseItem):
 
 
 class MapItem(QGraphicsPixmapItem):
-    def __init__(self):
+    def __init__(self, parent):
         super().__init__()
         self.init_scale = 1.0
         self.delta_scale = 0.1
+        self.parent = parent
 
     def mousePressEvent(self, event):
         super().mousePressEvent(event)
@@ -258,3 +266,5 @@ class MapItem(QGraphicsPixmapItem):
         newBottomRight = newTopLeft + diag
         view.scene.setSceneRect(0, 0, self.init_scale * self.pixmap().width(), self.init_scale * self.pixmap().height())
         view.centerOn((newTopLeft + newBottomRight) / 2.0)
+
+        self.parent.map_moved_done()

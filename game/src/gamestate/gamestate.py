@@ -1,5 +1,4 @@
 from enum import Enum
-
 from gamestate.player import Dracula, Lord, Doctor, Helsing, Mina
 
 
@@ -8,8 +7,10 @@ class SpecificLocations(Enum):
 
 class Phase(Enum):
     FIRST_TURN = 0
-    MOVEMENT = 1
-    COMBAT = 2
+    DAWN = 1
+    DAY = 2
+    DUSK = 3
+    NIGHT = 4
 
 class PlayerNum(Enum):
     DRACULA = 0
@@ -24,3 +25,5 @@ class GameState:
         self.players = [Dracula(), Lord(), Doctor(), Helsing(), Mina()]
         self.who_moves = 1    # TODO - Enum
         self.phase = Phase.FIRST_TURN
+        self.day_num = -1
+        self.week_num = 0

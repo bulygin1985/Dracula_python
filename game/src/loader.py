@@ -6,6 +6,7 @@ from common.logger import logger
 
 class Loader:
     def __init__(self):
+        Loader.log = ""
         Loader.map_image = QImage("./game/images/map.jpg")
         Loader.marker = QImage("./game/images/locations/location_mark.png")
         Loader.location_dict = json.load(open("./game/info/locations.json"))
@@ -37,3 +38,18 @@ class Loader:
         Loader.arrow = QImage("./game/images/locations/arrow.png")
 
         logger.info("all file are successfully loaded")
+
+    @classmethod
+    def num_to_player(cls, num):
+        num_to_player_ = {0: "Dracula", 1: "Lord Godalming", 2: "Dr. John Seward", 3: "Van Helsing", 4: "Mina Harker"}
+        return num_to_player_[num]
+
+    @classmethod
+    def num_to_day(cls, num):
+        num_to_day_ = {0: "Monday", 1: "Tuesday", 2: "Wednesday", 3: "Thursday", 4: "Friday", 5: "Saturday", 6: "Sunday"}
+        return num_to_day_[num]
+
+    @classmethod
+    def append_log(cls, msg):
+        logger.info(msg)
+        cls.log += msg

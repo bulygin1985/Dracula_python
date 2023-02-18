@@ -15,6 +15,7 @@ from loader import Loader
 from game_param import Param
 from ai.dracula_agent import DraculaAgent
 import logging
+from gui.log_view import LogViewer
 
 
 
@@ -78,11 +79,38 @@ class MainScreen(QMainWindow):
             layout.setStretch(i, layout_ratio[i])
         self.setCentralWidget(central_widget)
 
+        button_height = 20
+        log_width = 400
+        log_height = 200
+        resolution = QGuiApplication.primaryScreen().availableGeometry()
+        x = resolution.width() * sum(layout_ratio[:-1]) / sum(layout_ratio) - log_width
+        y = button_height
+        self.log_viewer = LogViewer(x, y, log_width, log_height)
+        self.log_viewer.setParent(self)
+        # for i in range(100):
+        #     self.log_viewer.append("Fury of Dracula")
+        self.map_view.map_moved.connect(self.log_viewer.redraw)
+        self.controller.gamestate_is_changed.connect(self.show_log_text)
+
+        log_button = QPushButton("Show/Hide log")
+        log_button.setGeometry(int(x), 0, int(log_width), int(button_height) )
+        log_button.clicked.connect(self.log_viewer.hide_show)
+        log_button.setParent(self)
         self.show()
+        self.controller.gamestate_is_changed.emit()  # Game begins - the initial GameState is transfered to GUI
+
+    def show_log_text(self):
+        if Loader.log != "":
+            self.log_viewer.append(Loader.log)
+            Loader.log = ""
 
     def keyPressEvent(self, event):
         if event.key() == PyQt6.QtCore.Qt.Key.Key_Escape:
             self.close()
+
+    def redraw(self):
+        opacity_effect = QGraphicsOpacityEffect(opacity=.5)
+        self.text_edit.setGraphicsEffect(opacity_effect)
 
 
 if __name__ == '__main__':
@@ -95,6 +123,8 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
 
     loader = Loader()
+
+
 
     # import os
     # logger.info("working dir = {}".format(os.path.abspath(os.getcwd())) )
@@ -113,6 +143,7 @@ if __name__ == '__main__':
 
     mainScreen = MainScreen()
     mainScreen.show()
+
     app.exec()
 
 

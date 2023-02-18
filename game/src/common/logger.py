@@ -12,7 +12,7 @@ class ProjectLogger(logging.Logger):
 
     Important: To activate logging the level of log messages should be set.
     """
-    def __init__(self, name):
+    def __init__(self, name, is_set_file_handler=True):
         super().__init__(name)
 
         self.__log_directory = "logs"
@@ -27,7 +27,8 @@ class ProjectLogger(logging.Logger):
         self.propagate = True
 
         self._set_console_handler()
-        self._set_file_handler()
+        if is_set_file_handler:
+            self._set_file_handler()
 
     def _set_file_handler(self):
         file_handler = logging.FileHandler(self.__log_file)
@@ -48,4 +49,4 @@ class ProjectLogger(logging.Logger):
         self.setLevel(level)
 
 
-logger = ProjectLogger("RLFR")
+logger = ProjectLogger("RLFR", False)
