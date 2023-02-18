@@ -89,6 +89,7 @@ class StuffView(QGraphicsView):
         self.dracula_event4 = QImage("./game/images/events/dracula/vampiric_influence.png")
         self.dracula_event5 = QImage("./game/images/events/dracula/wild_horses.png")
         self.player_card_items = []
+        self.y_c = None  # upper y for player cards
         #self.visualize()
         #self.set_stuff()  # TODO   : move to visualize
 
@@ -121,10 +122,10 @@ class StuffView(QGraphicsView):
             x_c = self.scene.width() / 2.0
             #y_c = self.scene.height() - self.scene.width() / 2.0 - 2 * half
             rad = self.scene.width() / 2.0 - half
-            y_c = self.scene.height() - 2 * rad - 2 * half
+            self.y_c = self.scene.height() - 2 * rad - 2 * half
             player_card_item = MotionItem()
             player_card_item.setPixmap(QPixmap.fromImage(player_card_image))
-            player_card_item.setPos(rad * math.sin(phi) + x_c - half, rad * (1 - math.cos(phi)) + y_c)
+            player_card_item.setPos(rad * math.sin(phi) + x_c - half, rad * (1 - math.cos(phi)) + self.y_c)
             if i == self.controller.state.who_moves:
                 logger.info("set bouncing motion for player #{}".format(i))
                 player_card_item.scale_changing = 0.1

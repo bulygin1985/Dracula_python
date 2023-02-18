@@ -164,7 +164,8 @@ class TrackItem(QGraphicsPixmapItem):
         text_item = TextItemPainted(self.name)  # TODO - alignment, auto-scale - see QtCreator
         ratio = self.pixmap().width() / text_item.boundingRect().width()
 
-        text_scale = 0.3 * ratio
+        part = len(self.name) / 20 if len(self.name) <= 20 else 1.0
+        text_scale = part * ratio
         text_item.setScale(text_scale)
 
         text_item.setPos(self.pixmap().width() / 2 - (text_item.boundingRect().width() * text_scale) / 2, 0)

@@ -8,6 +8,7 @@ import json
 from loader import Loader
 from PyQt6.QtCore import Qt
 from gamecontroller.gamecontroller import *
+from gamestate import *
 from common.logger import logger
 from gui.motion_item import MotionItem
 from game_param import Param
@@ -17,7 +18,7 @@ class MapView(QGraphicsView):
     #action_done = pyqtSignal(str, int)
     action_done = pyqtSignal(str)
     map_moved = pyqtSignal()
-    player_movement = {"old_x": 0, "old_y": 0, "new_x": 0, "new_y": 0, "frame_num": 100, "frame": 0, "player_ind":-1}  # for player motion
+    player_movement = {"old_x": 0, "old_y": 0, "new_x": 0, "new_y": 0, "frame_num": 50, "frame": 0, "player_ind":-1}  # for player motion
     def __init__(self, width, height, controller):
         logger.info("MapView contructor")
         super().__init__()
@@ -65,7 +66,28 @@ class MapView(QGraphicsView):
 
         self.marker_item = QGraphicsPixmapItem()
         self.location_items = []
+
+        self.colorize_effect = QGraphicsColorizeEffect()
+        self.colorize_effect.setColor(QColor(0, 0, 192))
+        self.colorize_effect.setStrength(0.5)
+        self.map_item.setGraphicsEffect(self.colorize_effect)
+        self.colorize_effect.setEnabled(False)
         #self.visualize()
+
+    def visualize(self):
+        logger.info("visualize()")
+        if self.controller.state.phase == Phase.DAY:
+            self.colorize_effect.setEnabled(False)
+        elif self.controller.state.phase == Phase.NIGHT:
+            self.colorize_effect.setEnabled(True)
+
+        self.locate_players(self.controller)
+        possible_movements = []
+        for action in self.controller.possible_actions:
+            if "ActionLocation" in action:
+                possible_movements.append(action.split("_")[-1])
+        logger.info("possible_movements = {}".format(possible_movements))
+        self.visualize_action_movements(possible_movements)
 
     def mouseMoveEvent(self, QMouseEvent):
         super().mouseMoveEvent(QMouseEvent)
@@ -116,16 +138,6 @@ class MapView(QGraphicsView):
                 item.setFont(fontSea)
             else:
                 item.setFont(fontLand)
-
-    def visualize(self):
-        logger.info("visualize()")
-        self.locate_players(self.controller)
-        possible_movements = []
-        for action in self.controller.possible_actions:
-            if "ActionLocation" in action:
-                possible_movements.append(action.split("_")[-1])
-        logger.info("possible_movements = {}".format(possible_movements))
-        self.visualize_action_movements(possible_movements)
 
     def locate_players(self, controller):
         for i, player in enumerate(controller.state.players):
