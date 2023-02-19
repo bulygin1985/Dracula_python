@@ -43,21 +43,21 @@ class TrackView(QGraphicsView):
     def visualize(self):
         logger.info("visualize track = {}".format(self.controller.state.players[0].track))
         self.remove_items()
-        # from gamestate.player import TrackElement
-        # self.controller.state.players[0].track = [TrackElement(i) for i in range(6)]
+        from gamestate.player import TrackElement
+        self.controller.state.players[0].track = [TrackElement(i) for i in range(6)]
+        self.controller.state.players[0].track[5].is_opened_location = True
         for idx, elem in enumerate(self.controller.state.players[0].track):
             map_item = TrackItem(int(elem.location_num), elem.is_opened_location, self)
             map_item.setZValue(1)
             shift = self.scene.width()
             step = (self.scene.height() - 0.1 * shift) / 6
-            if idx == 5:  # the last track element
-                h = map_item.pixmap().height() * map_item.scale()
-                logger.info("map_item.scale() = {}".format(map_item.scale()))
-                # 1.11 is magic number. I cannot understand how setTransformOriginPoint + setPos are worked
-                map_item.setPos(0.1 * shift, 0.1 * shift + idx * step - h*1.11)
-                map_item.setTransformOriginPoint(0, map_item.pixmap().height())
-            else:
-                map_item.setPos(0.1 * shift, 0.1 * shift + idx * step)
+            # if idx == 5:  # the last track element
+            #     h = map_item.pixmap().height() * map_item.scale()
+            #     # 1.11 is magic number. I cannot understand how setTransformOriginPoint + setPos are worked
+            #     map_item.setPos(0.1 * shift, 0.1 * shift + idx * step - h*1.11)
+            #     map_item.setTransformOriginPoint(0, map_item.pixmap().height())
+            # else:
+            map_item.setPos(0.0 * shift, 0.1 * shift + idx * step)
             self.track_items.append(map_item)
             self.scene.addItem(map_item)
 
@@ -114,9 +114,11 @@ class TrackItem(QGraphicsPixmapItem):
             self.setPixmap(QPixmap.fromImage(self.front_image))  #TODO - if you_are_dracula
             self.text_item.show()
             self.marker_item.show()
-            scale = 0.9 * self.parent.scene.width() / self.pixmap().width()
+            scale = 0.5 * self.parent.scene.width() / self.pixmap().width()
             self.setScale(scale)
-            self.setZValue(2)
+            # scale = 0.9 * self.parent.scene.width() / self.pixmap().width()
+            # self.setScale(scale)
+            # self.setZValue(2)
             self.parent.emitSignalInsideTrack(self.location_num)
 
     def hoverLeaveEvent(self, event):
@@ -124,11 +126,11 @@ class TrackItem(QGraphicsPixmapItem):
         self.show_front_back()
         scale = 0.5 * self.parent.scene.width() / self.pixmap().width()
         self.setScale(scale)
-        self.setZValue(1)
+        # self.setZValue(1)
         self.parent.emitSignalOutsideTrack()
 
     def generate_image(self, location_num):
-        map_image = Loader.map_image
+        map_image = Loader.map_day
         locationRad = 50.0 / 3240.0 * map_image.width()
         location_dict = Loader.location_dict
         map_w = map_image.width()

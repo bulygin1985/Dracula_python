@@ -7,7 +7,8 @@ from common.logger import logger
 class Loader:
     def __init__(self):
         Loader.log = ""
-        Loader.map_image = QImage("./game/images/map.jpg")
+        Loader.map_day = QImage("./game/images/map_day.png")
+        Loader.map_night = QImage("./game/images/map_night.png")
         Loader.marker = QImage("./game/images/locations/location_mark.png")
         Loader.location_dict = json.load(open("./game/info/locations.json"))
         Loader.player_figs = []

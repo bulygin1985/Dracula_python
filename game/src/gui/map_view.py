@@ -31,21 +31,21 @@ class MapView(QGraphicsView):
         self.setDragMode(QGraphicsView.DragMode(1))
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-        map_image = Loader.map_image
-        self.map_width = map_image.width()
-        self.map_height = map_image.height()
+        map_day = Loader.map_day
+        self.map_width = map_day.width()
+        self.map_height = map_day.height()
         #scale = 0.79
         # scale = width / map_image.width()
-        scale = max(height/map_image.height(), width/map_image.width())
+        scale = max(height/map_day.height(), width/map_day.width())
         print("calculated scale = ", scale)
         self.map_item = MapItem(self)
         self.map_item.setTransformationMode(Qt.TransformationMode.SmoothTransformation)
         self.map_item.init_scale = scale
 
-        self.map_item.setPixmap(QPixmap.fromImage(map_image))
+        self.map_item.setPixmap(QPixmap.fromImage(map_day))
 
         self.player_fig_items = []
-        self.locationRad = 50.0 / 3240.0 * map_image.width()
+        self.locationRad = 50.0 / 3240.0 * map_day.width()
         for i in range(5):
             player_fig_image = Loader.player_figs[i].scaledToWidth(2 * self.locationRad, Qt.TransformationMode.SmoothTransformation)
             player_fig_item = MotionItem()
@@ -57,8 +57,8 @@ class MapView(QGraphicsView):
         self.loc_pointer = Loader.loc_pointer.scaledToWidth(2 * self.locationRad, Qt.TransformationMode.SmoothTransformation)
         self.draw_location_names()
 
-        self.scene.setSceneRect(0, 0, scale * map_image.width(), scale * map_image.height())
-        print("scale * map_image.width() = ", scale * map_image.width())
+        self.scene.setSceneRect(0, 0, scale * map_day.width(), scale * map_day.height())
+        print("scale * map_image.width() = ", scale * map_day.width())
 
         self.map_item.setScale(scale)
         self.scene.addItem(self.map_item)
@@ -67,20 +67,17 @@ class MapView(QGraphicsView):
         self.marker_item = QGraphicsPixmapItem()
         self.location_items = []
 
-        self.colorize_effect = QGraphicsColorizeEffect()
-        self.colorize_effect.setColor(QColor(0, 0, 192))
-        self.colorize_effect.setStrength(0.5)
-        self.map_item.setGraphicsEffect(self.colorize_effect)
-        self.colorize_effect.setEnabled(False)
         #self.visualize()
+
+    def change_dusk_dawn(self, name):
+        logger.info("change_dusk_dawn: {}".format(name))
+        if name == "dawn":
+            self.map_item.setPixmap(QPixmap.fromImage(Loader.map_day))
+        else:
+            self.map_item.setPixmap(QPixmap.fromImage(Loader.map_night))
 
     def visualize(self):
         logger.info("visualize()")
-        if self.controller.state.phase == Phase.DAY:
-            self.colorize_effect.setEnabled(False)
-        elif self.controller.state.phase == Phase.NIGHT:
-            self.colorize_effect.setEnabled(True)
-
         self.locate_players(self.controller)
         possible_movements = []
         for action in self.controller.possible_actions:

@@ -14,6 +14,7 @@ ACTION_LOCATION = "ActionLocation"
 # TODO - save previous states
 class GameController(QObject):
     gamestate_is_changed = pyqtSignal()
+    dusk_dawn_is_changed = pyqtSignal(str)
     def __init__(self):
         super().__init__()
         self.state = GameState()
@@ -48,6 +49,7 @@ class GameController(QObject):
         if self.state.phase == Phase.DAWN or self.state.phase == Phase.DAY:  # Movement only for Hunters
 
             if self.state.phase == Phase.DAWN:  # Combat, events
+                self.dusk_dawn_is_changed.emit("dawn")
                 Loader.append_log("Dawn...")
                 if self.state.day_num == 6:
                     self.state.week_num += 1
@@ -55,6 +57,7 @@ class GameController(QObject):
                 Loader.append_log("{} of the week #{} begins. ".format(Loader.num_to_day(self.state.day_num), self.state.week_num + 1))
                 Loader.append_log("Nothing happen. ")
                 self.state.phase = Phase.DAY
+
 
             if action == ACTION_NEXT:
                 if self.state.who_moves > 0:
@@ -78,6 +81,7 @@ class GameController(QObject):
 
         if self.state.phase == Phase.DUSK or self.state.phase == Phase.NIGHT:
             if self.state.phase == Phase.DUSK:  # Combat, events
+                self.dusk_dawn_is_changed.emit("dusk")
                 logger.info("Dusk")
                 Loader.append_log("Dusk...")
                 Loader.append_log(" Nothing happen. ")

@@ -59,6 +59,8 @@ class MainScreen(QMainWindow):
         self.track.inside_track.connect(self.map_view.locate_marker)
         self.track.outside_track.connect(self.map_view.hide_marker)
         self.controller.gamestate_is_changed.connect(self.map_view.visualize)
+        self.controller.dusk_dawn_is_changed.connect(self.map_view.change_dusk_dawn)
+
         self.controller.gamestate_is_changed.connect(self.actions.visualize)
         self.controller.gamestate_is_changed.connect(self.track.visualize)
         self.controller.gamestate_is_changed.connect(self.stuff.visualize)
