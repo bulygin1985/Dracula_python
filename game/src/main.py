@@ -120,7 +120,7 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
     param = Param()
     #Param.who_are_you = [0, 1, 2, 3, 4]
-    #Param.is_dracula_ai = True
+    Param.is_dracula_ai = True
 
     app = QApplication(sys.argv)
 

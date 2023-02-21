@@ -43,9 +43,9 @@ class TrackView(QGraphicsView):
     def visualize(self):
         logger.info("visualize track = {}".format(self.controller.state.players[0].track))
         self.remove_items()
-        from gamestate.player import TrackElement
-        self.controller.state.players[0].track = [TrackElement(i) for i in range(6)]
-        self.controller.state.players[0].track[5].is_opened_location = True
+        # from gamestate.player import TrackElement
+        # self.controller.state.players[0].track = [TrackElement(i) for i in range(6)]
+        # self.controller.state.players[0].track[5].is_opened_location = True
         for idx, elem in enumerate(self.controller.state.players[0].track):
             map_item = TrackItem(int(elem.location_num), elem.is_opened_location, self)
             map_item.setZValue(1)

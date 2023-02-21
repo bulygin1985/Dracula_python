@@ -12,6 +12,9 @@ from gamestate import *
 from common.logger import logger
 from gui.motion_item import MotionItem
 from game_param import Param
+from gui.graphics_connection import GraphicsConnection
+
+SHIFT = 3  # fix small error in x,y from location info
 
 
 class MapView(QGraphicsView):
@@ -31,21 +34,22 @@ class MapView(QGraphicsView):
         self.setDragMode(QGraphicsView.DragMode(1))
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-        map_day = Loader.map_day
-        self.map_width = map_day.width()
-        self.map_height = map_day.height()
-        #scale = 0.79
+        self.map_day = Loader.map_day
+        self.map_width = self.map_day.width()
+        self.map_height = self.map_day.height()
+
+        # scale = 0.79
         # scale = width / map_image.width()
-        scale = max(height/map_day.height(), width/map_day.width())
+        scale = max(height/self.map_day.height(), width/self.map_day.width())
         print("calculated scale = ", scale)
         self.map_item = MapItem(self)
         self.map_item.setTransformationMode(Qt.TransformationMode.SmoothTransformation)
         self.map_item.init_scale = scale
 
-        self.map_item.setPixmap(QPixmap.fromImage(map_day))
+        self.map_item.setPixmap(QPixmap.fromImage(self.map_day))
 
         self.player_fig_items = []
-        self.locationRad = 50.0 / 3240.0 * map_day.width()
+        self.locationRad = 50.0 / 3240.0 * self.map_day.width()
         for i in range(5):
             player_fig_image = Loader.player_figs[i].scaledToWidth(2 * self.locationRad, Qt.TransformationMode.SmoothTransformation)
             player_fig_item = MotionItem()
@@ -57,8 +61,8 @@ class MapView(QGraphicsView):
         self.loc_pointer = Loader.loc_pointer.scaledToWidth(2 * self.locationRad, Qt.TransformationMode.SmoothTransformation)
         self.draw_location_names()
 
-        self.scene.setSceneRect(0, 0, scale * map_day.width(), scale * map_day.height())
-        print("scale * map_image.width() = ", scale * map_day.width())
+        self.scene.setSceneRect(0, 0, scale * self.map_day.width(), scale * self.map_day.height())
+        print("scale * map_image.width() = ", scale * self.map_day.width())
 
         self.map_item.setScale(scale)
         self.scene.addItem(self.map_item)
@@ -66,15 +70,149 @@ class MapView(QGraphicsView):
 
         self.marker_item = QGraphicsPixmapItem()
         self.location_items = []
+        self.connection_to_road = {}  # "num1_num2, num2 > num1"
+        self.connection_to_railway = {}  # "num1_num2, num2 > num1"
+        self.cities = []
+        self.create_cities()
 
         #self.visualize()
 
+    def get_path(self, key, end_loc, delta, sign):
+        x1 = Loader.location_dict[key]["coor"][0] * self.map_width
+        y1 = Loader.location_dict[key]["coor"][1] * self.map_height
+
+        x2 = Loader.location_dict[end_loc]["coor"][0] * self.map_width
+        y2 = Loader.location_dict[end_loc]["coor"][1] * self.map_height
+
+        path = QPainterPath()
+        path.moveTo(x1, y1)
+
+        # calc normal with length == 1
+        norm = math.sqrt(1 + math.pow((x2 - x1) / (y2 - y1), 2))
+        n1 = 1 / norm
+        n2 = -(x2 - x1) / (y2 - y1) / norm
+        x_c = (x1 + x2) / 2
+        y_c = (y1 + y2) / 2
+        path.quadTo(x_c + sign * delta * n1, y_c + sign * delta * n2, x2, y2)
+        return path
+
+    def create_cities(self):
+
+        # x1 = Loader.location_dict["0"]["coor"][0] * self.map_width
+        # y1 = Loader.location_dict["0"]["coor"][1] * self.map_height
+        #
+        # x2 = Loader.location_dict["35"]["coor"][0] * self.map_width
+        # y2 = Loader.location_dict["35"]["coor"][1] * self.map_height
+        #
+        # path = QPainterPath()
+        # path.moveTo(x1, y1)
+        #
+        # num = 5
+        # sign = 1
+        # norm = math.sqrt(1 + math.pow( (x2 - x1) / (y2 - y1), 2) )
+        # n1 = 1 / norm
+        # n2 = -(x2 - x1) / (y2 - y1)/norm
+        #
+        # old_x = x1
+        # old_y = y1
+        # delta = self.locationRad / 2
+        # for i in range(1, num + 1):
+        #     step = i / num
+        #     x = x2 * step + x1 * (1 - step)
+        #     y = y2 * step + y1 * (1 - step)
+        #     x_c = (old_x + x) / 2
+        #     y_c = (old_y + y) / 2
+        #     logger.info("n1 = {}, n2 = {}".format(n1, n2))
+        #     path.quadTo(x_c + sign*delta * n1, y_c + sign*delta * n2, x, y)
+        #     sign *= -1
+        #     old_x = x
+        #     old_y = y
+        #
+        # #path.quadTo( (x1 + x2) / 2 + 2 * self.locationRad, (y1 + y2) / 2, x2, y2)
+        # path_item = QGraphicsPathItem(path)
+        #
+        # pen = QPen(QColor("black"))
+        # pen.setStyle(Qt.PenStyle.DashLine)
+        # pen.setWidth(3)
+        # path_item.setPen(pen)
+        # path_item.setParentItem(self.map_item)
+
+        for (key, val) in Loader.location_dict.items():
+
+            for end_loc in val["roads"]:
+                if int(key) < int(end_loc):
+                    delta = self.locationRad
+                    sign = 1
+                    if key=="7" and end_loc=="48": #Santander - Bordoux
+                        delta *= 4.5
+                    if key=="0" and end_loc=="49": #Saragossa - Alicante
+                        sign = -1
+                    if key=="12" and end_loc=="30": #Constanta - Varna
+                        sign = -1
+                        delta *= 3
+                    if key=="18" and end_loc=="37": #Marseilles - Genoa
+                        sign = -1
+                        delta *= 1.5
+                    if key=="37" and end_loc=="58": #Marseilles - Zurich
+                        sign = -1
+                        delta *= 0.5
+                    path = self.get_path(key, end_loc, delta=delta, sign=sign)
+                    path_item = GraphicsConnection(path, color="black", width=3, style=Qt.PenStyle.DashLine)
+                    path_item.setZValue(0)
+                    path_item.setParentItem(self.map_item)
+
+                    connection = key + "_" + end_loc
+                    self.connection_to_road[connection] = path_item
+
+            for end_loc in val["railways"]:
+                if int(key) < int(end_loc):
+                    delta = self.locationRad/2
+                    sign = -1
+                    if key=="7" and end_loc=="49": #Saragossa - Bordoux
+                        sign = 1
+                        delta *= 4
+                    if key=="0" and end_loc=="4": #Alicante - Barselona
+                        delta *= 8
+                    if key=="41" and end_loc=="46": #Rome - Naple
+                        sign = 1
+                        delta *= 8
+                    if key == "39" and end_loc == "53":  # Strasbourg - Munich
+                        sign = 1
+                    west_railway = Loader.location_dict[key]["isWest"] and Loader.location_dict[end_loc]["isWest"]
+                    color = "white" if west_railway else "yellow"
+                    path = self.get_path(key, end_loc, delta=delta, sign=sign)
+                    path_item = GraphicsConnection(path, color=color, width=5, style=Qt.PenStyle.SolidLine)
+                    path_item.setParentItem(self.map_item)
+
+                    connection = key + "_" + end_loc
+                    self.connection_to_railway[connection] = path_item
+
+
+
+            if val["isSea"]:
+                continue
+            x = val["coor"][0] * self.map_width
+            y = val["coor"][1] * self.map_height
+            item = QGraphicsPixmapItem()
+            if val["isCity"]:
+                image = Loader.city.scaledToWidth(2 * self.locationRad, Qt.TransformationMode.SmoothTransformation)
+            else:
+                image = Loader.town.scaledToWidth(2 * self.locationRad, Qt.TransformationMode.SmoothTransformation)
+            if key == "24":
+                image = Loader.dracula_city.scaledToWidth(2 * self.locationRad, Qt.TransformationMode.SmoothTransformation)
+            item.setPixmap(QPixmap.fromImage(image))
+            item.setPos(x - self.locationRad, y - self.locationRad - SHIFT)
+            item.setParentItem(self.map_item)
+            item.setZValue(0.5)
+            self.cities.append(item)
+
+
     def change_dusk_dawn(self, name):
         logger.info("change_dusk_dawn: {}".format(name))
-        if name == "dawn":
-            self.map_item.setPixmap(QPixmap.fromImage(Loader.map_day))
-        else:
-            self.map_item.setPixmap(QPixmap.fromImage(Loader.map_night))
+        # if name == "dawn":
+        #     self.map_item.setPixmap(QPixmap.fromImage(Loader.map_day))
+        # else:
+        #     self.map_item.setPixmap(QPixmap.fromImage(Loader.map_night))
 
     def visualize(self):
         logger.info("visualize()")
@@ -135,6 +273,7 @@ class MapView(QGraphicsView):
                 item.setFont(fontSea)
             else:
                 item.setFont(fontLand)
+            item.setZValue(0.1)
 
     def locate_players(self, controller):
         for i, player in enumerate(controller.state.players):
