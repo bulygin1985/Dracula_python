@@ -187,8 +187,6 @@ class MapView(QGraphicsView):
                     connection = key + "_" + end_loc
                     self.connection_to_railway[connection] = path_item
 
-
-
             if val["isSea"]:
                 continue
             x = val["coor"][0] * self.map_width
@@ -276,6 +274,7 @@ class MapView(QGraphicsView):
             item.setZValue(0.1)
 
     def locate_players(self, controller):
+        logger.info("locate_players")
         for i, player in enumerate(controller.state.players):
             if controller.state.who_moves == i:  # Motion for player, who moves
                 self.player_fig_items[i].scale_changing = 0.2
