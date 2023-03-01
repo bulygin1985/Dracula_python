@@ -10,8 +10,10 @@ ACTION_MOVE_BY_ROAD = "ActionMoveByRoad"
 ACTION_MOVE_BY_SEA = "ActionMoveBySea"
 ACTION_MOVE_BY_RAILWAY = "ActionMoveByRailWay"
 ACTION_LOCATION = "ActionLocation"
+TICKET_1 = "Ticket_1"
+TICKET_2 = "Ticket_2"
 
-MOVEMENT_ACTIONS = {ACTION_MOVE_BY_ROAD, ACTION_MOVE_BY_SEA, ACTION_MOVE_BY_RAILWAY}
+MOVEMENT_ACTIONS = {ACTION_MOVE_BY_ROAD, ACTION_MOVE_BY_SEA, ACTION_MOVE_BY_RAILWAY, TICKET_1, TICKET_2}
 
 
 # TODO - save previous states
@@ -47,6 +49,8 @@ class GameController(QObject):
 
         elif action in MOVEMENT_ACTIONS:
             self.state.player_phase = action
+            if action == ACTION_MOVE_BY_RAILWAY:   # if railway is chosen => choose the first ticket automatically
+                self.state.player_phase = TICKET_1
 
         elif ACTION_LOCATION in action:
             logger.info("ACTION_LOCATION in action")
@@ -115,6 +119,7 @@ class GameController(QObject):
         :param state: gamestate
         :return: possible actions for specified gamestate
         """
+        logger.info("get_possible_actions, state.player_phase = {}".format(state.player_phase))
         possible_actions = []
         if state.player_phase == TURN_BEGIN:
             if state.phase == Phase.FIRST_TURN:
@@ -125,8 +130,12 @@ class GameController(QObject):
                 else:
                     possible_actions = self.get_road_sea_option()
                     # TODO - tickets are checked here
-                    if len(self.get_who_move_loc_dict()["railways"]) > 0:
-                        possible_actions.append(ACTION_MOVE_BY_RAILWAY)
+                    for ticket in self.get_current_player().tickets:
+                        if len(get_train_movement(self.get_current_player().location_num, ticket)) > 0:
+                            possible_actions.append(ACTION_MOVE_BY_RAILWAY)
+                            break
+                    # if len(self.get_who_move_loc_dict()["railways"]) > 0:
+                    #     possible_actions.append(ACTION_MOVE_BY_RAILWAY)
                     if not self.get_who_move_loc_dict()["isSea"]:  # Hunters cannot pass during day if they are on Sea
                         possible_actions.append(ACTION_NEXT)
                     # TODO - append ticker taking here
@@ -141,8 +150,15 @@ class GameController(QObject):
                     # TODO - append ticker taking here
                     possible_actions = [ACTION_NEXT]
 
-        elif state.player_phase in MOVEMENT_ACTIONS:
-            possible_actions = self.get_possible_movements(state.player_phase)
+        elif state.player_phase in [ACTION_MOVE_BY_ROAD, ACTION_MOVE_BY_SEA]:
+            possible_actions = self.get_road_sea_movements(state.player_phase)
+
+        elif state.player_phase in [TICKET_1, TICKET_2]:
+            logger.info("state.player_phase in [TICKET_1, TICKET_2]")
+            num = int(TICKET_1.split("_")[-1]) - 1
+            ticket = self.get_current_player().tickets[num]
+            locations = get_train_movement(self.get_current_player().location_num, ticket)
+            possible_actions = ["ActionLocation_" + str(loc) for loc in locations]
 
         elif state.player_phase == TURN_END:
             # here is possible events at the turn end
@@ -150,25 +166,11 @@ class GameController(QObject):
 
         return possible_actions
 
-    def process_movement_actions(self, action):
-        if action == ACTION_MOVE_BY_ROAD or action == ACTION_MOVE_BY_SEA or action == ACTION_MOVE_BY_RAILWAY:
-            self.possible_actions = self.get_possible_movements(action)
-
-        elif ACTION_LOCATION in action:
-            logger.info("player {} is moved to {}".format(self.state.who_moves, action.split("_")[-1]))
-            loc_num_old = self.state.players[self.state.who_moves].location_num
-            loc_num_new = action.split("_")[-1]
-            self.state.players[self.state.who_moves].set_location(loc_num_new)
-            Loader.append_log("{} moves from {} to {}. ".format(Loader.num_to_player(self.state.who_moves),
-                                                          Loader.location_dict[loc_num_old]["name"],
-                                                          Loader.location_dict[loc_num_new]["name"]))
-            self.possible_actions = [ACTION_NEXT]
-
     def get_road_sea_option(self):
         possible_actions = []
-        if len(self.get_possible_movements(ACTION_MOVE_BY_ROAD)) > 0:
+        if len(self.get_road_sea_movements(ACTION_MOVE_BY_ROAD)) > 0:
             possible_actions.append(ACTION_MOVE_BY_ROAD)
-        if len(self.get_possible_movements(ACTION_MOVE_BY_SEA)) > 0:
+        if len(self.get_road_sea_movements(ACTION_MOVE_BY_SEA)) > 0:
             possible_actions.append(ACTION_MOVE_BY_SEA)
         return possible_actions
 
@@ -187,13 +189,13 @@ class GameController(QObject):
                             Loader.append_log("And it is current Dracula location! ")
 
     #TODO for railway we need ticket param
-    def get_possible_movements(self, action):
+    def get_road_sea_movements(self, action):
         """
         :param action: movement type: road, railway, sea
         :return: possible movement action
         """
-        logger.info("get_possible_movements({})".format(action))
-        action_to_type = {ACTION_MOVE_BY_ROAD: "roads", ACTION_MOVE_BY_SEA: "seas", ACTION_MOVE_BY_RAILWAY: "railways"}
+        logger.info("get_road_sea_movements({})".format(action))
+        action_to_type = {ACTION_MOVE_BY_ROAD: "roads", ACTION_MOVE_BY_SEA: "seas"}
         locations = [loc for loc in self.get_who_move_loc_dict()[action_to_type[action]]]
         if is_dracula(self.state.who_moves):   # remove Dracula track from Dracula's possible movements
             for elem in self.state.players[0].track:

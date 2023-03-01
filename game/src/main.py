@@ -125,6 +125,7 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
 
     loader = Loader()
+    Loader.load_media()
 
 
 

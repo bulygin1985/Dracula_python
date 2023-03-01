@@ -97,46 +97,6 @@ class MapView(QGraphicsView):
         return path
 
     def create_cities(self):
-
-        # x1 = Loader.location_dict["0"]["coor"][0] * self.map_width
-        # y1 = Loader.location_dict["0"]["coor"][1] * self.map_height
-        #
-        # x2 = Loader.location_dict["35"]["coor"][0] * self.map_width
-        # y2 = Loader.location_dict["35"]["coor"][1] * self.map_height
-        #
-        # path = QPainterPath()
-        # path.moveTo(x1, y1)
-        #
-        # num = 5
-        # sign = 1
-        # norm = math.sqrt(1 + math.pow( (x2 - x1) / (y2 - y1), 2) )
-        # n1 = 1 / norm
-        # n2 = -(x2 - x1) / (y2 - y1)/norm
-        #
-        # old_x = x1
-        # old_y = y1
-        # delta = self.locationRad / 2
-        # for i in range(1, num + 1):
-        #     step = i / num
-        #     x = x2 * step + x1 * (1 - step)
-        #     y = y2 * step + y1 * (1 - step)
-        #     x_c = (old_x + x) / 2
-        #     y_c = (old_y + y) / 2
-        #     logger.info("n1 = {}, n2 = {}".format(n1, n2))
-        #     path.quadTo(x_c + sign*delta * n1, y_c + sign*delta * n2, x, y)
-        #     sign *= -1
-        #     old_x = x
-        #     old_y = y
-        #
-        # #path.quadTo( (x1 + x2) / 2 + 2 * self.locationRad, (y1 + y2) / 2, x2, y2)
-        # path_item = QGraphicsPathItem(path)
-        #
-        # pen = QPen(QColor("black"))
-        # pen.setStyle(Qt.PenStyle.DashLine)
-        # pen.setWidth(3)
-        # path_item.setPen(pen)
-        # path_item.setParentItem(self.map_item)
-
         for (key, val) in Loader.location_dict.items():
 
             for end_loc in val["roads"]:
@@ -196,14 +156,15 @@ class MapView(QGraphicsView):
                 image = Loader.city.scaledToWidth(2 * self.locationRad, Qt.TransformationMode.SmoothTransformation)
             else:
                 image = Loader.town.scaledToWidth(2 * self.locationRad, Qt.TransformationMode.SmoothTransformation)
-            if key == "24":
-                image = Loader.dracula_city.scaledToWidth(2 * self.locationRad, Qt.TransformationMode.SmoothTransformation)
+            if key == SpecificLocations.DRACULA_CASTLE.value:
+                image = Loader.dracula_city.scaledToWidth(2.25 * self.locationRad, Qt.TransformationMode.SmoothTransformation)
             item.setPixmap(QPixmap.fromImage(image))
             item.setPos(x - self.locationRad, y - self.locationRad - SHIFT)
+            if key == SpecificLocations.DRACULA_CASTLE.value:
+                item.setPos(x - self.locationRad - SHIFT, y - self.locationRad - SHIFT)
             item.setParentItem(self.map_item)
             item.setZValue(0.5)
             self.cities.append(item)
-
 
     def change_dusk_dawn(self, name):
         logger.info("change_dusk_dawn: {}".format(name))
@@ -234,43 +195,56 @@ class MapView(QGraphicsView):
         self.map_moved.emit()
 
     def draw_location_names(self):
-        fontLand = QFont()
+        font_land = QFont()
         # fontLand.setFamily("Bad Script")
         # fontLand.setFamily("Neucha")
-        fontLand.setFamily("Cormorant SC")
+        font_land.setFamily("Cormorant SC")
 
-        fontLand.setPixelSize(int(self.map_width * 0.01))
-        fontLand.setBold(True)
-        fontSea = QFont()
-        fontSea.setFamily("Lobster")
-        fontSea.setPixelSize(int(self.map_width * 0.012))
+        font_land.setPixelSize(int(self.map_width * 0.01))
+        font_land.setBold(True)
+        font_sea = QFont()
+        font_sea.setFamily("Lobster")
+        font_sea.setPixelSize(int(self.map_width * 0.012))
 
-        xShift = self.map_width * 0.01
+        x_shift = self.map_width * 0.01
         location_dict = Loader.location_dict
         for (key, val) in location_dict.items():
             item = QGraphicsTextItem(val["name"])
             item.setPos(val["coor"][0] * self.map_width - self.locationRad,
                         val["coor"][1] * self.map_height + 0.7 * self.locationRad)
             pos = item.pos()
+
+            # item_num = QGraphicsTextItem(key)
+            # item_num.setDefaultTextColor(QColor('white') )
+            # item_num.setPos(val["coor"][0] * self.map_width - 0.5 * self.locationRad, val["coor"][1] * self.map_height - self.locationRad)
+            # font_num = QFont()
+            # font_num.setBold(True)
+            # font_num.setPixelSize(int(self.map_width * 0.02))
+            # item_num.setFont(font_num)
+            # item_num.setZValue(10)
+            # item_num.setParentItem(self.map_item)
+
             i = int(key)
+            if i == int(SpecificLocations.DRACULA_CASTLE.value):
+                item.setPos(pos.x() - 2.5 * x_shift, pos.y())
             if i == 29:
-                item.setPos(pos.x() - 2.5 * xShift, pos.y() + 0 * xShift)
+                item.setPos(pos.x() - 2.5 * x_shift, pos.y() + 0 * x_shift)
             if i == 60:
-                item.setPos(pos.x() - 4 * xShift, pos.y() + 0 * xShift)
+                item.setPos(pos.x() - 4 * x_shift, pos.y() + 0 * x_shift)
             if i == 63:
-                item.setPos(pos.x() - 2 * xShift, pos.y() - 0 * xShift)
+                item.setPos(pos.x() - 2 * x_shift, pos.y() - 0 * x_shift)
             if i == 65:
-                item.setPos(pos.x() - 1 * xShift, pos.y() - 1 * xShift)
+                item.setPos(pos.x() - 1 * x_shift, pos.y() - 1 * x_shift)
             if i == 66:
-                item.setPos(pos.x() - 0 * xShift, pos.y() - 1.5 * xShift)
+                item.setPos(pos.x() - 0 * x_shift, pos.y() - 1.5 * x_shift)
             if i == 70:
-                item.setPos(pos.x() - 2 * xShift, pos.y() - 1 * xShift)
+                item.setPos(pos.x() - 2 * x_shift, pos.y() - 1 * x_shift)
             item.setParentItem(self.map_item)
-            item.setFont(fontLand)
+            item.setFont(font_land)
             if i > 60:
-                item.setFont(fontSea)
+                item.setFont(font_sea)
             else:
-                item.setFont(fontLand)
+                item.setFont(font_land)
             item.setZValue(0.1)
 
     def locate_players(self, controller):
@@ -320,7 +294,7 @@ class MapView(QGraphicsView):
             self.player_fig_items[0].hide()
 
     def player_motion(self):
-        if self.player_movement["frame"] == self.player_movement["frame_num"]:
+        if self.player_movement["frame"] == self.player_movement["frame_num"] + 1:
             self.player_movement["frame"] = 0
             self.timer.stop()
             return

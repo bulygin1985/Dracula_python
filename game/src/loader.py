@@ -2,11 +2,19 @@ from PyQt6.QtGui import *
 from PyQt6.QtWidgets import *
 import json
 from common.logger import logger
+import os
 
 
 class Loader:
-    def __init__(self):
+    def __init__(self, add_path=""):
+        """
+        :param add_path: if Loader created from another folder (e.g. /tests)
+        """
         Loader.log = ""
+        Loader.location_dict = json.load(open(os.path.join(add_path, "game/info/locations.json") ))
+
+    @classmethod
+    def load_media(cls):
         # Loader.map_day = QImage("./game/images/map_day.png")
         # Loader.map_night = QImage("./game/images/map_night.png")
         Loader.map_day = QImage("./game/images/map/map_day.png")
@@ -14,7 +22,7 @@ class Loader:
         Loader.town = QImage("./game/images/map/town.png")
         Loader.dracula_city = QImage("./game/images/map/dracula_city.png")
         Loader.marker = QImage("./game/images/locations/location_mark.png")
-        Loader.location_dict = json.load(open("./game/info/locations.json"))
+
         Loader.player_figs = []
         Loader.player_cards = []
         for i in range(5):
@@ -41,6 +49,12 @@ class Loader:
         Loader.back_land = QImage("./game/images/locations/back.png")
         Loader.back_sea = QImage("./game/images/locations/back_sea.png")
         Loader.arrow = QImage("./game/images/locations/arrow.png")
+
+        ticket_path = "./game/images/tickets/"
+        Loader.tickets = {}
+        for key in ["1_0", "1_1", "2_1", "2_2", "3_2"]:
+            Loader.tickets[key] = QImage(ticket_path + key + ".png")
+        Loader.tickets["back"] = QImage("./game/images/tickets/ticket_back.png")
 
         logger.info("all file are successfully loaded")
 
