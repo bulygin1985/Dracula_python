@@ -3,7 +3,7 @@ class Player:
         self.location_num = ""  # it is string integer
         self.health = -1
         self.max_health = -1
-        self.tickets = ["3_2", "2_2"]  # TODO: remove, it is temporary
+        self.tickets = []
 
     def set_location(self, location_num):
         self.location_num = location_num

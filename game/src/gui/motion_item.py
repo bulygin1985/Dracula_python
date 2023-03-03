@@ -21,6 +21,11 @@ class MotionItem(QGraphicsPixmapItem):
         self.frame = 0
         self.setScale(1.0)
 
+    def start(self, scale_changing):
+        self.scale_changing = scale_changing
+        self.frame = 0
+        self.timer.start(20)
+
     def set_parent(self, parent):
         self.parent = parent
 

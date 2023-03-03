@@ -52,6 +52,7 @@ class MainScreen(QMainWindow):
 
         self.map_view.action_done.connect(self.controller.process_action)
         self.actions.action_done.connect(self.controller.process_action)
+        self.stuff.action_done.connect(self.controller.process_action)
 
         track_part = layout_ratio[3] / sum(layout_ratio)
         self.track = TrackView(track_part * self.width(), self.height(), self.controller)
@@ -117,9 +118,9 @@ class MainScreen(QMainWindow):
 
 if __name__ == '__main__':
 
-    logging.basicConfig(level=logging.INFO)
+    #logging.basicConfig(level=logging.INFO)
     param = Param()
-    #Param.who_are_you = [0, 1, 2, 3, 4]
+    Param.who_are_you = [0, 1, 2, 3, 4]
     #Param.is_dracula_ai = True
 
     app = QApplication(sys.argv)

@@ -174,6 +174,7 @@ class MapView(QGraphicsView):
         #     self.map_item.setPixmap(QPixmap.fromImage(Loader.map_night))
 
     def visualize(self):
+        self.remove_actions()
         logger.info("visualize()")
         self.locate_players(self.controller)
         possible_movements = []
@@ -317,6 +318,7 @@ class MapView(QGraphicsView):
             item.setZValue(2)
             item.show()
             loc_pointer_item = MotionItem()
+            loc_pointer_item.setZValue(1)
             loc_pointer_item.scale_changing = 0.4
             loc_pointer_item.frame_num = 120
             loc_pointer_item.setPixmap(QPixmap.fromImage(self.loc_pointer))
@@ -328,6 +330,7 @@ class MapView(QGraphicsView):
     def remove_actions(self):
         for item in self.location_items:
             self.scene.removeItem(item)
+        self.location_items = []
 
     def locate_marker(self, location_num):
         val = Loader.location_dict[str(location_num)]

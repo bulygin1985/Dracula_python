@@ -10,12 +10,13 @@ from loader import Loader
 from PyQt6.QtCore import Qt
 from common.logger import logger
 from game_param import Param
+from gamecontroller.gamecontroller import *
 
 
 class ActionView(QGraphicsView):
     action_done = pyqtSignal(str)
-    action2draw = ["ActionNext", "ActionMoveByRoad", "ActionMoveByRailWay", "ActionMoveBySea", "ActionSearch",
-                   "ActionSupply", "ActionHealing", "ActionExchange", "ActionSpecial"]
+    action2draw = [ACTION_NEXT, ACTION_MOVE_BY_ROAD, ACTION_MOVE_BY_RAILWAY, ACTION_MOVE_BY_SEA, "ActionSearch",
+                   "ActionSupply", "ActionHealing", "ActionExchange", "ActionSpecial", ACTION_TAKE_TICKET]
     def __init__(self, width, height, controller):
         logger.info("ActionView constructor")
         super().__init__()
@@ -38,7 +39,6 @@ class ActionView(QGraphicsView):
         w = self.scene.width()
         self.actions = []
         for action_icon in self.action2draw:
-            #setattr(self, action_icon, MotionItem(periods=1))
             setattr(self, action_icon, MotionItem())
             image = getattr(Loader, action_icon).scaledToWidth(0.8 * w, Qt.TransformationMode.SmoothTransformation)
             getattr(self, action_icon).setPixmap(QPixmap.fromImage(image))
@@ -61,6 +61,7 @@ class ActionView(QGraphicsView):
                 getattr(self, action).show()
 
     def process_action_done(self, name):
+        logger.info(f"action_view process_action_done({name})")
         self.remove_actions()
         self.action_done.emit(name)
 

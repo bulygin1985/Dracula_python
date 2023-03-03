@@ -1,5 +1,20 @@
 from loader import Loader
 from common.logger import logger
+from game_param import Param
+
+
+def are_you_dracula():
+    if 0 in Param.who_are_you:
+        return True
+    else:
+        return False
+
+
+def are_you_hunter():
+    for i in range(1, 5):
+        if i in Param.who_are_you:
+            return True
+    return False
 
 
 def is_dracula(who_moves):
@@ -38,7 +53,8 @@ def get_train_movement(begin, ticket):
             if dists[loc] == -1:
                 roots.insert(0, loc)
                 dists[loc] = dists[begin] + 1
-                possible_locations.append(loc)
+                if not (dists[begin] == east_lim and not graph[loc]["isWest"]):  # do not add east neighbour if it is east lenght limit
+                    possible_locations.append(loc)
                 is_west[loc] = True if (graph[loc]["isWest"] and is_west[begin]) else False
 
     return possible_locations

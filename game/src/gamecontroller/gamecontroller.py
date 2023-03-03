@@ -12,6 +12,8 @@ ACTION_MOVE_BY_RAILWAY = "ActionMoveByRailWay"
 ACTION_LOCATION = "ActionLocation"
 TICKET_1 = "Ticket_1"
 TICKET_2 = "Ticket_2"
+ACTION_TAKE_TICKET = "ActionTicket"
+ACTION_DISCARD_TICKET = "ActionDiscardTicket"
 
 MOVEMENT_ACTIONS = {ACTION_MOVE_BY_ROAD, ACTION_MOVE_BY_SEA, ACTION_MOVE_BY_RAILWAY, TICKET_1, TICKET_2}
 
@@ -33,15 +35,16 @@ class GameController(QObject):
     # change game_state and calc possible_actions
     def get_current_player(self):
         return self.state.players[self.state.who_moves]
+
     def get_first_turn_actions(self):
         loc_dict = Loader.location_dict
         return ["ActionLocation_"+str(loc) for loc in loc_dict.keys() if not loc_dict[loc]['isSea'] and loc!= SpecificLocations.DRACULA_CASTLE.value]
 
     # idea to separate logic for calc possible action and changing game state
     def process_action(self, action):
+        logger.info(f"process_action({action})")
         if action not in self.possible_actions:
             raise Exception("action {} is not in possible actions {}".format(action, self.possible_actions))
-        logger.info("action : {}".format(action))
 
         if action == ACTION_NEXT:
             self.set_next_player()
@@ -52,8 +55,17 @@ class GameController(QObject):
             if action == ACTION_MOVE_BY_RAILWAY:   # if railway is chosen => choose the first ticket automatically
                 self.state.player_phase = TICKET_1
 
+        elif action == TICKET_1 or action == TICKET_2:
+            self.state.player_phase = action
+
         elif ACTION_LOCATION in action:
             logger.info("ACTION_LOCATION in action")
+            if self.state.player_phase == TICKET_1 or self.state.player_phase == TICKET_2:  # discard ticket after movement
+                num = int(self.state.player_phase.split("_")[-1]) - 1
+                ticket = self.get_current_player().tickets.pop(num)
+                self.state.tickets_deck.discard(ticket)
+                Loader.append_log(f"{Loader.num_to_player(self.state.who_moves)} has used ticket")
+
             loc_num_old = self.state.players[self.state.who_moves].location_num
             loc_num_new = action.split("_")[-1]
             self.state.players[self.state.who_moves].set_location(loc_num_new)
@@ -66,6 +78,17 @@ class GameController(QObject):
                                                               Loader.location_dict[loc_num_old]["name"],
                                                               Loader.location_dict[loc_num_new]["name"]))
                 self.state.player_phase = TURN_END
+
+        elif action == ACTION_TAKE_TICKET:
+            ticket = self.state.tickets_deck.draw()
+            self.get_current_player().tickets.append(ticket)
+            if self.state.who_moves == LORD:
+                Loader.append_log(f"Lord takes two tickets")
+                ticket = self.state.tickets_deck.draw()
+                self.get_current_player().tickets.append(ticket)
+            else:
+                Loader.append_log(f"{Loader.num_to_player(self.state.who_moves)} takes ticket")
+            self.state.player_phase = ACTION_TAKE_TICKET
 
         self.reveal_track()
         self.states.append(self.state)
@@ -125,41 +148,49 @@ class GameController(QObject):
             if state.phase == Phase.FIRST_TURN:
                 possible_actions = self.get_first_turn_actions()
             elif state.phase == Phase.DAY:
+                possible_actions += [ACTION_TAKE_TICKET]
                 if is_dracula(state.who_moves):
                     raise Exception("It is day and Dracula moves")
                 else:
-                    possible_actions = self.get_road_sea_option()
+                    possible_actions += self.get_road_sea_option()
                     # TODO - tickets are checked here
                     for ticket in self.get_current_player().tickets:
                         if len(get_train_movement(self.get_current_player().location_num, ticket)) > 0:
-                            possible_actions.append(ACTION_MOVE_BY_RAILWAY)
+                            possible_actions += [ACTION_MOVE_BY_RAILWAY]
                             break
                     # if len(self.get_who_move_loc_dict()["railways"]) > 0:
                     #     possible_actions.append(ACTION_MOVE_BY_RAILWAY)
                     if not self.get_who_move_loc_dict()["isSea"]:  # Hunters cannot pass during day if they are on Sea
-                        possible_actions.append(ACTION_NEXT)
+                        possible_actions += [ACTION_NEXT]
                     # TODO - append ticker taking here
             elif state.phase == Phase.NIGHT:
                 if is_dracula(state.who_moves):
-                    possible_actions = self.get_road_sea_option()
+                    possible_actions += self.get_road_sea_option()
                     if len(possible_actions) == 0:
                         Loader.append_log("Dracula has no possible actions => track is cleared. ")
                         state.players[0].track = []
-                        possible_actions = self.get_road_sea_option()
+                        possible_actions += self.get_road_sea_option()
                 else:
-                    # TODO - append ticker taking here
-                    possible_actions = [ACTION_NEXT]
+                    possible_actions += [ACTION_TAKE_TICKET, ACTION_NEXT]
 
         elif state.player_phase in [ACTION_MOVE_BY_ROAD, ACTION_MOVE_BY_SEA]:
             possible_actions = self.get_road_sea_movements(state.player_phase)
 
         elif state.player_phase in [TICKET_1, TICKET_2]:
             logger.info("state.player_phase in [TICKET_1, TICKET_2]")
-            num = int(TICKET_1.split("_")[-1]) - 1
+            num = int(state.player_phase.split("_")[-1]) - 1
             ticket = self.get_current_player().tickets[num]
             locations = get_train_movement(self.get_current_player().location_num, ticket)
             possible_actions = ["ActionLocation_" + str(loc) for loc in locations]
+            another_ticket = TICKET_1 if state.player_phase == TICKET_2 else TICKET_2
+            possible_actions += [another_ticket]
+            logger.info(f"possible_actions = {possible_actions}")
 
+        elif state.player_phase == ACTION_TAKE_TICKET:
+            if len(self.get_current_player().tickets) > 2:
+                possible_actions = [ACTION_DISCARD_TICKET]
+            else:
+                possible_actions = [ACTION_NEXT]
         elif state.player_phase == TURN_END:
             # here is possible events at the turn end
             possible_actions = [ACTION_NEXT]

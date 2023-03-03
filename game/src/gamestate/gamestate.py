@@ -1,5 +1,6 @@
 from enum import Enum
 from gamestate.player import Dracula, Lord, Doctor, Helsing, Mina
+from gamestate.deck import Deck
 
 
 TURN_BEGIN = "turn_begin"
@@ -32,3 +33,6 @@ class GameState:
         self.player_phase = TURN_BEGIN
         self.day_num = -1
         self.week_num = 0
+        self.tickets_deck = Deck(cards=["3_2"]*4+["2_2"]*4+2*["1_1"]+3*["2_1"]+3*["1_0"], deck_name="Tickets_Pool")
+
+

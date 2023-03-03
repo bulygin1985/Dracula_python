@@ -43,6 +43,7 @@ class Loader:
         Loader.ActionSupply = QImage("./game/images/actions/supply.png")
         Loader.ActionHealing = QImage("./game/images/actions/healing.png")
         Loader.ActionExchange = QImage("./game/images/actions/exchange.png")
+        Loader.ActionTicket = QImage("./game/images/actions/ticket_icon.png")
         Loader.ActionSpecial = QImage("./game/images/actions/play_special_card_icon.png")
 
         Loader.loc_pointer = QImage("./game/images/locations/location_pointer4.png")
