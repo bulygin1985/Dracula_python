@@ -43,8 +43,8 @@ class GameController(QObject):
     # idea to separate logic for calc possible action and changing game state
     def process_action(self, action):
         logger.info(f"process_action({action})")
-        if action not in self.possible_actions:
-            raise Exception("action {} is not in possible actions {}".format(action, self.possible_actions))
+        # if action not in self.possible_actions:
+        #     raise Exception("action {} is not in possible actions {}".format(action, self.possible_actions))
 
         if action == ACTION_NEXT:
             self.set_next_player()
@@ -90,9 +90,16 @@ class GameController(QObject):
                 Loader.append_log(f"{Loader.num_to_player(self.state.who_moves)} takes ticket")
             self.state.player_phase = ACTION_TAKE_TICKET
 
+        elif ACTION_DISCARD_TICKET in action:
+            ticket_num = int(action.split("_")[-1])
+            logger.info("discard ticket {}".format(ticket_num))
+            self.get_current_player().tickets.pop(ticket_num)
+            self.state.player_phase = ACTION_DISCARD_TICKET
+
         self.reveal_track()
         self.states.append(self.state)
         self.possible_actions = self.get_possible_actions(self.state)
+        logger.info(f"possible_actions = {self.possible_actions}")
         self.gamestate_is_changed.emit()
 
     def set_next_player(self):
@@ -186,7 +193,7 @@ class GameController(QObject):
             possible_actions += [another_ticket]
             logger.info(f"possible_actions = {possible_actions}")
 
-        elif state.player_phase == ACTION_TAKE_TICKET:
+        elif state.player_phase == ACTION_TAKE_TICKET or state.player_phase == ACTION_DISCARD_TICKET:
             if len(self.get_current_player().tickets) > 2:
                 possible_actions = [ACTION_DISCARD_TICKET]
             else:

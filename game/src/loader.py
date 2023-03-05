@@ -6,12 +6,9 @@ import os
 
 
 class Loader:
-    def __init__(self, add_path=""):
-        """
-        :param add_path: if Loader created from another folder (e.g. /tests)
-        """
+    def __init__(self):
         Loader.log = ""
-        Loader.location_dict = json.load(open(os.path.join(add_path, "game/info/locations.json") ))
+        Loader.location_dict = json.load(open("./game/info/locations.json"))
 
     @classmethod
     def load_media(cls):
@@ -50,6 +47,8 @@ class Loader:
         Loader.back_land = QImage("./game/images/locations/back.png")
         Loader.back_sea = QImage("./game/images/locations/back_sea.png")
         Loader.arrow = QImage("./game/images/locations/arrow.png")
+        Loader.icon_left = QIcon('./game/arrow_left.png')
+        Loader.icon_right = QIcon('./game/arrow_right.png')
 
         ticket_path = "./game/images/tickets/"
         Loader.tickets = {}

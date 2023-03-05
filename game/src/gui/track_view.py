@@ -29,7 +29,7 @@ class TrackView(QGraphicsView):
         self.setVerticalScrollBarPolicy(PyQt6.QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
         self.scene.setSceneRect(0, 0, width, height)
-        self.setSceneRect(0, 0, width, height)
+        #self.setSceneRect(0, 0, width, height)
         self.track_items = []
 
     def emitSignalInsideTrack(self, i):

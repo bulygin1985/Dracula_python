@@ -1,6 +1,7 @@
 from PyQt6.QtGui import *
 from PyQt6.QtWidgets import *
 from common.logger import logger
+from PyQt6.QtCore import Qt
 
 
 class LogViewer(QTextEdit):
@@ -12,15 +13,7 @@ class LogViewer(QTextEdit):
         self.log_height = log_height
         self.setGeometry(self.x, self.y, self.log_width, self.log_height)
         self.setReadOnly(True)
-        self.redraw()
-
-    def scrollContentsBy(self, p_int, p_int_1):
-        super().scrollContentsBy(p_int, p_int_1)
-        self.redraw()
-
-    def redraw(self):
-        opacity_effect = QGraphicsOpacityEffect(opacity=0.7)
-        self.setGraphicsEffect(opacity_effect)
+        self.setStyleSheet('background-color: rgba(207, 226, 243, 0.5);')
 
     def hide_show(self):
         if self.isHidden():

@@ -1,11 +1,9 @@
-import logging
 import math
 from PyQt6.QtGui import *
 from PyQt6.QtWidgets import *
 from PyQt6 import QtCore
 import PyQt6.QtCore
 import json
-from loader import Loader
 from PyQt6.QtCore import Qt
 from gamecontroller.gamecontroller import *
 from gamestate import *
@@ -13,6 +11,7 @@ from common.logger import logger
 from gui.motion_item import MotionItem
 from game_param import Param
 from gui.graphics_connection import GraphicsConnection
+from loader import Loader
 
 SHIFT = 3  # fix small error in x,y from location info
 
@@ -20,7 +19,6 @@ SHIFT = 3  # fix small error in x,y from location info
 class MapView(QGraphicsView):
     #action_done = pyqtSignal(str, int)
     action_done = pyqtSignal(str)
-    map_moved = pyqtSignal()
     player_movement = {"old_x": 0, "old_y": 0, "new_x": 0, "new_y": 0, "frame_num": 50, "frame": 0, "player_ind":-1}  # for player motion
     def __init__(self, width, height, controller):
         logger.info("MapView contructor")
@@ -184,16 +182,10 @@ class MapView(QGraphicsView):
         logger.info("possible_movements = {}".format(possible_movements))
         self.visualize_action_movements(possible_movements)
 
-    def mouseMoveEvent(self, QMouseEvent):
-        super().mouseMoveEvent(QMouseEvent)
-        self.map_moved.emit()
     def process_action_done(self, name):
         self.remove_actions()
         logger.info("mousePressEvent with on action : {}".format(name))
         self.action_done.emit(name)
-
-    def map_moved_done(self):
-        self.map_moved.emit()
 
     def draw_location_names(self):
         font_land = QFont()
@@ -391,4 +383,3 @@ class MapItem(QGraphicsPixmapItem):
         view.scene.setSceneRect(0, 0, self.init_scale * self.pixmap().width(), self.init_scale * self.pixmap().height())
         view.centerOn((newTopLeft + newBottomRight) / 2.0)
 
-        self.parent.map_moved_done()

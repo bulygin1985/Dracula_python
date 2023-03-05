@@ -62,7 +62,7 @@ class StuffView(QGraphicsView):
         self.setVerticalScrollBarPolicy(PyQt6.QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
         self.scene.setSceneRect(0, 0, width, height)
-        self.setSceneRect(0, 0, width, height)
+        #self.setSceneRect(0, 0, width, height)
         print("self.rect() = ", self.sceneRect())
 
         self.item1 = QImage("./game/images/items/crucifix.png")

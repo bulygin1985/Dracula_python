@@ -34,7 +34,7 @@ class ActionView(QGraphicsView):
         self.setVerticalScrollBarPolicy(PyQt6.QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
         self.scene.setSceneRect(0, 0, width, height)
-        self.setSceneRect(0, 0, width, height)
+        #self.setSceneRect(0, 0, width, height)
 
         w = self.scene.width()
         self.actions = []
@@ -51,6 +51,7 @@ class ActionView(QGraphicsView):
 
     def visualize(self):
         logger.info("visualize possible_actions = {}".format(self.controller.possible_actions))
+        self.remove_actions()
         i = 0
         for action in self.controller.possible_actions:
             if action in self.action2draw:
