@@ -11,3 +11,4 @@ if __name__ == '__main__':
             tickets_deck.discard(card)
             logger.info(f"discard {card}")
     logger.info(f"tickets_deck = {tickets_deck.cards}, discard pile = {tickets_deck.discard_pile}")
+
