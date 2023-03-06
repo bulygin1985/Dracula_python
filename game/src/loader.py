@@ -55,8 +55,18 @@ class Loader:
         for key in ["1_0", "1_1", "2_1", "2_2", "3_2"]:
             Loader.tickets[key] = QImage(ticket_path + key + ".png")
         Loader.tickets["back"] = QImage("./game/images/tickets/ticket_back.png")
-
+        Loader.name_to_item = Loader.get_name_to_item()
         logger.info("all file are successfully loaded")
+
+    @classmethod
+    def get_name_to_item(cls):
+        name_to_item = {}
+        path = "./game/images/items"
+        file_list = os.listdir(path)
+
+        for file_name in file_list:
+            name_to_item[file_name.split(".")[0]] = QImage(os.path.join(path, file_name))
+        return name_to_item
 
     @classmethod
     def num_to_player(cls, num):

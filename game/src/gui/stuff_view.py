@@ -65,15 +65,11 @@ class StuffView(QGraphicsView):
         #self.setSceneRect(0, 0, width, height)
         print("self.rect() = ", self.sceneRect())
 
-        self.item1 = QImage("./game/images/items/crucifix.png")
-        self.item2 = QImage("./game/images/items/knife.png")
-        self.item3 = QImage("./game/images/items/garlic.png")
-        self.item4 = QImage("./game/images/items/garlic_wreath.png")
-        self.item5 = QImage("./game/images/items/heavenly_host.png")
-        self.item6 = QImage("./game/images/items/holy_circle.png")
-        self.item7 = QImage("./game/images/items/horse.png")
-        self.item8 = QImage("./game/images/items/holly_bullet.png")
-        
+        self.item1 = Loader.name_to_item["KNIFE"]
+        self.item2 = Loader.name_to_item["PISTOL"]
+        self.item3 = Loader.name_to_item["RIFLE"]
+        self.item4 = Loader.name_to_item["GARLIC"]
+
         self.hunter_event1 = QImage("./game/images/events/hunter/blood_transfusion.png")
         self.hunter_event2 = QImage("./game/images/events/hunter/chartered_carriage.png")
         self.hunter_event3 = QImage("./game/images/events/hunter/evil_presence.png")
@@ -95,7 +91,7 @@ class StuffView(QGraphicsView):
         self.y_c = None  # upper y for player cards
         self.show_player_cards()
         #self.visualize()
-        #self.set_stuff()  # TODO   : move to visualize
+        self.set_stuff()  # TODO   : move to visualize
 
 
     def set_stuff(self):
