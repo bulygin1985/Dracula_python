@@ -5,6 +5,7 @@ from PyQt6.QtGui import *
 from gamecontroller.gamecontroller import *
 from common.logger import logger
 from loader import Loader
+from game_param import Param
 
 
 class SelectView(QGraphicsView):
@@ -60,39 +61,60 @@ class SelectView(QGraphicsView):
             self.scene.removeItem(item)
         self.items = []
         self.stuff = None
+
         if ACTION_DISCARD_TICKET in self.controller.possible_actions:
             self.stuff = self.controller.get_current_player().tickets
-            logger.info(f"tickets = {self.stuff}")
-            width = self.parent().width() / 5
-            height = self.parent().height() / 5
-            x = self.parent().width()/2 - width/2
-            y = self.parent().height()/2 - height/2
-            self.scene.setSceneRect(0, 0, width, height)
-            self.setGeometry(x, y, width, height)
-
-            x_c = self.sceneRect().center().x()
-            logger.info("x_c = {}".format(x_c))
-
-            self.button.setFixedSize(width/3, height/5)
-            self.button.setGeometry(x_c - self.button.width() / 2, height - self.button.height(), self.button.width(), self.button.height())
-
-            self.button_left.setFixedSize(self.button.height(), self.button.height())
-            self.button_left.setIconSize(self.button.size())
-            self.button_left.setGeometry(x_c - self.button.width() / 2 - self.button_left.width(), height - self.button.height(), self.button_left.width(), self.button_left.height())
-
-            self.button_right.setFixedSize(self.button.height(), self.button.height())
-            self.button_right.setIconSize(self.button.size())
-            self.button_right.setGeometry(x_c + self.button.width() / 2, height - self.button.height(), self.button_left.width(), self.button_left.height())
-
+            self.set_geom_sizes(0.2, 0.2)
             self.show_ticket()
-            logger.info(self.isHidden())
+        elif ACTION_DISCARD_ITEM in self.controller.possible_actions:
+            self.stuff = self.controller.get_current_player().items
+            self.set_geom_sizes(0.5, 0.5)
+            self.show_item()
+
             self.show()
 
         else:
             self.hide()
 
+    def show_ticket(self):
+        logger.info("show ticket #{}".format(self.index))
+        w = 0.3 * self.sceneRect().width()
+        ticket = self.controller.get_current_player().tickets[self.index]
+        logger.info(f"show ticket #{ticket}")
+        image = Loader.tickets[ticket].scaledToWidth(w, Qt.TransformationMode.SmoothTransformation)
+        self.show_image(image)
+
+    def show_item(self):
+        w = 0.3 * self.sceneRect().width()
+        item = self.controller.get_current_player().items[self.index]
+        image = Loader.name_to_item[item].scaledToWidth(w, Qt.TransformationMode.SmoothTransformation)
+        self.show_image(image)
+
+    def set_geom_sizes(self, part_x, part_y):
+        width = self.parent().width() * part_x
+        height = self.parent().height() * part_y
+        x = self.parent().width() / 2 - width / 2
+        y = self.parent().height() / 2 - height / 2
+        self.scene.setSceneRect(0, 0, width, height)
+        self.setGeometry(x, y, width, height)
+
+        x_c = self.sceneRect().center().x()
+        self.button.setFixedSize(width / 3, height / 5)
+        self.button.setGeometry(x_c - self.button.width() / 2, height - self.button.height(), self.button.width(),
+                                self.button.height())
+
+        self.button_left.setFixedSize(self.button.height(), self.button.height())
+        self.button_left.setIconSize(self.button.size())
+        self.button_left.setGeometry(x_c - self.button.width() / 2 - self.button_left.width(),
+                                     height - self.button.height(), self.button_left.width(), self.button_left.height())
+
+        self.button_right.setFixedSize(self.button.height(), self.button.height())
+        self.button_right.setIconSize(self.button.size())
+        self.button_right.setGeometry(x_c + self.button.width() / 2, height - self.button.height(),
+                                      self.button_left.width(), self.button_left.height())
 
     def right(self):
+        logger.info("right")
         self.index = (self.index + 1) % len(self.stuff)
         self.show_stuff()
 
@@ -101,26 +123,27 @@ class SelectView(QGraphicsView):
         self.show_stuff()
 
     def selected(self):
-        action = ACTION_DISCARD_TICKET + "_" + str(self.index)
+        if ACTION_DISCARD_TICKET in self.controller.possible_actions:
+            action = ACTION_DISCARD_TICKET + "_" + str(self.index)
+        elif ACTION_DISCARD_ITEM in self.controller.possible_actions:
+            action = ACTION_DISCARD_ITEM + "_" + str(self.index)
         logger.info(f"selected widget is sending action = {action}")
-
         self.action_done.emit(action)
-        #self.hide()
 
     def show_stuff(self):
+        logger.info("show_stuff")
         if ACTION_DISCARD_TICKET in self.controller.possible_actions:
             self.show_ticket()
+        elif ACTION_DISCARD_ITEM in self.controller.possible_actions:
+            self.show_item()
 
-    def show_ticket(self):
-        tickets = self.controller.get_current_player().tickets
-        ticket = tickets[self.index]
-
+    def show_image(self, image):
+        logger.info("show_image")
         x_c = self.sceneRect().center().x()
         y_c = self.sceneRect().center().y()
         width = self.sceneRect().width()
 
         w = 0.3 * width
-        image = Loader.tickets[ticket].scaledToWidth(w, Qt.TransformationMode.SmoothTransformation)
         item = QGraphicsPixmapItem()
         item.setPixmap(QPixmap.fromImage(image))
 

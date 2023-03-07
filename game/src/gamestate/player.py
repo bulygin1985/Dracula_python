@@ -8,6 +8,15 @@ class Player:
     def set_location(self, location_num):
         self.location_num = location_num
 
+
+class Hunter(Player):
+    def __init__(self):
+        super().__init__()
+        self.max_items = 3
+        self.max_events = 3
+        self.items = []
+
+
 class TrackElement:
     def __init__(self, location_num, is_opened_location=False):
         self.location_num = location_num
@@ -37,7 +46,7 @@ class Dracula(Player):
 
 
 
-class Lord(Player):
+class Lord(Hunter):
     def __init__(self):
         super().__init__()
         self.health = 11
@@ -46,16 +55,18 @@ class Lord(Player):
         self.max_bites = 1
 
 
-class Doctor(Player):
+class Doctor(Hunter):
     def __init__(self):
         super().__init__()
+        self.max_items = 4
+        self.max_events = 4
         self.health = 9
         self.max_health = 9
         self.bites = 0
         self.max_bites = 1
 
 
-class Helsing(Player):
+class Helsing(Hunter):
     def __init__(self):
         super().__init__()
         self.health = 8
@@ -64,7 +75,7 @@ class Helsing(Player):
         self.max_bites = 2
 
 
-class Mina(Player):
+class Mina(Hunter):
     def __init__(self):
         super().__init__()
         self.health = 9

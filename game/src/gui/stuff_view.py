@@ -15,9 +15,9 @@ from gamecontroller.gamecontroller import *
 
 
 class ScalableStuff(QGraphicsPixmapItem):
-    def __init__(self, image, x, y, w, isLeft=True):
+    def __init__(self, image, x, y, w, is_left=True):
         super().__init__()
-        self.isLeft = isLeft
+        self.isLeft = is_left
         self.w = w
         self.image = image
         self.icon = image.scaledToWidth(0.35 * w, Qt.TransformationMode.SmoothTransformation)
@@ -70,51 +70,36 @@ class StuffView(QGraphicsView):
         self.item3 = Loader.name_to_item["RIFLE"]
         self.item4 = Loader.name_to_item["GARLIC"]
 
-        self.hunter_event1 = QImage("./game/images/events/hunter/blood_transfusion.png")
-        self.hunter_event2 = QImage("./game/images/events/hunter/chartered_carriage.png")
-        self.hunter_event3 = QImage("./game/images/events/hunter/evil_presence.png")
-        self.hunter_event4 = QImage("./game/images/events/hunter/excellent_weather.png")
-        self.hunter_event5 = QImage("./game/images/events/hunter/forewarned.png")
-        self.hunter_event6 = QImage("./game/images/events/hunter/good_luck.png")
-        self.hunter_event7 = QImage("./game/images/events/hunter/local_rumors.png")
-        self.hunter_event8 = QImage("./game/images/events/hunter/long_night.png")
-        self.hunter_event9 = QImage("./game/images/events/hunter/sense_of_emergency.png")
-        self.hunter_event10 = QImage("./game/images/events/hunter/speedy_telegraph.png")
-
-        self.dracula_event1 = QImage("./game/images/events/dracula/devilish_power.png")
-        self.dracula_event2 = QImage("./game/images/events/dracula/hidden_schemes.png")
-        self.dracula_event3 = QImage("./game/images/events/dracula/summon_storms.png")
-        self.dracula_event4 = QImage("./game/images/events/dracula/vampiric_influence.png")
-        self.dracula_event5 = QImage("./game/images/events/dracula/wild_horses.png")
         self.player_card_items = []
         self.tickets = []
+        self.items = []
         self.y_c = None  # upper y for player cards
         self.show_player_cards()
         #self.visualize()
-        self.set_stuff()  # TODO   : move to visualize
 
-
-    def set_stuff(self):
+    # TODO - check WhoAreYou
+    def show_stuff(self):
+        logger.info("show_stuff")
         w = self.scene.width()
-        item1_item = ScalableStuff(self.item1, 0.1 * w, 0.1 * w, w, True)
-        self.scene.addItem(item1_item)
-
-        item2_item = ScalableStuff(self.item2, 0.55 * w, 0.1 * w, w, False)
-        self.scene.addItem(item2_item)
-
-        h = item2_item.pixmap().height()
-        item3_item = ScalableStuff(self.item3, 0.1 * w, 0.1 * w + h + 0.1 * w, w, True)
-        self.scene.addItem(item3_item)
-
-        event1_item = ScalableStuff(self.hunter_event1, 0.1 * w, 0.1 * w + 2 * (h + 0.1 * w), w, True)
-        self.scene.addItem(event1_item)
-
-        event2_item = ScalableStuff(self.hunter_event2, 0.55 * w, 0.1 * w + 2 * (h + 0.1 * w), w, False)
-        self.scene.addItem(event2_item)
+        h = 1.5 * w * 0.35
+        num_to_pos = {0: [0.1*w, 0.1*w], 1: [0.55*w, 0.1*w], 2: [0.1*w, 0.1*w+h+0.1*w], 3:  [0.55*w, 0.1*w+h+0.1*w]}
+        for idx, item in enumerate(self.controller.get_current_player().items):
+            if idx > 3: # show only the first 4th items
+                break
+            logger.info(f"item = {item}")
+            x = num_to_pos[idx][0]
+            y = num_to_pos[idx][1]
+            is_left = True if idx % 2 == 0 else False
+            scalable_item = ScalableStuff(Loader.name_to_item[item], x, y, w, is_left)
+            self.scene.addItem(scalable_item)
+            self.items.append(scalable_item)
 
     def visualize(self):
+        self.remove_items()
         self.show_who_moves()
-        self.show_tickets()
+        if is_hunter(self.controller.state.who_moves):
+            self.show_tickets()
+            self.show_stuff()
 
     def show_who_moves(self):
         for player_card in self.player_card_items:
@@ -129,7 +114,7 @@ class StuffView(QGraphicsView):
         elif TICKET_2 in self.controller.possible_actions:
             possible_ticket_num = 1
         logger.info(f"possible_ticket_num = {possible_ticket_num}")
-        self.remove_items()
+
         w = self.scene.width() * 0.35
         shift = self.scene.width() * 0.1
         for idx, ticket in enumerate(self.controller.get_current_player().tickets):
@@ -178,4 +163,7 @@ class StuffView(QGraphicsView):
         for item in self.tickets:
             self.scene.removeItem(item)
         self.tickets = []
+        for item in self.items:
+            self.scene.removeItem(item)
+        self.items = []
 

@@ -4,7 +4,7 @@ import numpy as np
 
 class Deck:
     def __init__(self, cards, deck_name):
-        logger.info(f"creating {deck_name}")
+        logger.info(f"creating {deck_name} of len = {len(cards)} by shuffling cards: {cards}")
         np.random.shuffle(cards)
         self.cards = cards
         self.deck_name = deck_name

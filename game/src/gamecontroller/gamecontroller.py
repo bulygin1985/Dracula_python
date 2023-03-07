@@ -14,6 +14,8 @@ TICKET_1 = "Ticket_1"
 TICKET_2 = "Ticket_2"
 ACTION_TAKE_TICKET = "ActionTicket"
 ACTION_DISCARD_TICKET = "ActionDiscardTicket"
+ACTION_DISCARD_ITEM = "ActionDiscardItem"
+ACTION_SUPPLY = "ActionSupply"
 
 MOVEMENT_ACTIONS = {ACTION_MOVE_BY_ROAD, ACTION_MOVE_BY_SEA, ACTION_MOVE_BY_RAILWAY, TICKET_1, TICKET_2}
 
@@ -91,10 +93,30 @@ class GameController(QObject):
             self.state.player_phase = ACTION_TAKE_TICKET
 
         elif ACTION_DISCARD_TICKET in action:
-            ticket_num = int(action.split("_")[-1])
-            logger.info("discard ticket {}".format(ticket_num))
-            self.get_current_player().tickets.pop(ticket_num)
+            num = int(action.split("_")[-1])
+            logger.info("discard ticket {}".format(num))
+            self.get_current_player().tickets.pop(num)
             self.state.player_phase = ACTION_DISCARD_TICKET
+        elif ACTION_DISCARD_ITEM in action:
+            num = int(action.split("_")[-1])
+            logger.info("discard item {}".format(num))
+            self.get_current_player().items.pop(num)
+            self.state.player_phase = ACTION_DISCARD_ITEM
+
+        elif action == ACTION_SUPPLY:
+            if self.get_who_move_loc_dict()["isCity"]:
+                item = self.state.item_deck.draw()
+                self.get_current_player().items.append(item)
+                if self.state.who_moves == LORD:
+                    Loader.append_log(f"Lord takes two items")
+                    item = self.state.item_deck.draw()
+                    self.get_current_player().items.append(item)
+                else:
+                    Loader.append_log(f"{Loader.num_to_player(self.state.who_moves)} takes item")
+            #TODO - event in anycase
+            # Now - do nothing if it is not city
+            self.state.player_phase = ACTION_SUPPLY
+
 
         self.reveal_track()
         self.states.append(self.state)
@@ -155,7 +177,7 @@ class GameController(QObject):
             if state.phase == Phase.FIRST_TURN:
                 possible_actions = self.get_first_turn_actions()
             elif state.phase == Phase.DAY:
-                possible_actions += [ACTION_TAKE_TICKET]
+                possible_actions += [ACTION_TAKE_TICKET, ACTION_SUPPLY]
                 if is_dracula(state.who_moves):
                     raise Exception("It is day and Dracula moves")
                 else:
@@ -178,7 +200,7 @@ class GameController(QObject):
                         state.players[0].track = []
                         possible_actions += self.get_road_sea_option()
                 else:
-                    possible_actions += [ACTION_TAKE_TICKET, ACTION_NEXT]
+                    possible_actions += [ACTION_TAKE_TICKET, ACTION_NEXT, ACTION_SUPPLY]
 
         elif state.player_phase in [ACTION_MOVE_BY_ROAD, ACTION_MOVE_BY_SEA]:
             possible_actions = self.get_road_sea_movements(state.player_phase)
@@ -202,6 +224,12 @@ class GameController(QObject):
             # here is possible events at the turn end
             possible_actions = [ACTION_NEXT]
 
+        elif state.player_phase == ACTION_SUPPLY or state.player_phase == ACTION_DISCARD_ITEM:
+            logger.info(f"len(items) = {len(self.get_current_player().items)}, max len = {self.get_current_player().max_items}")
+            if len(self.get_current_player().items) > self.get_current_player().max_items:
+                possible_actions = [ACTION_DISCARD_ITEM]
+            else:
+                possible_actions = [ACTION_NEXT]
         return possible_actions
 
     def get_road_sea_option(self):
