@@ -10,6 +10,7 @@ from game_param import Param
 
 class SelectView(QGraphicsView):
     action_done = pyqtSignal(str)
+
     def __init__(self, controller):
         super().__init__()
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
@@ -18,8 +19,10 @@ class SelectView(QGraphicsView):
         self.scene = QGraphicsScene()
         self.setScene(self.scene)
         self.index = 0
-        self.items = []
-        self.stuff = None
+        self.shown_item = QGraphicsPixmapItem()
+        self.scene.addItem(self.shown_item)
+        self.shown_item.show()
+        self.stuff = None    # names of tickets, events, items, encounters, ...
         self.button, self.button_left, self.button_right = self.create_buttons()
         self.setStyleSheet('background-color: rgba(0, 0, 0, 0.5);')
 
@@ -57,40 +60,33 @@ class SelectView(QGraphicsView):
     def visualize(self):
         logger.info(f"visualize, possible_actions = {self.controller.possible_actions}")
         self.index = 0
-        for item in self.items:
-            self.scene.removeItem(item)
-        self.items = []
-        self.stuff = None
 
         if ACTION_DISCARD_TICKET in self.controller.possible_actions:
             self.stuff = self.controller.get_current_player().tickets
-            self.set_geom_sizes(0.2, 0.2)
+            self.set_geom_sizes(part_x=0.2, part_y=0.2, button_part_x=0.33, button_part_y=0.2)
             self.show_ticket()
         elif ACTION_DISCARD_ITEM in self.controller.possible_actions:
             self.stuff = self.controller.get_current_player().items
-            self.set_geom_sizes(0.5, 0.5)
+            self.set_geom_sizes(part_x=0.5, part_y=0.5, button_part_x=0.33, button_part_y=0.1)
             self.show_item()
-
-            self.show()
-
         else:
             self.hide()
 
     def show_ticket(self):
-        logger.info("show ticket #{}".format(self.index))
-        w = 0.3 * self.sceneRect().width()
+        w = 0.6 * self.sceneRect().width()
         ticket = self.controller.get_current_player().tickets[self.index]
         logger.info(f"show ticket #{ticket}")
         image = Loader.tickets[ticket].scaledToWidth(w, Qt.TransformationMode.SmoothTransformation)
         self.show_image(image)
 
     def show_item(self):
-        w = 0.3 * self.sceneRect().width()
+        h = 0.8 * self.sceneRect().height()
         item = self.controller.get_current_player().items[self.index]
-        image = Loader.name_to_item[item].scaledToWidth(w, Qt.TransformationMode.SmoothTransformation)
+        logger.info(f"show item #{item}")
+        image = Loader.name_to_item[item].scaledToHeight(h, Qt.TransformationMode.SmoothTransformation)
         self.show_image(image)
 
-    def set_geom_sizes(self, part_x, part_y):
+    def set_geom_sizes(self, part_x, part_y, button_part_x, button_part_y):
         width = self.parent().width() * part_x
         height = self.parent().height() * part_y
         x = self.parent().width() / 2 - width / 2
@@ -99,7 +95,7 @@ class SelectView(QGraphicsView):
         self.setGeometry(x, y, width, height)
 
         x_c = self.sceneRect().center().x()
-        self.button.setFixedSize(width / 3, height / 5)
+        self.button.setFixedSize(width * button_part_x, height * button_part_y)
         self.button.setGeometry(x_c - self.button.width() / 2, height - self.button.height(), self.button.width(),
                                 self.button.height())
 
@@ -141,18 +137,10 @@ class SelectView(QGraphicsView):
         logger.info("show_image")
         x_c = self.sceneRect().center().x()
         y_c = self.sceneRect().center().y()
-        width = self.sceneRect().width()
+        self.shown_item.setPixmap(QPixmap.fromImage(image))
+        self.shown_item.setPos(x_c - image.width() / 2, y_c - image.height() / 2)
+        self.show()
 
-        w = 0.3 * width
-        item = QGraphicsPixmapItem()
-        item.setPixmap(QPixmap.fromImage(image))
-
-        h = image.height()
-        shift = 0.0025 * w
-        item.setPos(x_c - w / 2, y_c - h / 2)
-        self.scene.addItem(item)
-        self.items.append(item)
-        item.show()
 
 
 

@@ -21,7 +21,7 @@ if __name__ == '__main__':
 
     controller = mainScreen.controller
     #First turn
-    for i in [1,2,3,4,5]:
+    for i in [1, 2, 3, 4, 5]:
         controller.process_action(ACTION_LOCATION + f"_{i}")
     #Lord turn
     controller.state.players[1].items = ["KNIFE", "RIFLE"]

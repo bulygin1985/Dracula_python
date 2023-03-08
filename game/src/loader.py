@@ -66,6 +66,7 @@ class Loader:
 
         for file_name in file_list:
             name_to_item[file_name.split(".")[0]] = QImage(os.path.join(path, file_name))
+        name_to_item["BACK"] = "./game/images/items/BACK.png"
         return name_to_item
 
     @classmethod

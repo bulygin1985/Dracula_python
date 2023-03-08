@@ -3,6 +3,8 @@ from PyQt6.QtWidgets import *
 import math
 from PyQt6.QtCore import Qt
 
+from common import logger
+
 
 class MotionItem(QGraphicsPixmapItem):
     def __init__(self):
