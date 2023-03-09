@@ -1,0 +1,1530 @@
+{
+    "0": {
+        "name": "Alicante",
+        "coor": [
+            0.251789,
+            0.798174
+        ],
+        "isCity": false,
+        "isPort": false,
+        "isWest": true,
+        "isSea": false,
+        "roads": [
+            "19",
+            "35",
+            "49"
+        ],
+        "seas": [
+            "68"
+        ],
+        "railways": [
+            "4",
+            "35"
+        ]
+    },
+    "1": {
+        "name": "Amsterdam",
+        "coor": [
+            0.422481,
+            0.310669
+        ],
+        "isCity": true,
+        "isPort": false,
+        "isWest": true,
+        "isSea": false,
+        "roads": [
+            "8",
+            "27"
+        ],
+        "seas": [
+            "67"
+        ],
+        "railways": []
+    },
+    "2": {
+        "name": "Athens",
+        "coor": [
+            0.853309,
+            0.876626
+        ],
+        "isCity": true,
+        "isPort": false,
+        "isWest": false,
+        "isSea": false,
+        "roads": [
+            "11"
+        ],
+        "seas": [
+            "64"
+        ],
+        "railways": []
+    },
+    "3": {
+        "name": "Bari",
+        "coor": [
+            0.704979,
+            0.797252
+        ],
+        "isCity": false,
+        "isPort": false,
+        "isWest": false,
+        "isSea": false,
+        "roads": [
+            "41",
+            "46"
+        ],
+        "seas": [
+            "61"
+        ],
+        "railways": [
+            "41"
+        ]
+    },
+    "4": {
+        "name": "Barcelona",
+        "coor": [
+            0.320662,
+            0.710678
+        ],
+        "isCity": true,
+        "isPort": false,
+        "isWest": true,
+        "isSea": false,
+        "roads": [
+            "49",
+            "55"
+        ],
+        "seas": [
+            "68"
+        ],
+        "railways": [
+            "0",
+            "49"
+        ]
+    },
+    "5": {
+        "name": "Belgrade",
+        "coor": [
+            0.770423,
+            0.626319
+        ],
+        "isCity": false,
+        "isPort": false,
+        "isWest": false,
+        "isSea": false,
+        "roads": [
+            "10",
+            "28",
+            "50",
+            "51",
+            "52",
+            "60"
+        ],
+        "seas": [],
+        "railways": [
+            "51",
+            "52"
+        ]
+    },
+    "6": {
+        "name": "Berlin",
+        "coor": [
+            0.603757,
+            0.31436
+        ],
+        "isCity": true,
+        "isPort": false,
+        "isWest": true,
+        "isSea": false,
+        "roads": [
+            "17",
+            "31",
+            "45"
+        ],
+        "seas": [],
+        "railways": [
+            "17",
+            "31",
+            "45"
+        ]
+    },
+    "7": {
+        "name": "Bordeaux",
+        "coor": [
+            0.261479,
+            0.562266
+        ],
+        "isCity": true,
+        "isPort": false,
+        "isWest": true,
+        "isSea": false,
+        "roads": [
+            "29",
+            "40",
+            "49",
+            "55"
+        ],
+        "seas": [
+            "63"
+        ],
+        "railways": [
+            "43",
+            "49"
+        ]
+    },
+    "8": {
+        "name": "Brussels",
+        "coor": [
+            0.399523,
+            0.391149
+        ],
+        "isCity": true,
+        "isPort": false,
+        "isWest": true,
+        "isSea": false,
+        "roads": [
+            "1",
+            "15",
+            "27",
+            "43",
+            "53"
+        ],
+        "seas": [],
+        "railways": [
+            "27",
+            "43"
+        ]
+    },
+    "9": {
+        "name": "Budapest",
+        "coor": [
+            0.738521,
+            0.50652
+        ],
+        "isCity": true,
+        "isPort": false,
+        "isWest": false,
+        "isSea": false,
+        "roads": [
+            "13",
+            "23",
+            "28",
+            "51"
+        ],
+        "seas": [],
+        "railways": [
+            "13",
+            "51"
+        ]
+    },
+    "10": {
+        "name": "Bucharest",
+        "coor": [
+            0.855695,
+            0.625027
+        ],
+        "isCity": true,
+        "isPort": false,
+        "isWest": false,
+        "isSea": false,
+        "roads": [
+            "5",
+            "16",
+            "28",
+            "30",
+            "52"
+        ],
+        "seas": [],
+        "railways": [
+            "16",
+            "30",
+            "51"
+        ]
+    },
+    "11": {
+        "name": "Valona",
+        "coor": [
+            0.765057,
+            0.83454
+        ],
+        "isCity": false,
+        "isPort": false,
+        "isWest": false,
+        "isSea": false,
+        "roads": [
+            "2",
+            "47",
+            "50",
+            "52"
+        ],
+        "seas": [
+            "64"
+        ],
+        "railways": []
+    },
+    "12": {
+        "name": "Varna",
+        "coor": [
+            0.926804,
+            0.695357
+        ],
+        "isCity": true,
+        "isPort": false,
+        "isWest": false,
+        "isSea": false,
+        "roads": [
+            "30",
+            "52"
+        ],
+        "seas": [
+            "70"
+        ],
+        "railways": [
+            "52"
+        ]
+    },
+    "13": {
+        "name": "Vienna",
+        "coor": [
+            0.666816,
+            0.49969
+        ],
+        "isCity": true,
+        "isPort": false,
+        "isWest": false,
+        "isSea": false,
+        "roads": [
+            "9",
+            "23",
+            "39",
+            "45"
+        ],
+        "seas": [],
+        "railways": [
+            "9",
+            "14",
+            "45"
+        ]
+    },
+    "14": {
+        "name": "Venice",
+        "coor": [
+            0.570364,
+            0.603431
+        ],
+        "isCity": false,
+        "isPort": false,
+        "isWest": false,
+        "isSea": false,
+        "roads": [
+            "18",
+            "38",
+            "39",
+            "56"
+        ],
+        "seas": [
+            "61"
+        ],
+        "railways": [
+            "13"
+        ]
+    },
+    "15": {
+        "name": "Havre",
+        "coor": [
+            0.316935,
+            0.407025
+        ],
+        "isCity": false,
+        "isPort": false,
+        "isWest": true,
+        "isSea": false,
+        "roads": [
+            "8",
+            "40",
+            "43"
+        ],
+        "seas": [
+            "66"
+        ],
+        "railways": [
+            "43"
+        ]
+    },
+    "16": {
+        "name": "Galatz",
+        "coor": [
+            0.899523,
+            0.522949
+        ],
+        "isCity": false,
+        "isPort": false,
+        "isWest": false,
+        "isSea": false,
+        "roads": [
+            "10",
+            "24",
+            "28",
+            "30"
+        ],
+        "seas": [],
+        "railways": [
+            "10"
+        ]
+    },
+    "17": {
+        "name": "Hamburg",
+        "coor": [
+            0.494186,
+            0.274303
+        ],
+        "isCity": true,
+        "isPort": false,
+        "isWest": true,
+        "isSea": false,
+        "roads": [
+            "6",
+            "27",
+            "31"
+        ],
+        "seas": [
+            "67"
+        ],
+        "railways": [
+            "6"
+        ]
+    },
+    "18": {
+        "name": "Genoa",
+        "coor": [
+            0.484198,
+            0.639426
+        ],
+        "isCity": true,
+        "isPort": false,
+        "isWest": false,
+        "isSea": false,
+        "roads": [
+            "14",
+            "37",
+            "38",
+            "56"
+        ],
+        "seas": [
+            "69"
+        ],
+        "railways": [
+            "38"
+        ]
+    },
+    "19": {
+        "name": "Granada",
+        "coor": [
+            0.173673,
+            0.816819
+        ],
+        "isCity": false,
+        "isPort": false,
+        "isWest": true,
+        "isSea": false,
+        "roads": [
+            "0",
+            "25",
+            "35"
+        ],
+        "seas": [],
+        "railways": []
+    },
+    "20": {
+        "name": "Galway",
+        "coor": [
+            0.117323,
+            0.18773
+        ],
+        "isCity": false,
+        "isPort": false,
+        "isWest": true,
+        "isSea": false,
+        "roads": [
+            "21"
+        ],
+        "seas": [
+            "62"
+        ],
+        "railways": []
+    },
+    "21": {
+        "name": "Dublin",
+        "coor": [
+            0.184407,
+            0.218742
+        ],
+        "isCity": false,
+        "isPort": false,
+        "isWest": true,
+        "isSea": false,
+        "roads": [
+            "20"
+        ],
+        "seas": [
+            "65"
+        ],
+        "railways": [
+            "38"
+        ]
+    },
+    "22": {
+        "name": "Geneva",
+        "coor": [
+            0.417114,
+            0.546577
+        ],
+        "isCity": false,
+        "isPort": false,
+        "isWest": true,
+        "isSea": false,
+        "roads": [
+            "29",
+            "37",
+            "43",
+            "53",
+            "58"
+        ],
+        "seas": [],
+        "railways": [
+            "38"
+        ]
+    },
+    "23": {
+        "name": "Zagreb",
+        "coor": [
+            0.639535,
+            0.585524
+        ],
+        "isCity": false,
+        "isPort": false,
+        "isWest": false,
+        "isSea": false,
+        "roads": [
+            "9",
+            "13",
+            "39",
+            "50",
+            "51",
+            "60"
+        ],
+        "seas": [],
+        "railways": []
+    },
+    "24": {
+        "name": "Dracula Castle",
+        "coor": [
+            0.85316,
+            0.475878
+        ],
+        "isCity": false,
+        "isPort": false,
+        "isWest": false,
+        "isSea": false,
+        "roads": [
+            "16",
+            "28"
+        ],
+        "seas": [],
+        "railways": []
+    },
+    "25": {
+        "name": "Cadiz",
+        "coor": [
+            0.104651,
+            0.835832
+        ],
+        "isCity": true,
+        "isPort": false,
+        "isWest": true,
+        "isSea": false,
+        "roads": [
+            "19",
+            "33",
+            "35"
+        ],
+        "seas": [
+            "62"
+        ],
+        "railways": []
+    },
+    "26": {
+        "name": "Cagliari",
+        "coor": [
+            0.478384,
+            0.826233
+        ],
+        "isCity": false,
+        "isPort": false,
+        "isWest": false,
+        "isSea": false,
+        "roads": [],
+        "seas": [
+            "68",
+            "69"
+        ],
+        "railways": [
+            "8",
+            "57"
+        ]
+    },
+    "27": {
+        "name": "Cologne",
+        "coor": [
+            0.459899,
+            0.3594
+        ],
+        "isCity": true,
+        "isPort": false,
+        "isWest": true,
+        "isSea": false,
+        "roads": [
+            "1",
+            "8",
+            "17",
+            "31",
+            "53",
+            "57"
+        ],
+        "seas": [],
+        "railways": [
+            "8",
+            "57"
+        ]
+    },
+    "28": {
+        "name": "Klausenburg",
+        "coor": [
+            0.807245,
+            0.526086
+        ],
+        "isCity": false,
+        "isPort": false,
+        "isWest": false,
+        "isSea": false,
+        "roads": [
+            "5",
+            "9",
+            "10",
+            "16",
+            "24",
+            "51"
+        ],
+        "seas": [],
+        "railways": []
+    },
+    "29": {
+        "name": "Clermont Ferrand",
+        "coor": [
+            0.349434,
+            0.550453
+        ],
+        "isCity": false,
+        "isPort": false,
+        "isWest": true,
+        "isSea": false,
+        "roads": [
+            "7",
+            "22",
+            "37",
+            "40",
+            "43",
+            "55"
+        ],
+        "seas": [],
+        "railways": []
+    },
+    "30": {
+        "name": "Constanta",
+        "coor": [
+            0.940668,
+            0.596601
+        ],
+        "isCity": true,
+        "isPort": false,
+        "isWest": false,
+        "isSea": false,
+        "roads": [
+            "10",
+            "12",
+            "16"
+        ],
+        "seas": [
+            "70"
+        ],
+        "railways": [
+            "10"
+        ]
+    },
+    "31": {
+        "name": "Leipzig",
+        "coor": [
+            0.556798,
+            0.37306
+        ],
+        "isCity": true,
+        "isPort": false,
+        "isWest": true,
+        "isSea": false,
+        "roads": [
+            "6",
+            "17",
+            "27",
+            "42",
+            "57"
+        ],
+        "seas": [],
+        "railways": [
+            "6",
+            "42",
+            "57"
+        ]
+    },
+    "32": {
+        "name": "Liverpool",
+        "coor": [
+            0.247466,
+            0.231478
+        ],
+        "isCity": true,
+        "isPort": false,
+        "isWest": true,
+        "isSea": false,
+        "roads": [
+            "36",
+            "54"
+        ],
+        "seas": [
+            "65"
+        ],
+        "railways": [
+            "36"
+        ]
+    },
+    "33": {
+        "name": "Lisbon",
+        "coor": [
+            0.0451699,
+            0.728215
+        ],
+        "isCity": true,
+        "isPort": false,
+        "isWest": true,
+        "isSea": false,
+        "roads": [
+            "25",
+            "35",
+            "48"
+        ],
+        "seas": [
+            "62"
+        ],
+        "railways": [
+            "35"
+        ]
+    },
+    "34": {
+        "name": "London",
+        "coor": [
+            0.331992,
+            0.324143
+        ],
+        "isCity": true,
+        "isPort": false,
+        "isWest": true,
+        "isSea": false,
+        "roads": [
+            "36",
+            "44",
+            "54"
+        ],
+        "seas": [
+            "66"
+        ],
+        "railways": [
+            "36",
+            "54"
+        ]
+    },
+    "35": {
+        "name": "Madrid",
+        "coor": [
+            0.171288,
+            0.720646
+        ],
+        "isCity": true,
+        "isPort": false,
+        "isWest": true,
+        "isSea": false,
+        "roads": [
+            "0",
+            "19",
+            "25",
+            "33",
+            "48",
+            "49"
+        ],
+        "seas": [],
+        "railways": [
+            "0",
+            "33",
+            "48",
+            "49"
+        ]
+    },
+    "36": {
+        "name": "Manchester",
+        "coor": [
+            0.29189,
+            0.208405
+        ],
+        "isCity": true,
+        "isPort": false,
+        "isWest": true,
+        "isSea": false,
+        "roads": [
+            "32",
+            "34",
+            "59"
+        ],
+        "seas": [],
+        "railways": [
+            "32",
+            "34",
+            "59"
+        ]
+    },
+    "37": {
+        "name": "Marseilles",
+        "coor": [
+            0.408318,
+            0.66453
+        ],
+        "isCity": true,
+        "isPort": false,
+        "isWest": true,
+        "isSea": false,
+        "roads": [
+            "18",
+            "22",
+            "29",
+            "38",
+            "55",
+            "58"
+        ],
+        "seas": [
+            "68"
+        ],
+        "railways": [
+            "43"
+        ]
+    },
+    "38": {
+        "name": "Milan",
+        "coor": [
+            0.478384,
+            0.56522
+        ],
+        "isCity": true,
+        "isPort": false,
+        "isWest": false,
+        "isSea": false,
+        "roads": [
+            "14",
+            "18",
+            "37",
+            "39",
+            "58"
+        ],
+        "seas": [],
+        "railways": [
+            "18",
+            "22",
+            "56",
+            "58"
+        ]
+    },
+    "39": {
+        "name": "Munich",
+        "coor": [
+            0.575283,
+            0.529594
+        ],
+        "isCity": true,
+        "isPort": false,
+        "isWest": true,
+        "isSea": false,
+        "roads": [
+            "13",
+            "14",
+            "23",
+            "38",
+            "42",
+            "53",
+            "58"
+        ],
+        "seas": [],
+        "railways": [
+            "42"
+        ]
+    },
+    "40": {
+        "name": "Nantes",
+        "coor": [
+            0.247764,
+            0.479201
+        ],
+        "isCity": true,
+        "isPort": false,
+        "isWest": true,
+        "isSea": false,
+        "roads": [
+            "7",
+            "15",
+            "29",
+            "43"
+        ],
+        "seas": [
+            "63"
+        ],
+        "railways": []
+    },
+    "41": {
+        "name": "Naples",
+        "coor": [
+            0.608527,
+            0.776208
+        ],
+        "isCity": true,
+        "isPort": false,
+        "isWest": false,
+        "isSea": false,
+        "roads": [
+            "3",
+            "46"
+        ],
+        "seas": [
+            "69"
+        ],
+        "railways": [
+            "3",
+            "46"
+        ]
+    },
+    "42": {
+        "name": "Nuremburg",
+        "coor": [
+            0.534586,
+            0.449481
+        ],
+        "isCity": false,
+        "isPort": false,
+        "isWest": true,
+        "isSea": false,
+        "roads": [
+            "31",
+            "39",
+            "45",
+            "53",
+            "57"
+        ],
+        "seas": [],
+        "railways": [
+            "31",
+            "39"
+        ]
+    },
+    "43": {
+        "name": "Paris",
+        "coor": [
+            0.370453,
+            0.457787
+        ],
+        "isCity": true,
+        "isPort": false,
+        "isWest": true,
+        "isSea": false,
+        "roads": [
+            "8",
+            "15",
+            "22",
+            "29",
+            "40",
+            "53"
+        ],
+        "seas": [],
+        "railways": [
+            "7",
+            "8",
+            "15",
+            "37"
+        ]
+    },
+    "44": {
+        "name": "Plymouth",
+        "coor": [
+            0.234645,
+            0.34334
+        ],
+        "isCity": false,
+        "isPort": false,
+        "isWest": true,
+        "isSea": false,
+        "roads": [
+            "34"
+        ],
+        "seas": [
+            "66"
+        ],
+        "railways": []
+    },
+    "45": {
+        "name": "Prague",
+        "coor": [
+            0.632826,
+            0.417916
+        ],
+        "isCity": true,
+        "isPort": false,
+        "isWest": false,
+        "isSea": false,
+        "roads": [
+            "6",
+            "13",
+            "42"
+        ],
+        "seas": [],
+        "railways": [
+            "6",
+            "13"
+        ]
+    },
+    "46": {
+        "name": "Rome",
+        "coor": [
+            0.550537,
+            0.728215
+        ],
+        "isCity": true,
+        "isPort": false,
+        "isWest": false,
+        "isSea": false,
+        "roads": [
+            "3",
+            "41",
+            "56"
+        ],
+        "seas": [
+            "69"
+        ],
+        "railways": [
+            "41",
+            "56"
+        ]
+    },
+    "47": {
+        "name": "Salonica",
+        "coor": [
+            0.832439,
+            0.781561
+        ],
+        "isCity": false,
+        "isPort": false,
+        "isWest": false,
+        "isSea": false,
+        "roads": [
+            "11",
+            "52"
+        ],
+        "seas": [
+            "64"
+        ],
+        "railways": [
+            "52"
+        ]
+    },
+    "48": {
+        "name": "Santander",
+        "coor": [
+            0.181574,
+            0.599738
+        ],
+        "isCity": false,
+        "isPort": false,
+        "isWest": true,
+        "isSea": false,
+        "roads": [
+            "33",
+            "35",
+            "49"
+        ],
+        "seas": [
+            "63"
+        ],
+        "railways": [
+            "35"
+        ]
+    },
+    "49": {
+        "name": "Saragossa",
+        "coor": [
+            0.240906,
+            0.682066
+        ],
+        "isCity": false,
+        "isPort": false,
+        "isWest": true,
+        "isSea": false,
+        "roads": [
+            "0",
+            "4",
+            "7",
+            "35",
+            "48",
+            "55"
+        ],
+        "seas": [],
+        "railways": [
+            "4",
+            "7",
+            "35"
+        ]
+    },
+    "50": {
+        "name": "Sarajevo",
+        "coor": [
+            0.707066,
+            0.678744
+        ],
+        "isCity": false,
+        "isPort": false,
+        "isWest": false,
+        "isSea": false,
+        "roads": [
+            "5",
+            "11",
+            "23",
+            "52",
+            "60"
+        ],
+        "seas": [],
+        "railways": []
+    },
+    "51": {
+        "name": "Szeged",
+        "coor": [
+            0.726297,
+            0.573157
+        ],
+        "isCity": false,
+        "isPort": false,
+        "isWest": false,
+        "isSea": false,
+        "roads": [
+            "5",
+            "9",
+            "23",
+            "28",
+            "60"
+        ],
+        "seas": [],
+        "railways": [
+            "5",
+            "9",
+            "10"
+        ]
+    },
+    "52": {
+        "name": "Sofia",
+        "coor": [
+            0.830948,
+            0.691296
+        ],
+        "isCity": false,
+        "isPort": false,
+        "isWest": false,
+        "isSea": false,
+        "roads": [
+            "5",
+            "10",
+            "11",
+            "12",
+            "47",
+            "50"
+        ],
+        "seas": [],
+        "railways": [
+            "5",
+            "12",
+            "47"
+        ]
+    },
+    "53": {
+        "name": "Strasbourg",
+        "coor": [
+            0.446184,
+            0.447082
+        ],
+        "isCity": false,
+        "isPort": false,
+        "isWest": true,
+        "isSea": false,
+        "roads": [
+            "8",
+            "22",
+            "27",
+            "39",
+            "42",
+            "43",
+            "57",
+            "58"
+        ],
+        "seas": [],
+        "railways": [
+            "57",
+            "58"
+        ]
+    },
+    "54": {
+        "name": "Swansea",
+        "coor": [
+            0.240012,
+            0.291102
+        ],
+        "isCity": false,
+        "isPort": false,
+        "isWest": true,
+        "isSea": false,
+        "roads": [
+            "32",
+            "34"
+        ],
+        "seas": [
+            "65"
+        ],
+        "railways": [
+            "34"
+        ]
+    },
+    "55": {
+        "name": "Toulouse",
+        "coor": [
+            0.308289,
+            0.630566
+        ],
+        "isCity": false,
+        "isPort": false,
+        "isWest": true,
+        "isSea": false,
+        "roads": [
+            "4",
+            "7",
+            "29",
+            "37",
+            "49"
+        ],
+        "seas": [],
+        "railways": []
+    },
+    "56": {
+        "name": "Florence",
+        "coor": [
+            0.545915,
+            0.661577
+        ],
+        "isCity": false,
+        "isPort": false,
+        "isWest": false,
+        "isSea": false,
+        "roads": [
+            "14",
+            "18",
+            "46"
+        ],
+        "seas": [],
+        "railways": [
+            "38",
+            "46"
+        ]
+    },
+    "57": {
+        "name": "Frankfurt",
+        "coor": [
+            0.500447,
+            0.398719
+        ],
+        "isCity": false,
+        "isPort": false,
+        "isWest": true,
+        "isSea": false,
+        "roads": [
+            "27",
+            "31",
+            "42",
+            "53"
+        ],
+        "seas": [],
+        "railways": [
+            "27",
+            "31",
+            "53"
+        ]
+    },
+    "58": {
+        "name": "Zurich",
+        "coor": [
+            0.475552,
+            0.510027
+        ],
+        "isCity": false,
+        "isPort": false,
+        "isWest": true,
+        "isSea": false,
+        "roads": [
+            "22",
+            "37",
+            "38",
+            "39",
+            "53"
+        ],
+        "seas": [],
+        "railways": [
+            "53",
+            "38"
+        ]
+    },
+    "59": {
+        "name": "Edinburgh",
+        "coor": [
+            0.296213,
+            0.126999
+        ],
+        "isCity": true,
+        "isPort": false,
+        "isWest": true,
+        "isSea": false,
+        "roads": [
+            "36"
+        ],
+        "seas": [
+            "67"
+        ],
+        "railways": [
+            "36"
+        ]
+    },
+    "60": {
+        "name": "St. Joseph And Mary",
+        "coor": [
+            0.686494,
+            0.607122
+        ],
+        "isCity": true,
+        "isPort": false,
+        "isWest": false,
+        "isSea": false,
+        "roads": [
+            "5",
+            "23",
+            "50",
+            "51"
+        ],
+        "seas": [],
+        "railways": []
+    },
+    "61": {
+        "name": "Adriatic Sea",
+        "coor": [
+            0.626118,
+            0.691481
+        ],
+        "isCity": false,
+        "isPort": false,
+        "isSea": true,
+        "seas": [
+            "3",
+            "14",
+            "64"
+        ],
+        "roads": [],
+        "railways": []
+    },
+    "62": {
+        "name": "Atlantic",
+        "coor": [
+            0.104353,
+            0.377675
+        ],
+        "isCity": false,
+        "isPort": false,
+        "isSea": true,
+        "seas": [
+            "20",
+            "25",
+            "33",
+            "63",
+            "65",
+            "66",
+            "67",
+            "68"
+        ],
+        "roads": [],
+        "railways": []
+    },
+    "63": {
+        "name": "Bay Biscay",
+        "coor": [
+            0.178891,
+            0.525348
+        ],
+        "isCity": false,
+        "isPort": false,
+        "isSea": true,
+        "seas": [
+            "7",
+            "40",
+            "48",
+            "62"
+        ],
+        "roads": [],
+        "railways": []
+    },
+    "64": {
+        "name": "Ionian Sea",
+        "coor": [
+            0.730471,
+            0.912991
+        ],
+        "isCity": false,
+        "isPort": false,
+        "isSea": true,
+        "seas": [
+            "2",
+            "11",
+            "47",
+            "61",
+            "69",
+            "70"
+        ],
+        "roads": [],
+        "railways": []
+    },
+    "65": {
+        "name": "Irish Sea",
+        "coor": [
+            0.163983,
+            0.28538
+        ],
+        "isCity": false,
+        "isPort": false,
+        "isSea": true,
+        "seas": [
+            "21",
+            "32",
+            "54",
+            "62"
+        ],
+        "roads": [],
+        "railways": []
+    },
+    "66": {
+        "name": "English Channel",
+        "coor": [
+            0.283244,
+            0.368445
+        ],
+        "isCity": false,
+        "isPort": false,
+        "isSea": true,
+        "seas": [
+            "15",
+            "34",
+            "44",
+            "62",
+            "67"
+        ],
+        "roads": [],
+        "railways": []
+    },
+    "67": {
+        "name": "North Sea",
+        "coor": [
+            0.402504,
+            0.174624
+        ],
+        "isCity": false,
+        "isPort": false,
+        "isSea": true,
+        "seas": [
+            "1",
+            "17",
+            "59",
+            "62",
+            "66"
+        ],
+        "roads": [],
+        "railways": []
+    },
+    "68": {
+        "name": "Mediterranean",
+        "coor": [
+            0.372689,
+            0.802235
+        ],
+        "isCity": false,
+        "isPort": false,
+        "isSea": true,
+        "seas": [
+            "0",
+            "4",
+            "26",
+            "37",
+            "62",
+            "69"
+        ],
+        "roads": [],
+        "railways": []
+    },
+    "69": {
+        "name": "Tyrrhenian Sea",
+        "coor": [
+            0.536673,
+            0.802235
+        ],
+        "isCity": false,
+        "isPort": false,
+        "isSea": true,
+        "seas": [
+            "18",
+            "26",
+            "41",
+            "46",
+            "64",
+            "68"
+        ],
+        "roads": [],
+        "railways": []
+    },
+    "70": {
+        "name": "Black Sea",
+        "coor": [
+            0.968992,
+            0.654563
+        ],
+        "isCity": false,
+        "isPort": false,
+        "isSea": true,
+        "seas": [
+            "12",
+            "30",
+            "64"
+        ],
+        "roads": [],
+        "railways": []
+    }
+}
