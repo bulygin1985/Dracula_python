@@ -3,7 +3,7 @@ class Player:
         self.location_num = ""  # it is string integer
         self.health = -1
         self.max_health = -1
-        self.tickets = []
+        self.events = []
 
     def set_location(self, location_num):
         self.location_num = location_num
@@ -15,6 +15,7 @@ class Hunter(Player):
         self.max_items = 3
         self.max_events = 3
         self.items = []
+        self.tickets = []
 
 
 class TrackElement:
@@ -32,6 +33,7 @@ class TrackElement:
 class Dracula(Player):
     def __init__(self):
         super().__init__()
+        self.max_events = 4
         self.health = 15
         self.max_health = 15
         self.track = []  # [ (loc_num_1,  isOpen_1, encounter_1) ,..., (loc_num_6,  isOpen_6, encounter_6)]

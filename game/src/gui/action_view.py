@@ -16,7 +16,8 @@ from gamecontroller.gamecontroller import *
 class ActionView(QGraphicsView):
     action_done = pyqtSignal(str)
     action2draw = [ACTION_NEXT, ACTION_MOVE_BY_ROAD, ACTION_MOVE_BY_RAILWAY, ACTION_MOVE_BY_SEA, "ActionSearch",
-                   "ActionSupply", "ActionHealing", "ActionExchange", "ActionSpecial", ACTION_TAKE_TICKET]
+                   ACTION_SUPPLY, "ActionHealing", "ActionExchange", "ActionSpecial", ACTION_TAKE_TICKET]
+
     def __init__(self, width, height, controller):
         logger.info("ActionView constructor")
         super().__init__()

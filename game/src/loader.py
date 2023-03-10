@@ -3,6 +3,7 @@ from PyQt6.QtWidgets import *
 import json
 from common.logger import logger
 import os
+from collections import defaultdict
 
 
 class Loader:
@@ -56,7 +57,26 @@ class Loader:
             Loader.tickets[key] = QImage(ticket_path + key + ".png")
         Loader.tickets["back"] = QImage("./game/images/tickets/ticket_back.png")
         Loader.name_to_item = Loader.get_name_to_item()
+        Loader.name_to_event = Loader.get_name_to_event()
         logger.info("all file are successfully loaded")
+
+    @classmethod
+    def get_name_to_event(cls):
+        name_to_event = defaultdict(dict)
+        for path in ["./game/images/events/dracula", "./game/images/events/hunter"]:
+            filenames = os.listdir(path)
+            for filename in filenames:
+                event = filename.split(".")[0]
+                if event in ["BACK_DRACULA", "BACK_HUNTER"]:
+                    name_to_event[event]["image"] = QImage(os.path.join(path, filename))
+                    continue
+                num = event.split("_")[-1]
+                name = event.replace("_" + num, "")
+                logger.info(f"name={name}, num={num}")
+                name_to_event[name]["image"] = QImage(os.path.join(path, filename))
+                name_to_event[name]["number"] = int(num)
+                name_to_event[name]["isHunter"] = False if "dracula" in path else True
+        return name_to_event
 
     @classmethod
     def get_name_to_item(cls):
@@ -66,7 +86,7 @@ class Loader:
 
         for file_name in file_list:
             name_to_item[file_name.split(".")[0]] = QImage(os.path.join(path, file_name))
-        name_to_item["BACK"] = "./game/images/items/BACK.png"
+        #name_to_item["BACK"] = "./game/images/items/BACK.png"
         return name_to_item
 
     @classmethod

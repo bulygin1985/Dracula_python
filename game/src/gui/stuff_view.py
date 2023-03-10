@@ -79,6 +79,7 @@ class StuffView(QGraphicsView):
 
         self.tickets = []
         self.items = []
+        self.events = []
         self.y_c = None  # upper y for player cards
         self.player_card_items = self.get_and_show_player_cards()
 
@@ -89,25 +90,29 @@ class StuffView(QGraphicsView):
         self.marker.setZValue(10)
         self.scene.addItem(self.marker)
 
-        self.show_events(0)
-
     def show_events(self, player_num):
         logger.info("show_events")
         w = self.scene.width()
         h = 1.5 * w * 0.35
         shift = 0.15*w
-        image = QImage("./game/images/events/hunter/BLOOD_TRANSFUSION_2.png").scaledToWidth(0.8 * w, Qt.TransformationMode.SmoothTransformation)
-        item = CardsStuff(image, 0.1*w, 2*h+3*0.1*w)
-        self.scene.addItem(item)
-        image = QImage("./game/images/events/hunter/EVIL_PRESENCE_2.png").scaledToWidth(0.8 * w, Qt.TransformationMode.SmoothTransformation)
-        item = CardsStuff(image, 0.1*w, 2*h+3*0.1*w + shift)
-        self.scene.addItem(item)
-        image = QImage("./game/images/events/hunter/EXCELLENT_WEATHER_2.png").scaledToWidth(0.8 * w, Qt.TransformationMode.SmoothTransformation)
-        item = CardsStuff(image, 0.1 * w, 2 * h + 3 * 0.1 * w + 2*shift)
-        self.scene.addItem(item)
-        image = QImage("./game/images/events/hunter/FOREWARNED_2.png").scaledToWidth(0.8 * w, Qt.TransformationMode.SmoothTransformation)
-        item = CardsStuff(image, 0.1 * w, 2 * h + 3 * 0.1 * w + 3*shift)
-        self.scene.addItem(item)
+
+        for idx, event in enumerate(self.controller.state.players[player_num].events):
+            if idx > 3:  # show only the first 4th events
+                break
+            if not Loader.name_to_event[event]["isHunter"] and are_you_hunter() and not are_you_dracula():
+                image = Loader.name_to_event["BACK_DRACULA"]["image"]
+            elif Loader.name_to_event[event]["isHunter"] and are_you_dracula() and not are_you_hunter():
+                image = Loader.name_to_event["BACK_HUNTER"]["image"]
+            else:
+                image = Loader.name_to_event[event]["image"]
+            image = image.scaledToWidth(0.8 * w, Qt.TransformationMode.SmoothTransformation)
+            card_event = CardsStuff(image, 0.1 * w, 2 * h + 3 * 0.1 * w + idx * shift)
+            self.scene.addItem(card_event)
+
+
+            # TODO - Dracula and Hunter back
+
+            self.events.append(card_event)
 
     def show_items(self, player_num):
         logger.info("show_items")
@@ -115,7 +120,7 @@ class StuffView(QGraphicsView):
         h = 1.5 * w * 0.35
         num_to_pos = {0: [0.1*w, 0.1*w], 1: [0.55*w, 0.1*w], 2: [0.1*w, 0.1*w+h+0.1*w], 3:  [0.55*w, 0.1*w+h+0.1*w]}
         for idx, item in enumerate(self.controller.state.players[player_num].items):
-            if idx > 3: # show only the first 4th items
+            if idx > 3:  # show only the first 4th items
                 break
             logger.info(f"item = {item}")
             x = num_to_pos[idx][0]
@@ -139,7 +144,7 @@ class StuffView(QGraphicsView):
         #TODO - show frame on player card
         self.remove_items()
         self.marker.setPos(self.player_card_items[player_num].pos())
-        #logger.info("rect={}, rect.topLeft()={}".format(rect, rect.topLeft()))
+        self.show_events(player_num)
         if is_hunter(player_num):
             self.show_tickets(player_num)
             self.show_items(player_num)
@@ -216,6 +221,9 @@ class StuffView(QGraphicsView):
         for item in self.items:
             self.scene.removeItem(item)
         self.items = []
+        for event in self.events:
+            self.scene.removeItem(event)
+        self.events = []
 
     def process_action_done(self, num):
         self.show_stuff(num)

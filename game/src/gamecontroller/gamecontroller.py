@@ -15,6 +15,7 @@ TICKET_2 = "Ticket_2"
 ACTION_TAKE_TICKET = "ActionTicket"
 ACTION_DISCARD_TICKET = "ActionDiscardTicket"
 ACTION_DISCARD_ITEM = "ActionDiscardItem"
+ACTION_DISCARD_EVENT = "ActionDiscardEvent"
 ACTION_SUPPLY = "ActionSupply"
 
 MOVEMENT_ACTIONS = {ACTION_MOVE_BY_ROAD, ACTION_MOVE_BY_SEA, ACTION_MOVE_BY_RAILWAY, TICKET_1, TICKET_2}
@@ -95,26 +96,51 @@ class GameController(QObject):
         elif ACTION_DISCARD_TICKET in action:
             num = int(action.split("_")[-1])
             logger.info("discard ticket {}".format(num))
-            self.get_current_player().tickets.pop(num)
+            self.state.tickets_deck.discard(self.get_current_player().tickets.pop(num))
             self.state.player_phase = ACTION_DISCARD_TICKET
         elif ACTION_DISCARD_ITEM in action:
             num = int(action.split("_")[-1])
             logger.info("discard item {}".format(num))
-            self.get_current_player().items.pop(num)
+            self.state.item_deck.discard(self.get_current_player().items.pop(num))
+            Loader.append_log(f"{Loader.num_to_player(self.state.who_moves)} discard item")
             self.state.player_phase = ACTION_DISCARD_ITEM
+        elif ACTION_DISCARD_EVENT in action:
+            num = int(action.split("_")[-1])
+            logger.info("discard event {}".format(num))
+            self.state.event_deck.discard(self.get_current_player().events.pop(num))
+            Loader.append_log(f"{Loader.num_to_player(self.state.who_moves)} discard event")
+            self.state.player_phase = ACTION_DISCARD_EVENT
 
         elif action == ACTION_SUPPLY:
+            if self.state.phase == Phase.NIGHT:
+                event = self.state.event_deck.draw(back=False)
+                if Loader.name_to_event[event]["isHunter"]:
+                    self.get_current_player().events.append(event)
+                    Loader.append_log(f"{Loader.num_to_player(self.state.who_moves)} draws Hunter event at night from"
+                                      f" event deck back and takes it. ")
+                else:
+                    self.state.players[DRACULA].events.append(event)
+                    Loader.append_log(f"{Loader.num_to_player(self.state.who_moves)} draws Dracula event at night "
+                                      f"from event deck back and Dracula takes it. ")
+            elif self.state.phase == Phase.DAY:
+                event = self.state.event_deck.draw()
+                if Loader.name_to_event[event]["isHunter"]:
+                    self.get_current_player().events.append(event)
+                    Loader.append_log(f"{Loader.num_to_player(self.state.who_moves)} draws Hunter event at day "
+                                      f"from event deck front and takes it. ")
+                else:
+                    self.state.event_deck.discard(event)
+                    Loader.append_log(f"{Loader.num_to_player(self.state.who_moves)} draws Dracula event at day "
+                                      f"from event deck front and discards it. ")
             if self.get_who_move_loc_dict()["isCity"]:
                 item = self.state.item_deck.draw()
                 self.get_current_player().items.append(item)
                 if self.state.who_moves == LORD:
-                    Loader.append_log(f"Lord takes two items")
+                    Loader.append_log(f"Lord takes two item. ")
                     item = self.state.item_deck.draw()
                     self.get_current_player().items.append(item)
                 else:
-                    Loader.append_log(f"{Loader.num_to_player(self.state.who_moves)} takes item")
-            #TODO - event in anycase
-            # Now - do nothing if it is not city
+                    Loader.append_log(f"{Loader.num_to_player(self.state.who_moves)} takes item. ")
             self.state.player_phase = ACTION_SUPPLY
 
 
@@ -224,10 +250,12 @@ class GameController(QObject):
             # here is possible events at the turn end
             possible_actions = [ACTION_NEXT]
 
-        elif state.player_phase == ACTION_SUPPLY or state.player_phase == ACTION_DISCARD_ITEM:
+        elif state.player_phase == ACTION_SUPPLY or state.player_phase == ACTION_DISCARD_ITEM or state.player_phase == ACTION_DISCARD_EVENT:
             logger.info(f"len(items) = {len(self.get_current_player().items)}, max len = {self.get_current_player().max_items}")
             if len(self.get_current_player().items) > self.get_current_player().max_items:
                 possible_actions = [ACTION_DISCARD_ITEM]
+            elif len(self.get_current_player().events) > self.get_current_player().max_events:
+                possible_actions = [ACTION_DISCARD_EVENT]
             else:
                 possible_actions = [ACTION_NEXT]
         return possible_actions

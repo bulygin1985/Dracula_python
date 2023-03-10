@@ -2,6 +2,7 @@ from enum import Enum
 from gamestate.player import Dracula, Lord, Doctor, Helsing, Mina
 from gamestate.deck import Deck
 from loader import Loader
+from common.logger import logger
 
 
 TURN_BEGIN = "turn_begin"
@@ -38,5 +39,10 @@ class GameState:
         self.item_deck = Deck(cards=2*["CRUCIFIX"] + 2*["HOLY_CIRCLE"] + 3*["GARLIC_WREATH"] + 3*["KNIFE"] +
                                     3*["FAST_HORSES"] + 3*["HEAVENLY_HOST"] + 3*["GARLIC"] + 3*["HOLY_BULLETS"] +
                                     4*["STAKE"] + 4*["DOGS"] + 4*["RIFLE"] + 4*["PISTOL"], deck_name="Items")
+        event_cards = []
+        for name, event in Loader.name_to_event.items():
+            if name not in ["BACK_DRACULA", "BACK_HUNTER"]:
+                event_cards += event["number"] * [name]
+        self.event_deck = Deck(cards=event_cards, deck_name="Events")
 
 

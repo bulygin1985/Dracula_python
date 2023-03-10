@@ -24,7 +24,8 @@ if __name__ == '__main__':
     for i in [1, 2, 3, 4, 5]:
         controller.process_action(ACTION_LOCATION + f"_{i}")
     #Lord turn
-    controller.state.players[1].items = ["KNIFE", "RIFLE"]
+    controller.state.players[LORD].items = ["KNIFE", "RIFLE"]
+    controller.state.players[LORD].events = ["LUCY_REVENGE", "MONEY_TRAIL", "PLANNED_AMBUSH"]
     controller.process_action(ACTION_SUPPLY)
 
     app.exec()
