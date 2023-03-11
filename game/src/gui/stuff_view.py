@@ -80,7 +80,6 @@ class StuffView(QGraphicsView):
         self.tickets = []
         self.items = []
         self.events = []
-        self.y_c = None  # upper y for player cards
         self.player_card_items = self.get_and_show_player_cards()
 
         self.marker = QGraphicsRectItem(self.player_card_items[0].boundingRect())
@@ -176,19 +175,23 @@ class StuffView(QGraphicsView):
                 image = Loader.tickets["back"].scaledToWidth(w, Qt.TransformationMode.SmoothTransformation)
             card_height = image.height()
             ticket_item = MotionItem()
+            ticket_item.setZValue(10)
             if possible_ticket_num is not None and idx == possible_ticket_num:
                 ticket_item.name = "Ticket_" + str(idx + 1)
                 ticket_item.set_parent(self)
                 ticket_item.start(scale_changing=0.1)
             ticket_item.setPixmap(QPixmap.fromImage(image))
-            ticket_item.setPos(shift + idx * (w + shift), self.y_c - card_height - shift)
+            ticket_item.setPos(shift + idx * (w + shift), self.player_card_items[0].y() - card_height - shift/2)
             self.tickets.append(ticket_item)
             self.scene.addItem(ticket_item)
             ticket_item.show()
 
     def process_action_done(self, name):
         logger.info(f"stuff_view process_action_done({name})")
-        self.action_done.emit(name)
+        if isinstance(name, int): # player card is clicked
+            self.show_stuff(name)
+        else:  # ticket is chosen
+            self.action_done.emit(name)
 
     def get_and_show_player_cards(self):
         logger.info("show_player_cards")
@@ -199,12 +202,13 @@ class StuffView(QGraphicsView):
             half = player_card_image.width() / 2.0
             x_c = self.scene.width() / 2.0
             rad = self.scene.width() / 2.0 - half
-            self.y_c = self.scene.height() - 2 * rad - 2 * half
+
             player_card_item = MotionItem()
             player_card_item.set_parent(self)
             player_card_item.name = i
             player_card_item.setPixmap(QPixmap.fromImage(player_card_image))
-            player_card_item.setPos(rad * math.sin(phi) + x_c - half, rad * (1 - math.cos(phi)) + self.y_c)
+            y = self.scene.height() - 2 * rad - 2 * half
+            player_card_item.setPos(rad * math.sin(phi) + x_c - half, rad * (1 - math.cos(phi)) + y)
             player_card_items.append(player_card_item)
             self.scene.addItem(player_card_item)
             player_card_item.show()
@@ -225,6 +229,4 @@ class StuffView(QGraphicsView):
             self.scene.removeItem(event)
         self.events = []
 
-    def process_action_done(self, num):
-        self.show_stuff(num)
 

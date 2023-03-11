@@ -169,6 +169,7 @@ class GameController(QObject):
             else:
                 # here - notify all events, that could be played, combat could begin, some elements could be discarded
                 Loader.append_log("\nThe night begins. ")
+                self.dusk_dawn_is_changed.emit("night")
                 self.state.phase = Phase.NIGHT
                 self.state.who_moves = LORD  # Lord after Mina finishing TURN at night
                 Loader.append_log("\n{} starts the night turn. ".format(Loader.num_to_player(self.state.who_moves)))
@@ -178,6 +179,7 @@ class GameController(QObject):
             if self.state.who_moves == LORD:  # i.e. next to Dracula
                 # here - notify all events, that could be played, combat could begin, some elements could be discarded
                 self.change_time()
+                self.dusk_dawn_is_changed.emit("day")
                 self.state.phase = Phase.DAY
                 Loader.append_log("The new day begins. \n")
                 Loader.append_log("{} starts the day turn. ".format(Loader.num_to_player(self.state.who_moves)))
@@ -282,7 +284,6 @@ class GameController(QObject):
                         if loc == self.state.players[0].location_num:
                             Loader.append_log("And it is current Dracula location! ")
 
-    #TODO for railway we need ticket param
     def get_road_sea_movements(self, action):
         """
         :param action: movement type: road, railway, sea

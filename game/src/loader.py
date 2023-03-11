@@ -13,8 +13,7 @@ class Loader:
 
     @classmethod
     def load_media(cls):
-        # Loader.map_day = QImage("./game/images/map_day.png")
-        # Loader.map_night = QImage("./game/images/map_night.png")
+        Loader.map_night = QImage("./game/images/map/map_night.png")
         Loader.map_day = QImage("./game/images/map/map_day.png")
         Loader.city = QImage("./game/images/map/city.png")
         Loader.town = QImage("./game/images/map/town.png")
@@ -72,7 +71,7 @@ class Loader:
                     continue
                 num = event.split("_")[-1]
                 name = event.replace("_" + num, "")
-                logger.info(f"name={name}, num={num}")
+                # logger.info(f"name={name}, num={num}")
                 name_to_event[name]["image"] = QImage(os.path.join(path, filename))
                 name_to_event[name]["number"] = int(num)
                 name_to_event[name]["isHunter"] = False if "dracula" in path else True

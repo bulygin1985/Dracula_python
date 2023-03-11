@@ -19,9 +19,10 @@ SHIFT = 3  # fix small error in x,y from location info
 class MapView(QGraphicsView):
     #action_done = pyqtSignal(str, int)
     action_done = pyqtSignal(str)
-    player_movement = {"old_x": 0, "old_y": 0, "new_x": 0, "new_y": 0, "frame_num": 50, "frame": 0, "player_ind":-1}  # for player motion
+    player_movement = {"old_x": 0, "old_y": 0, "new_x": 0, "new_y": 0, "frame_num": 50, "frame": 0, "player_ind": -1}  # for player motion
+
     def __init__(self, width, height, controller):
-        logger.info("MapView contructor")
+        logger.info("MapView constructor")
         super().__init__()
         self.controller = controller
         self.scene = QGraphicsScene()
@@ -166,10 +167,10 @@ class MapView(QGraphicsView):
 
     def change_dusk_dawn(self, name):
         logger.info("change_dusk_dawn: {}".format(name))
-        # if name == "dawn":
-        #     self.map_item.setPixmap(QPixmap.fromImage(Loader.map_day))
-        # else:
-        #     self.map_item.setPixmap(QPixmap.fromImage(Loader.map_night))
+        if name == "day":
+            self.map_item.setPixmap(QPixmap.fromImage(Loader.map_day))
+        else:
+            self.map_item.setPixmap(QPixmap.fromImage(Loader.map_night))
 
     def visualize(self):
         self.remove_actions()
