@@ -14,8 +14,10 @@ from gamecontroller.gamecontroller import *
 from loader import Loader
 from game_param import Param
 from ai.dracula_agent import DraculaAgent
+from ai.hunter_agent import HunterAgent
 from gui.log_view import LogViewer
 from gui.select_view import SelectView
+from common.logger import logger
 
 
 
@@ -30,6 +32,10 @@ class MainScreen(QMainWindow):
             self.dracula_ai = DraculaAgent(self.controller)
             self.controller.gamestate_is_changed.connect(self.dracula_ai.act)
             self.dracula_ai.action_done.connect(self.controller.process_action)
+        if len(Param.hunter_ai) > 0:
+            self.hunter_ai = HunterAgent(self.controller, Param.hunter_ai)
+            self.controller.gamestate_is_changed.connect(self.hunter_ai.act)
+            self.hunter_ai.action_done.connect(self.controller.process_action)
 
         # QObject.__init__()
         #self.setWindowFlags(PyQt6.QtCore.Qt.WindowType.WindowStaysOnTopHint | PyQt6.QtCore.Qt.WindowType.Window)

@@ -4,6 +4,7 @@ from PyQt6.QtGui import *
 
 from gamecontroller.gamecontroller import *
 from common.logger import logger
+from common.common_func import *
 from loader import Loader
 from game_param import Param
 
@@ -61,15 +62,15 @@ class SelectView(QGraphicsView):
         logger.info(f"visualize, possible_actions = {self.controller.possible_actions}")
         self.index = 0
 
-        if ACTION_DISCARD_TICKET in self.controller.possible_actions:
+        if is_in(ACTION_DISCARD_TICKET, self.controller.possible_actions):
             self.stuff = self.controller.get_current_player().tickets
             self.set_geom_sizes(part_x=0.2, part_y=0.2, button_part_x=0.33, button_part_y=0.2)
             self.show_ticket()
-        elif ACTION_DISCARD_ITEM in self.controller.possible_actions:
+        elif is_in(ACTION_DISCARD_ITEM, self.controller.possible_actions):
             self.stuff = self.controller.get_current_player().items
             self.set_geom_sizes(part_x=0.5, part_y=0.5, button_part_x=0.33, button_part_y=0.1)
             self.show_item()
-        elif ACTION_DISCARD_EVENT in self.controller.possible_actions:
+        elif is_in(ACTION_DISCARD_EVENT, self.controller.possible_actions):
             self.stuff = self.controller.get_current_player().events
             self.set_geom_sizes(part_x=0.5, part_y=0.5, button_part_x=0.33, button_part_y=0.1)
             self.show_event()
@@ -131,22 +132,22 @@ class SelectView(QGraphicsView):
         self.show_stuff()
 
     def selected(self):
-        if ACTION_DISCARD_TICKET in self.controller.possible_actions:
+        if is_in(ACTION_DISCARD_TICKET, self.controller.possible_actions):
             action = ACTION_DISCARD_TICKET + "_" + str(self.index)
-        elif ACTION_DISCARD_ITEM in self.controller.possible_actions:
+        elif is_in(ACTION_DISCARD_ITEM, self.controller.possible_actions):
             action = ACTION_DISCARD_ITEM + "_" + str(self.index)
-        elif ACTION_DISCARD_EVENT in self.controller.possible_actions:
+        elif is_in(ACTION_DISCARD_EVENT, self.controller.possible_actions):
             action = ACTION_DISCARD_EVENT + "_" + str(self.index)
         logger.info(f"selected widget is sending action = {action}")
         self.action_done.emit(action)
 
     def show_stuff(self):
         logger.info("show_stuff")
-        if ACTION_DISCARD_TICKET in self.controller.possible_actions:
+        if is_in(ACTION_DISCARD_TICKET, self.controller.possible_actions):
             self.show_ticket()
-        elif ACTION_DISCARD_ITEM in self.controller.possible_actions:
+        elif is_in(ACTION_DISCARD_ITEM, self.controller.possible_actions):
             self.show_item()
-        elif ACTION_DISCARD_EVENT in self.controller.possible_actions:
+        elif is_in(ACTION_DISCARD_EVENT, self.controller.possible_actions):
             self.show_event()
 
     def show_image(self, image):

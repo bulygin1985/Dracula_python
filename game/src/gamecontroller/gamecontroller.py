@@ -50,8 +50,11 @@ class GameController(QObject):
         #     raise Exception("action {} is not in possible actions {}".format(action, self.possible_actions))
 
         if action == ACTION_NEXT:
-            self.set_next_player()
-            self.state.player_phase = TURN_BEGIN
+            if len(self.get_current_player().events) > self.get_current_player().max_events:
+                self.state.player_phase = ACTION_DISCARD_EVENT   # if Dracula has more than 4 events at the round end
+            else:  # usual case
+                self.set_next_player()
+                self.state.player_phase = TURN_BEGIN
 
         elif action in MOVEMENT_ACTIONS:
             self.state.player_phase = action
@@ -67,7 +70,7 @@ class GameController(QObject):
                 num = int(self.state.player_phase.split("_")[-1]) - 1
                 ticket = self.get_current_player().tickets.pop(num)
                 self.state.tickets_deck.discard(ticket)
-                Loader.append_log(f"{Loader.num_to_player(self.state.who_moves)} has used ticket")
+                Loader.append_log(f"{Loader.num_to_player(self.state.who_moves)} has used ticket. ")
 
             loc_num_old = self.state.players[self.state.who_moves].location_num
             loc_num_new = action.split("_")[-1]
@@ -86,11 +89,11 @@ class GameController(QObject):
             ticket = self.state.tickets_deck.draw()
             self.get_current_player().tickets.append(ticket)
             if self.state.who_moves == LORD:
-                Loader.append_log(f"Lord takes two tickets")
+                Loader.append_log(f"Lord takes two tickets. ")
                 ticket = self.state.tickets_deck.draw()
                 self.get_current_player().tickets.append(ticket)
             else:
-                Loader.append_log(f"{Loader.num_to_player(self.state.who_moves)} takes ticket")
+                Loader.append_log(f"{Loader.num_to_player(self.state.who_moves)} takes ticket. ")
             self.state.player_phase = ACTION_TAKE_TICKET
 
         elif ACTION_DISCARD_TICKET in action:
@@ -102,13 +105,13 @@ class GameController(QObject):
             num = int(action.split("_")[-1])
             logger.info("discard item {}".format(num))
             self.state.item_deck.discard(self.get_current_player().items.pop(num))
-            Loader.append_log(f"{Loader.num_to_player(self.state.who_moves)} discard item")
+            Loader.append_log(f"{Loader.num_to_player(self.state.who_moves)} discard item. ")
             self.state.player_phase = ACTION_DISCARD_ITEM
         elif ACTION_DISCARD_EVENT in action:
             num = int(action.split("_")[-1])
             logger.info("discard event {}".format(num))
             self.state.event_deck.discard(self.get_current_player().events.pop(num))
-            Loader.append_log(f"{Loader.num_to_player(self.state.who_moves)} discard event")
+            Loader.append_log(f"{Loader.num_to_player(self.state.who_moves)} discard event. ")
             self.state.player_phase = ACTION_DISCARD_EVENT
 
         elif action == ACTION_SUPPLY:
@@ -150,6 +153,7 @@ class GameController(QObject):
         logger.info(f"possible_actions = {self.possible_actions}")
         self.gamestate_is_changed.emit()
 
+    # change player number, time, day, week
     def set_next_player(self):
         """
         set next player, change Day/Night, weekday, week number
@@ -245,7 +249,7 @@ class GameController(QObject):
 
         elif state.player_phase == ACTION_TAKE_TICKET or state.player_phase == ACTION_DISCARD_TICKET:
             if len(self.get_current_player().tickets) > 2:
-                possible_actions = [ACTION_DISCARD_TICKET]
+                possible_actions = [ACTION_DISCARD_TICKET + "_" + str(i) for i in range(len(self.get_current_player().tickets))]
             else:
                 possible_actions = [ACTION_NEXT]
         elif state.player_phase == TURN_END:
@@ -255,9 +259,9 @@ class GameController(QObject):
         elif state.player_phase == ACTION_SUPPLY or state.player_phase == ACTION_DISCARD_ITEM or state.player_phase == ACTION_DISCARD_EVENT:
             logger.info(f"len(items) = {len(self.get_current_player().items)}, max len = {self.get_current_player().max_items}")
             if len(self.get_current_player().items) > self.get_current_player().max_items:
-                possible_actions = [ACTION_DISCARD_ITEM]
+                possible_actions = [ACTION_DISCARD_ITEM + "_" + str(i) for i in range(len(self.get_current_player().items))]
             elif len(self.get_current_player().events) > self.get_current_player().max_events:
-                possible_actions = [ACTION_DISCARD_EVENT]
+                possible_actions = [ACTION_DISCARD_EVENT + "_" + str(i) for i in range(len(self.get_current_player().events))]
             else:
                 possible_actions = [ACTION_NEXT]
         return possible_actions

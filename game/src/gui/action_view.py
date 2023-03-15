@@ -29,13 +29,21 @@ class ActionView(QGraphicsView):
         #gradient.setColorAt(0.5, PyQt6.QtCore.Qt.GlobalColor.blue)
         gradient.setColorAt(1, PyQt6.QtCore.Qt.GlobalColor.darkYellow)
         gradient.setSpread(PyQt6.QtGui.QGradient.Spread.ReflectSpread)
-        self.scene.setBackgroundBrush(gradient)
+
+
+        #self.scene.setBackgroundBrush(gradient)
 
         self.setHorizontalScrollBarPolicy(PyQt6.QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(PyQt6.QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
         self.scene.setSceneRect(0, 0, width, height)
-        #self.setSceneRect(0, 0, width, height)
+
+        # set background
+        self.background_item = QGraphicsPixmapItem()
+        self.background_item.setPos(0, 0)
+        self.scene.addItem(self.background_item)
+        image = Loader.actions_board.scaled(self.scene.sceneRect().width(), self.scene.sceneRect().height())
+        self.background_item.setPixmap(QPixmap.fromImage(image))
 
         w = self.scene.width()
         self.actions = []

@@ -20,13 +20,13 @@ class CardsStuff(QGraphicsPixmapItem):
         self.setAcceptHoverEvents(True)
         self.setPixmap(QPixmap.fromImage(image))
         self.setPos(x, y)
-        self.setZValue(0)
+        self.setZValue(0.1)
 
     def hoverEnterEvent(self, event):
         self.setZValue(1)
 
     def hoverLeaveEvent(self, event):
-        self.setZValue(0)
+        self.setZValue(0.1)
 
 
 class ScalableStuff(QGraphicsPixmapItem):
@@ -40,7 +40,7 @@ class ScalableStuff(QGraphicsPixmapItem):
         self.setPos(x, y)
         self.old_x = self.pos().x()
         self.old_y = self.pos().y()
-        self.setZValue(0)
+        self.setZValue(0.1)
 
     def hoverEnterEvent(self, event):
         self.icon = self.image.scaledToWidth(0.8 * self.w, Qt.TransformationMode.SmoothTransformation)
@@ -51,7 +51,7 @@ class ScalableStuff(QGraphicsPixmapItem):
     def hoverLeaveEvent(self, event):
         self.icon = self.image.scaledToWidth(0.35 * self.w, Qt.TransformationMode.SmoothTransformation)
         self.setPixmap(QPixmap.fromImage(self.icon))
-        self.setZValue(0)
+        self.setZValue(0.1)
         self.setPos(self.old_x, self.old_y)
 
 
@@ -68,7 +68,7 @@ class StuffView(QGraphicsView):
         gradient = QRadialGradient(0, 0, 200)
         gradient.setSpread(PyQt6.QtGui.QGradient.Spread.ReflectSpread)
 
-        self.scene.setBackgroundBrush(gradient)
+        #self.scene.setBackgroundBrush(gradient)
 
         self.setHorizontalScrollBarPolicy(PyQt6.QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(PyQt6.QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
@@ -88,6 +88,10 @@ class StuffView(QGraphicsView):
         self.marker.setPen(pen)
         self.marker.setZValue(10)
         self.scene.addItem(self.marker)
+
+        self.background_item = QGraphicsPixmapItem()
+        self.background_item.setPos(0, 0)
+        self.scene.addItem(self.background_item)
 
     def show_events(self, player_num):
         logger.info("show_events")
@@ -140,7 +144,12 @@ class StuffView(QGraphicsView):
         self.show_stuff(self.controller.state.who_moves)
 
     def show_stuff(self, player_num):
-        #TODO - show frame on player card
+        # show background
+        if player_num == DRACULA:
+            image = Loader.dracula_board.scaled(self.scene.sceneRect().width(), self.scene.sceneRect().height())
+        else:
+            image = Loader.hunters_board.scaled(self.scene.sceneRect().width(), self.scene.sceneRect().height())
+        self.background_item.setPixmap(QPixmap.fromImage(image))
         self.remove_items()
         self.marker.setPos(self.player_card_items[player_num].pos())
         self.show_events(player_num)
@@ -204,6 +213,7 @@ class StuffView(QGraphicsView):
             rad = self.scene.width() / 2.0 - half
 
             player_card_item = MotionItem()
+            player_card_item.setZValue(0.1)
             player_card_item.set_parent(self)
             player_card_item.name = i
             player_card_item.setPixmap(QPixmap.fromImage(player_card_image))

@@ -12,19 +12,26 @@ class Loader:
         Loader.location_dict = json.load(open("./game/info/locations.json"))
 
     @classmethod
+    def load(cls, path):
+        image = QImage(path)
+        if QImage.isNull(image):
+            logger.info(f"cannot load {path}")
+            exit()
+        return image
+    @classmethod
     def load_media(cls):
-        Loader.map_night = QImage("./game/images/map/map_night.png")
-        Loader.map_day = QImage("./game/images/map/map_day.png")
-        Loader.city = QImage("./game/images/map/city.png")
-        Loader.town = QImage("./game/images/map/town.png")
-        Loader.dracula_city = QImage("./game/images/map/dracula_city.png")
-        Loader.marker = QImage("./game/images/locations/location_mark.png")
+        Loader.map_night = cls.load("./game/images/map/map_night.png")
+        Loader.map_day = cls.load("./game/images/map/map_day.png")
+        Loader.city = cls.load("./game/images/map/city.png")
+        Loader.town = cls.load("./game/images/map/town.png")
+        Loader.dracula_city = cls.load("./game/images/map/dracula_city.png")
+        Loader.marker = cls.load("./game/images/locations/location_mark.png")
 
         Loader.player_figs = []
         Loader.player_cards = []
         for i in range(5):
-            Loader.player_figs.append(QImage("./game/images/players/fig{}.png".format(i)))
-            Loader.player_cards.append(QImage("./game/images/players/card{}.png".format(i)))
+            Loader.player_figs.append(cls.load("./game/images/players/fig{}.png".format(i)))
+            Loader.player_cards.append(cls.load("./game/images/players/card{}.png".format(i)))
         QFontDatabase.addApplicationFont("./game/fonts/dracula.TTF")
         QFontDatabase.addApplicationFont("./game/fonts/Neucha.ttf")
         QFontDatabase.addApplicationFont("./game/fonts/OpenSans-CondLight.ttf")
@@ -32,31 +39,34 @@ class Loader:
         QFontDatabase.addApplicationFont("./game/fonts/Lobster-Regular.ttf")
         QFontDatabase.addApplicationFont("./game/fonts/CormorantSC-Regular.ttf")
 
-        Loader.ActionNext = QImage("./game/images/actions/next.png")
-        Loader.ActionMoveByRailWay = QImage("./game/images/actions/movement_train.png")
-        Loader.ActionMoveBySea = QImage("./game/images/actions/movement_sea.png")
-        Loader.ActionMoveByRoad = QImage("./game/images/actions/movement_road.png")
-        Loader.ActionSearch = QImage("./game/images/actions/search.png")
-        Loader.ActionSupply = QImage("./game/images/actions/supply.png")
-        Loader.ActionHealing = QImage("./game/images/actions/healing.png")
-        Loader.ActionExchange = QImage("./game/images/actions/exchange.png")
-        Loader.ActionTicket = QImage("./game/images/actions/ticket_icon.png")
-        Loader.ActionSpecial = QImage("./game/images/actions/play_special_card_icon.png")
+        Loader.ActionNext = cls.load("./game/images/actions/next.png")
+        Loader.ActionMoveByRailWay = cls.load("./game/images/actions/movement_train.png")
+        Loader.ActionMoveBySea = cls.load("./game/images/actions/movement_sea.png")
+        Loader.ActionMoveByRoad = cls.load("./game/images/actions/movement_road.png")
+        Loader.ActionSearch = cls.load("./game/images/actions/search.png")
+        Loader.ActionSupply = cls.load("./game/images/actions/supply.png")
+        Loader.ActionHealing = cls.load("./game/images/actions/healing.png")
+        Loader.ActionExchange = cls.load("./game/images/actions/exchange.png")
+        Loader.ActionTicket = cls.load("./game/images/actions/ticket_icon.png")
+        Loader.ActionSpecial = cls.load("./game/images/actions/play_special_card_icon.png")
 
-        Loader.loc_pointer = QImage("./game/images/locations/location_pointer4.png")
-        Loader.back_land = QImage("./game/images/locations/back.png")
-        Loader.back_sea = QImage("./game/images/locations/back_sea.png")
-        Loader.arrow = QImage("./game/images/locations/arrow.png")
+        Loader.loc_pointer = cls.load("./game/images/locations/location_pointer4.png")
+        Loader.back_land = cls.load("./game/images/locations/back.png")
+        Loader.back_sea = cls.load("./game/images/locations/back_sea.png")
+        Loader.arrow = cls.load("./game/images/locations/arrow.png")
         Loader.icon_left = QIcon('./game/arrow_left.png')
         Loader.icon_right = QIcon('./game/arrow_right.png')
 
         ticket_path = "./game/images/tickets/"
         Loader.tickets = {}
         for key in ["1_0", "1_1", "2_1", "2_2", "3_2"]:
-            Loader.tickets[key] = QImage(ticket_path + key + ".png")
-        Loader.tickets["back"] = QImage("./game/images/tickets/ticket_back.png")
+            Loader.tickets[key] = cls.load(ticket_path + key + ".png")
+        Loader.tickets["back"] = cls.load("./game/images/tickets/ticket_back.png")
         Loader.name_to_item = Loader.get_name_to_item()
         Loader.name_to_event = Loader.get_name_to_event()
+        Loader.hunters_board = cls.load("./game/images/hunters_board.png")
+        Loader.dracula_board = cls.load("./game/images/dracula_board.png")
+        Loader.actions_board = cls.load("./game/images/actions_board.png")
         logger.info("all file are successfully loaded")
 
     @classmethod
@@ -67,12 +77,12 @@ class Loader:
             for filename in filenames:
                 event = filename.split(".")[0]
                 if event in ["BACK_DRACULA", "BACK_HUNTER"]:
-                    name_to_event[event]["image"] = QImage(os.path.join(path, filename))
+                    name_to_event[event]["image"] = cls.load(os.path.join(path, filename))
                     continue
                 num = event.split("_")[-1]
                 name = event.replace("_" + num, "")
                 # logger.info(f"name={name}, num={num}")
-                name_to_event[name]["image"] = QImage(os.path.join(path, filename))
+                name_to_event[name]["image"] = cls.load(os.path.join(path, filename))
                 name_to_event[name]["number"] = int(num)
                 name_to_event[name]["isHunter"] = False if "dracula" in path else True
         return name_to_event
@@ -84,7 +94,7 @@ class Loader:
         file_list = os.listdir(path)
 
         for file_name in file_list:
-            name_to_item[file_name.split(".")[0]] = QImage(os.path.join(path, file_name))
+            name_to_item[file_name.split(".")[0]] = cls.load(os.path.join(path, file_name))
         #name_to_item["BACK"] = "./game/images/items/BACK.png"
         return name_to_item
 

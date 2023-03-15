@@ -4,6 +4,9 @@ class Player:
         self.health = -1
         self.max_health = -1
         self.events = []
+        self.items = []
+        self.max_items = 3
+        self.max_events = 3
 
     def set_location(self, location_num):
         self.location_num = location_num
@@ -12,9 +15,6 @@ class Player:
 class Hunter(Player):
     def __init__(self):
         super().__init__()
-        self.max_items = 3
-        self.max_events = 3
-        self.items = []
         self.tickets = []
 
 

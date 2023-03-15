@@ -3,6 +3,14 @@ from common.logger import logger
 from game_param import Param
 
 
+# if only part of string is in some of elments, i.e. "ActionDiscardTicket" in "ActionDiscardTicket_1"
+def is_in(name, arr):
+    for el in arr:
+        if name in el:
+            return True
+    return False
+
+
 def are_you_dracula():
     if 0 in Param.who_are_you:
         return True
