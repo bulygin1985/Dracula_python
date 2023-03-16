@@ -7,6 +7,7 @@ from PyQt6.QtCore import Qt
 class LogViewer(QTextEdit):
     def __init__(self, x, y, log_width, log_height):
         super().__init__()
+        logger.info(f"LogViewer constructor")
         self.x = x
         self.y = y
         self.log_width = log_width

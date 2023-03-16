@@ -30,7 +30,6 @@ class ActionView(QGraphicsView):
         gradient.setColorAt(1, PyQt6.QtCore.Qt.GlobalColor.darkYellow)
         gradient.setSpread(PyQt6.QtGui.QGradient.Spread.ReflectSpread)
 
-
         #self.scene.setBackgroundBrush(gradient)
 
         self.setHorizontalScrollBarPolicy(PyQt6.QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
@@ -42,14 +41,14 @@ class ActionView(QGraphicsView):
         self.background_item = QGraphicsPixmapItem()
         self.background_item.setPos(0, 0)
         self.scene.addItem(self.background_item)
-        image = Loader.actions_board.scaled(self.scene.sceneRect().width(), self.scene.sceneRect().height())
+        image = Loader.actions_board.scaled(int(self.scene.sceneRect().width()), int(self.scene.sceneRect().height()))
         self.background_item.setPixmap(QPixmap.fromImage(image))
 
         w = self.scene.width()
         self.actions = []
         for action_icon in self.action2draw:
             setattr(self, action_icon, MotionItem())
-            image = getattr(Loader, action_icon).scaledToWidth(0.8 * w, Qt.TransformationMode.SmoothTransformation)
+            image = getattr(Loader, action_icon).scaledToWidth(int(0.8 * w), Qt.TransformationMode.SmoothTransformation)
             getattr(self, action_icon).setPixmap(QPixmap.fromImage(image))
             getattr(self, action_icon).scale_changing = 0.1
             self.scene.addItem(getattr(self, action_icon))

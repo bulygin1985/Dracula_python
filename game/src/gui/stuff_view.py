@@ -31,11 +31,12 @@ class CardsStuff(QGraphicsPixmapItem):
 
 class ScalableStuff(QGraphicsPixmapItem):
     def __init__(self, image, x, y, w):
+        logger.info("ScalableStuff constructor")
         super().__init__()
         self.setAcceptHoverEvents(True)
         self.w = w
         self.image = image
-        self.icon = image.scaledToWidth(0.35 * w, Qt.TransformationMode.SmoothTransformation)
+        self.icon = image.scaledToWidth(int(0.35 * w), Qt.TransformationMode.SmoothTransformation)
         self.setPixmap(QPixmap.fromImage(self.icon))
         self.setPos(x, y)
         self.old_x = self.pos().x()
@@ -43,13 +44,13 @@ class ScalableStuff(QGraphicsPixmapItem):
         self.setZValue(0.1)
 
     def hoverEnterEvent(self, event):
-        self.icon = self.image.scaledToWidth(0.8 * self.w, Qt.TransformationMode.SmoothTransformation)
+        self.icon = self.image.scaledToWidth(int(0.8 * self.w), Qt.TransformationMode.SmoothTransformation)
         self.setPixmap(QPixmap.fromImage(self.icon))
         self.setZValue(1)
         self.setPos(0.1 * self.w, 0.1 * self.w)
 
     def hoverLeaveEvent(self, event):
-        self.icon = self.image.scaledToWidth(0.35 * self.w, Qt.TransformationMode.SmoothTransformation)
+        self.icon = self.image.scaledToWidth(int(0.35 * self.w), Qt.TransformationMode.SmoothTransformation)
         self.setPixmap(QPixmap.fromImage(self.icon))
         self.setZValue(0.1)
         self.setPos(self.old_x, self.old_y)
@@ -108,7 +109,7 @@ class StuffView(QGraphicsView):
                 image = Loader.name_to_event["BACK_HUNTER"]["image"]
             else:
                 image = Loader.name_to_event[event]["image"]
-            image = image.scaledToWidth(0.8 * w, Qt.TransformationMode.SmoothTransformation)
+            image = image.scaledToWidth(int(0.8 * w), Qt.TransformationMode.SmoothTransformation)
             card_event = CardsStuff(image, 0.1 * w, 2 * h + 3 * 0.1 * w + idx * shift)
             self.scene.addItem(card_event)
 
@@ -144,11 +145,12 @@ class StuffView(QGraphicsView):
         self.show_stuff(self.controller.state.who_moves)
 
     def show_stuff(self, player_num):
+        logger.info(f"show_stuff({player_num})")
         # show background
         if player_num == DRACULA:
-            image = Loader.dracula_board.scaled(self.scene.sceneRect().width(), self.scene.sceneRect().height())
+            image = Loader.dracula_board.scaled(int(self.scene.sceneRect().width()), int(self.scene.sceneRect().height()))
         else:
-            image = Loader.hunters_board.scaled(self.scene.sceneRect().width(), self.scene.sceneRect().height())
+            image = Loader.hunters_board.scaled(int(self.scene.sceneRect().width()), int(self.scene.sceneRect().height()))
         self.background_item.setPixmap(QPixmap.fromImage(image))
         self.remove_items()
         self.marker.setPos(self.player_card_items[player_num].pos())
@@ -171,7 +173,7 @@ class StuffView(QGraphicsView):
             possible_ticket_num = 1
         logger.info(f"possible_ticket_num = {possible_ticket_num}")
 
-        w = self.scene.width() * 0.35
+        w = int(self.scene.width() * 0.35)
         shift = self.scene.width() * 0.1
         for idx, ticket in enumerate(self.controller.state.players[player_num].tickets):
             if idx >= 2:
@@ -206,12 +208,11 @@ class StuffView(QGraphicsView):
         logger.info("show_player_cards")
         player_card_items = []
         for i in range(5):
-            player_card_image = Loader.player_cards[i].scaledToWidth(0.3 * self.scene.width(), Qt.TransformationMode.SmoothTransformation)
+            player_card_image = Loader.player_cards[i].scaledToWidth(int(0.3 * self.scene.width()), Qt.TransformationMode.SmoothTransformation)
             phi = 2 * math.pi * i / 5
             half = player_card_image.width() / 2.0
             x_c = self.scene.width() / 2.0
             rad = self.scene.width() / 2.0 - half
-
             player_card_item = MotionItem()
             player_card_item.setZValue(0.1)
             player_card_item.set_parent(self)

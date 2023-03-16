@@ -50,31 +50,27 @@ class MapView(QGraphicsView):
         self.player_fig_items = []
         self.locationRad = 50.0 / 3240.0 * self.map_day.width()
         for i in range(5):
-            player_fig_image = Loader.player_figs[i].scaledToWidth(2 * self.locationRad, Qt.TransformationMode.SmoothTransformation)
+            player_fig_image = Loader.player_figs[i].scaledToWidth(int(2 * self.locationRad), Qt.TransformationMode.SmoothTransformation)
             player_fig_item = MotionItem()
             player_fig_item.setPixmap(QPixmap.fromImage(player_fig_image))
             self.player_fig_items.append(player_fig_item)
             player_fig_item.setParentItem(self.map_item)
             player_fig_item.hide()
             player_fig_item.setZValue(1)
-        self.loc_pointer = Loader.loc_pointer.scaledToWidth(2 * self.locationRad, Qt.TransformationMode.SmoothTransformation)
+        self.loc_pointer = Loader.loc_pointer.scaledToWidth(int(2 * self.locationRad), Qt.TransformationMode.SmoothTransformation)
         self.draw_location_names()
 
-        self.scene.setSceneRect(0, 0, scale * self.map_day.width(), scale * self.map_day.height())
-        print("scale * map_image.width() = ", scale * self.map_day.width())
-
+        self.scene.setSceneRect(0, 0, int(scale * self.map_day.width()), int(scale * self.map_day.height()))
         self.map_item.setScale(scale)
         self.scene.addItem(self.map_item)
         self.centerOn(self.map_item.mapRectToScene(self.map_item.boundingRect()).center())
-
         self.marker_item = QGraphicsPixmapItem()
         self.location_items = []
         self.connection_to_road = {}  # "num1_num2, num2 > num1"
         self.connection_to_railway = {}  # "num1_num2, num2 > num1"
         self.cities = []
         self.create_cities()
-
-        #self.visualize()
+        logger.info(f"step_final")
 
     def get_path(self, key, end_loc, delta, sign):
         x1 = Loader.location_dict[key]["coor"][0] * self.map_width
@@ -96,8 +92,8 @@ class MapView(QGraphicsView):
         return path
 
     def create_cities(self):
+        logger.info(f"create_cities")
         for (key, val) in Loader.location_dict.items():
-
             for end_loc in val["roads"]:
                 if int(key) < int(end_loc):
                     delta = self.locationRad
@@ -152,15 +148,16 @@ class MapView(QGraphicsView):
             y = val["coor"][1] * self.map_height
             item = QGraphicsPixmapItem()
             if val["isCity"]:
-                image = Loader.city.scaledToWidth(2 * self.locationRad, Qt.TransformationMode.SmoothTransformation)
+                image = Loader.city.scaledToWidth(int(2 * self.locationRad), Qt.TransformationMode.SmoothTransformation)
             else:
-                image = Loader.town.scaledToWidth(2 * self.locationRad, Qt.TransformationMode.SmoothTransformation)
+                image = Loader.town.scaledToWidth(int(2 * self.locationRad), Qt.TransformationMode.SmoothTransformation)
             if key == SpecificLocations.DRACULA_CASTLE.value:
-                image = Loader.dracula_city.scaledToWidth(2.25 * self.locationRad, Qt.TransformationMode.SmoothTransformation)
+                image = Loader.dracula_city.scaledToWidth(int(2.25 * self.locationRad), Qt.TransformationMode.SmoothTransformation)
             item.setPixmap(QPixmap.fromImage(image))
-            item.setPos(x - self.locationRad, y - self.locationRad - SHIFT)
+
+            item.setPos(int(x - self.locationRad), int(y - self.locationRad - SHIFT))
             if key == SpecificLocations.DRACULA_CASTLE.value:
-                item.setPos(x - self.locationRad - SHIFT, y - self.locationRad - SHIFT)
+                item.setPos(int(x - self.locationRad - SHIFT), int(y - self.locationRad - SHIFT))
             item.setParentItem(self.map_item)
             item.setZValue(0.5)
             self.cities.append(item)

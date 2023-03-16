@@ -76,13 +76,15 @@ class GameController(QObject):
             loc_num_new = action.split("_")[-1]
             self.state.players[self.state.who_moves].set_location(loc_num_new)
             if self.state.phase == Phase.FIRST_TURN:
-                Loader.append_log("The {} starts in {}. ".format(Loader.num_to_player(self.state.who_moves),
-                                                                 Loader.location_dict[loc_num_new]["name"]))
+                if are_you_dracula() or not (self.state.who_moves == DRACULA):  # hunter cannot see where Dracula begins
+                    Loader.append_log("The {} starts in {}. ".format(Loader.num_to_player(self.state.who_moves),
+                                                                     Loader.location_dict[loc_num_new]["name"]))
                 self.set_next_player()
             else:
-                Loader.append_log("{} moves from {} to {}. ".format(Loader.num_to_player(self.state.who_moves),
-                                                              Loader.location_dict[loc_num_old]["name"],
-                                                              Loader.location_dict[loc_num_new]["name"]))
+                if are_you_dracula() or not (self.state.who_moves == DRACULA):  # hunter cannot see where Dracula moves
+                    Loader.append_log("{} moves from {} to {}. ".format(Loader.num_to_player(self.state.who_moves),
+                                                                  Loader.location_dict[loc_num_old]["name"],
+                                                                  Loader.location_dict[loc_num_new]["name"]))
                 self.state.player_phase = TURN_END
 
         elif action == ACTION_TAKE_TICKET:

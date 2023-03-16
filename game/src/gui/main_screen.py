@@ -24,6 +24,7 @@ from common.logger import logger
 # Press the green button in the gutter to run the script.
 class MainScreen(QMainWindow):
     def __init__(self):
+        logger.info(f"MainScreen constructor")
         super().__init__()
 
         loader = Loader()  # load media files : images, fonts, sounds, animations, etc
@@ -41,9 +42,6 @@ class MainScreen(QMainWindow):
         #self.setWindowFlags(PyQt6.QtCore.Qt.WindowType.WindowStaysOnTopHint | PyQt6.QtCore.Qt.WindowType.Window)
         #self.setWindowFlags(PyQt6.QtCore.Qt.WindowType.WindowStaysOnTopHint | PyQt6.QtCore.Qt.WindowType.FramelessWindowHint)
         self.setWindowState(PyQt6.QtCore.Qt.WindowState.WindowFullScreen)
-
-        print("frameSize = ",self.frameSize())
-        print("rect = ", self.rect())
 
         layout_ratio = [4, 1, 20, 4]
 
@@ -88,6 +86,7 @@ class MainScreen(QMainWindow):
             layout.setStretch(i, layout_ratio[i])
         self.setCentralWidget(central_widget)
 
+
         self.select_view = SelectView(controller=self.controller)
         self.select_view.setParent(self)
         self.select_view.hide()
@@ -98,8 +97,8 @@ class MainScreen(QMainWindow):
         log_width = 400
         log_height = 200
         resolution = QGuiApplication.primaryScreen().availableGeometry()
-        x = resolution.width() * sum(layout_ratio[:-1]) / sum(layout_ratio) - log_width
-        y = button_height
+        x = int(resolution.width() * sum(layout_ratio[:-1]) / sum(layout_ratio) - log_width)
+        y = int(button_height)
         self.log_viewer = LogViewer(x, y, log_width, log_height)
         self.log_viewer.setParent(self)
         self.controller.gamestate_is_changed.connect(self.show_log_text)
@@ -109,10 +108,9 @@ class MainScreen(QMainWindow):
         log_button.clicked.connect(self.log_viewer.hide_show)
         log_button.setParent(self)
 
-
-
         self.show()
         self.controller.gamestate_is_changed.emit()  # Game begins - the initial GameState is transfered to GUI
+
 
     def show_log_text(self):
         if Loader.log != "":

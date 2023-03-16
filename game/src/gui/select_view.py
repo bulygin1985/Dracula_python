@@ -63,7 +63,9 @@ class SelectView(QGraphicsView):
         self.index = 0
 
         if is_in(ACTION_DISCARD_TICKET, self.controller.possible_actions):
+            logger.info(f"is_in(ACTION_DISCARD_TICKET, self.controller.possible_actions)")
             self.stuff = self.controller.get_current_player().tickets
+            logger.info(f"self.stuff = {self.stuff}")
             self.set_geom_sizes(part_x=0.2, part_y=0.2, button_part_x=0.33, button_part_y=0.2)
             self.show_ticket()
         elif is_in(ACTION_DISCARD_ITEM, self.controller.possible_actions):
@@ -78,47 +80,48 @@ class SelectView(QGraphicsView):
             self.hide()
 
     def show_ticket(self):
-        w = 0.6 * self.sceneRect().width()
+        logger.info(f"show_ticket")
+        w = int(0.6 * self.sceneRect().width())
         ticket = self.controller.get_current_player().tickets[self.index]
         logger.info(f"show ticket #{ticket}")
         image = Loader.tickets[ticket].scaledToWidth(w, Qt.TransformationMode.SmoothTransformation)
         self.show_image(image)
 
     def show_item(self):
-        h = 0.8 * self.sceneRect().height()
+        logger.info(f"show_item")
+        h = int(0.8 * self.sceneRect().height())
         item = self.controller.get_current_player().items[self.index]
         logger.info(f"show item #{item}")
         image = Loader.name_to_item[item].scaledToHeight(h, Qt.TransformationMode.SmoothTransformation)
         self.show_image(image)
 
     def show_event(self):
-        h = 0.8 * self.sceneRect().height()
+        logger.info(f"show_event")
+        h = int(0.8 * self.sceneRect().height())
         event = self.controller.get_current_player().events[self.index]
         logger.info(f"show event #{event}")
         image = Loader.name_to_event[event]["image"].scaledToHeight(h, Qt.TransformationMode.SmoothTransformation)
         self.show_image(image)
 
     def set_geom_sizes(self, part_x, part_y, button_part_x, button_part_y):
-        width = self.parent().width() * part_x
-        height = self.parent().height() * part_y
-        x = self.parent().width() / 2 - width / 2
-        y = self.parent().height() / 2 - height / 2
+        logger.info(f"set_geom_sizes")
+        width = int(self.parent().width() * part_x)
+        height = int(self.parent().height() * part_y)
+        x = int(self.parent().width() / 2 - width / 2)
+        y = int(self.parent().height() / 2 - height / 2)
         self.scene.setSceneRect(0, 0, width, height)
         self.setGeometry(x, y, width, height)
-
         x_c = self.sceneRect().center().x()
-        self.button.setFixedSize(width * button_part_x, height * button_part_y)
-        self.button.setGeometry(x_c - self.button.width() / 2, height - self.button.height(), self.button.width(),
+        self.button.setFixedSize(int(width * button_part_x), int(height * button_part_y))
+        self.button.setGeometry(int(x_c - self.button.width() / 2), height - self.button.height(), self.button.width(),
                                 self.button.height())
-
         self.button_left.setFixedSize(self.button.height(), self.button.height())
         self.button_left.setIconSize(self.button.size())
-        self.button_left.setGeometry(x_c - self.button.width() / 2 - self.button_left.width(),
+        self.button_left.setGeometry(int(x_c - self.button.width() / 2) - self.button_left.width(),
                                      height - self.button.height(), self.button_left.width(), self.button_left.height())
-
         self.button_right.setFixedSize(self.button.height(), self.button.height())
         self.button_right.setIconSize(self.button.size())
-        self.button_right.setGeometry(x_c + self.button.width() / 2, height - self.button.height(),
+        self.button_right.setGeometry(int(x_c + self.button.width() / 2), height - self.button.height(),
                                       self.button_left.width(), self.button_left.height())
 
     def right(self):
