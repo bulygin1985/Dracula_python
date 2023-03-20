@@ -211,7 +211,8 @@ class GameController(QObject):
             if state.phase == Phase.FIRST_TURN:
                 possible_actions = self.get_first_turn_actions()
             elif state.phase == Phase.DAY:
-                possible_actions += [ACTION_TAKE_TICKET, ACTION_SUPPLY]
+                if not self.get_who_move_loc_dict()["isSea"]:
+                    possible_actions += [ACTION_TAKE_TICKET, ACTION_SUPPLY]
                 if is_dracula(state.who_moves):
                     raise Exception("It is day and Dracula moves")
                 else:
@@ -234,7 +235,10 @@ class GameController(QObject):
                         state.players[0].track = []
                         possible_actions += self.get_road_sea_option()
                 else:
-                    possible_actions += [ACTION_TAKE_TICKET, ACTION_NEXT, ACTION_SUPPLY]
+                    if not self.get_who_move_loc_dict()["isSea"]:
+                        possible_actions += [ACTION_TAKE_TICKET, ACTION_NEXT, ACTION_SUPPLY]
+                    else:
+                        possible_actions += [ACTION_NEXT]
 
         elif state.player_phase in [ACTION_MOVE_BY_ROAD, ACTION_MOVE_BY_SEA]:
             possible_actions = self.get_road_sea_movements(state.player_phase)
