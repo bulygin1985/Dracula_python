@@ -240,7 +240,7 @@ class MapView(QGraphicsView):
 
     def locate_players(self, controller):
         logger.info("locate_players")
-        for i, player in enumerate(controller.state.players):
+        for i, player in enumerate(controller.players):
             if controller.state.who_moves == i:  # Motion for player, who moves
                 self.player_fig_items[i].scale_changing = 0.2
             else:  # to stop the motion for player who does not move
@@ -250,17 +250,17 @@ class MapView(QGraphicsView):
         # create group of players
         groups = []
         player_num = [0, 1, 2, 3, 4]
-        for i, player in enumerate(controller.state.players):
+        for i, player in enumerate(controller.players):
             if player.location_num != "" and i in player_num:
                 group = []
-                for j in range(i, len(controller.state.players)):
-                    if player.location_num == controller.state.players[j].location_num:
+                for j in range(i, len(controller.players)):
+                    if player.location_num == controller.players[j].location_num:
                         player_num.remove(j)
                         group.append(j)
                 groups.append(group)
         logger.info("groups = {}".format(groups))
         for group in groups:
-            loc = Loader.location_dict[str(controller.state.players[group[0]].location_num)]
+            loc = Loader.location_dict[str(controller.players[group[0]].location_num)]
             for idx, i in enumerate(group):
                 phi = 2 * math.pi * idx / len(group)
                 x = loc["coor"][0] * self.map_width

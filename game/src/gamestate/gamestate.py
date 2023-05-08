@@ -1,36 +1,15 @@
-from enum import Enum
-from gamestate.player import Dracula, Lord, Doctor, Helsing, Mina
+from common.constants import *
 from gamestate.deck import Deck
 from loader import Loader
 from common.logger import logger
 
 
-TURN_BEGIN = "turn_begin"
-TURN_END = "turn_end"
-
-class SpecificLocations(Enum):
-    DRACULA_CASTLE = "24"
-
-class Phase(Enum):
-    FIRST_TURN = 0
-    DAWN = 1
-    DAY = 2
-    DUSK = 3
-    NIGHT = 4
-
-
-DRACULA = 0
-LORD = 1
-DOCTOR = 2
-HELSING = 3
-MINA = 4
-
-
 # TODO - convert to dict-> save as json, __str__
 class GameState:
     def __init__(self):
-        self.players = [Dracula(), Lord(), Doctor(), Helsing(), Mina()]
+        logger.info(f"GameState constructor")
         self.who_moves = 1    # TODO - Enum
+        self.in_queue = []         # who_moves in queue
         self.phase = Phase.FIRST_TURN
         self.player_phase = TURN_BEGIN
         self.day_num = -1
@@ -39,6 +18,7 @@ class GameState:
         self.item_deck = Deck(cards=2*["CRUCIFIX"] + 2*["HOLY_CIRCLE"] + 3*["GARLIC_WREATH"] + 3*["KNIFE"] +
                                     3*["FAST_HORSES"] + 3*["HEAVENLY_HOST"] + 3*["GARLIC"] + 3*["HOLY_BULLETS"] +
                                     4*["STAKE"] + 4*["DOGS"] + 4*["RIFLE"] + 4*["PISTOL"], deck_name="Items")
+        # TODO - encounter deck
         event_cards = []
         for name, event in Loader.name_to_event.items():
             if name not in ["BACK_DRACULA", "BACK_HUNTER"]:

@@ -37,7 +37,6 @@ class MainScreen(QMainWindow):
             self.hunter_ai = HunterAgent(self.controller, Param.hunter_ai)
             self.controller.gamestate_is_changed.connect(self.hunter_ai.act)
             self.hunter_ai.action_done.connect(self.controller.process_action)
-
         # QObject.__init__()
         #self.setWindowFlags(PyQt6.QtCore.Qt.WindowType.WindowStaysOnTopHint | PyQt6.QtCore.Qt.WindowType.Window)
         #self.setWindowFlags(PyQt6.QtCore.Qt.WindowType.WindowStaysOnTopHint | PyQt6.QtCore.Qt.WindowType.FramelessWindowHint)
@@ -64,7 +63,9 @@ class MainScreen(QMainWindow):
         self.track.inside_track.connect(self.map_view.locate_marker)
         self.track.outside_track.connect(self.map_view.hide_marker)
         self.controller.gamestate_is_changed.connect(self.map_view.visualize)
-        self.controller.dusk_dawn_is_changed.connect(self.map_view.change_dusk_dawn)
+        # self.controller.dusk_dawn_is_changed.connect(self.map_view.change_dusk_dawn)  # this works
+        for i in range(5):  # this does not work
+            self.controller.players[i].dusk_dawn_is_changed.connect(self.map_view.change_dusk_dawn)
 
         self.controller.gamestate_is_changed.connect(self.actions.visualize)
         self.controller.gamestate_is_changed.connect(self.track.visualize)

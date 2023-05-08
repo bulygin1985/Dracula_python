@@ -100,7 +100,7 @@ class StuffView(QGraphicsView):
         h = 1.5 * w * 0.35
         shift = 0.15*w
 
-        for idx, event in enumerate(self.controller.state.players[player_num].events):
+        for idx, event in enumerate(self.controller.players[player_num].events):
             if idx > 3:  # show only the first 4th events
                 break
             if not Loader.name_to_event[event]["isHunter"] and are_you_hunter() and not are_you_dracula():
@@ -123,7 +123,7 @@ class StuffView(QGraphicsView):
         w = self.scene.width()
         h = 1.5 * w * 0.35
         num_to_pos = {0: [0.1*w, 0.1*w], 1: [0.55*w, 0.1*w], 2: [0.1*w, 0.1*w+h+0.1*w], 3:  [0.55*w, 0.1*w+h+0.1*w]}
-        for idx, item in enumerate(self.controller.state.players[player_num].items):
+        for idx, item in enumerate(self.controller.players[player_num].items):
             if idx > 3:  # show only the first 4th items
                 break
             logger.info(f"item = {item}")
@@ -175,7 +175,7 @@ class StuffView(QGraphicsView):
 
         w = int(self.scene.width() * 0.35)
         shift = self.scene.width() * 0.1
-        for idx, ticket in enumerate(self.controller.state.players[player_num].tickets):
+        for idx, ticket in enumerate(self.controller.players[player_num].tickets):
             if idx >= 2:
                 break  # show only fist two ticket in stuff view
             logger.info(f"show ticket {ticket}")

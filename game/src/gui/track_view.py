@@ -18,6 +18,7 @@ class TrackView(QGraphicsView):
 
     def __init__(self, width, height, controller):
         super().__init__()
+        logger.info(f"TrackView constructor")
         self.controller = controller
         self.scene = QGraphicsScene()
         self.setScene(self.scene)
@@ -41,13 +42,14 @@ class TrackView(QGraphicsView):
         self.outside_track.emit()
 
     def visualize(self):
-        logger.info("visualize track = {}".format(self.controller.state.players[0].track))
+        logger.info("visualize track")
+        # logger.info("visualize track = {}".format(self.controller.state.players[0].track))
         self.remove_items()
         # from gamestate.player import TrackElement
         # self.controller.state.players[0].track = [TrackElement(i) for i in range(6)]
         # self.controller.state.players[0].track[5].is_opened_location = True
-        for idx, elem in enumerate(self.controller.state.players[0].track):
-            map_item = TrackItem(int(elem.location_num), elem.is_opened_location, self)
+        for idx, elem in enumerate(self.controller.players[0].track):
+            map_item = TrackItem(int(elem.location.name), elem.location.is_opened, self)
             map_item.setZValue(1)
             shift = self.scene.width()
             step = (self.scene.height() - 0.1 * shift) / 6

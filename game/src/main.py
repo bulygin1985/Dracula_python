@@ -71,6 +71,16 @@ class ParamWidget(QWidget):
         self.mainScreen = MainScreen()
         self.mainScreen.show()
 
+
+# Qt5.5 do not show trace error. It could be showed in QMessageBox :
+# https://stackoverflow.com/questions/42621528/why-python-console-in-pycharm-doesnt-show-any-error-message-when-pyqt-is-used
+def catch_exceptions(t, val, tb):
+    logger.info("An exception was raised. Exception type: {}".format(t))
+    old_hook(t, val, tb)
+
+old_hook = sys.excepthook
+sys.excepthook = catch_exceptions
+
 if __name__ == '__main__':
 
     app = QApplication(sys.argv)
