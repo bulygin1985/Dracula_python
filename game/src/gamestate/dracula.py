@@ -34,12 +34,13 @@ class Dracula(Player):
 
     def __init__(self):
         super().__init__()
+        self.name = "Dracula"
         self.max_events = 4
         self.health = 15
         self.max_health = 15
         self.track = []  # [ (loc_num_1,  isOpen_1, encounter_1) ,..., (loc_num_6,  isOpen_6, encounter_6)]
 
-    def set_location(self, state: GameState, possible_actions: list, location_num):
+    def set_location(self, state: GameState, possible_actions: list, players: list, location_num):
         # TODO - first turn case, meet Hunter, Misdirect
         self.location_num = location_num
         location = Card(name=location_num, is_opened=False)
@@ -47,9 +48,22 @@ class Dracula(Player):
         self.track.insert(0, element)
         if len(self.track) > 6:
             self.track.pop()
+        if self.attack_hunter(players):
+            return   # no encounter if Dracula attacks Hunter
         # TODO - change to encounter action if there is no Hunter
-        # TODO - set possible action
-        #TODO - matured
+        # TODO - matured
+
+    def attack_hunter(self,  players: list):
+        logger.info("reveal_track")
+        is_sea = Loader.location_dict[self.location_num]["isSea"]
+        if is_sea:
+            return False
+        for i in range(1, 5):
+            if players[i].location_num == self.location_num:
+                self.track[0].location.is_opened = True
+                Loader.append_log(f"Brave Dracula is attacking {players[i].name} during the day! ")
+                return True
+        return False
 
     def get_movements(self, kind="roads"):
         locations = super().get_movements(kind)
@@ -77,9 +91,8 @@ class Dracula(Player):
         state.phase = Phase.DAY
         Loader.append_log(f"The day {state.day_num} of the week {state.week_num} begins. \n")
 
-    def start_game(self, state: GameState, possible_actions: list, location_num: str):
-        self.set_location(state, possible_actions, location_num)
-        possible_actions += [ACTION_NEXT]
+    def start_game(self, state: GameState, possible_actions: list, players: list, location_num: str):
+        self.set_location(state, possible_actions, players, location_num) # there is no possible action => only action "NEXT"
 
     def take_event(self, event, state: GameState):
         self.events.append(event)  # TODO emit about Dracula event

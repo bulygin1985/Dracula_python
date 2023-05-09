@@ -32,14 +32,14 @@ class GameController(QObject):
         return self.players[self.state.who_moves]
 
     def process_triggered_action(self, action):
+        logger.info("process_triggered_action")
         if ACTION_DISCARD_EVENT in action and self.state.who_moves == DRACULA:   # Dracula discard 5th event
-            num = int(action.split("_")[-1])
-            logger.info("discard event {}".format(num))
-            self.state.event_deck.discard(self.get_current_player().events.pop(num))
-            Loader.append_log(f"{Loader.num_to_player(self.state.who_moves)} discard event. ")
-
-        self.state.who_moves = self.state.in_queue.pop()
-        self.possible_actions = self.get_current_player().possible_actions
+            self.get_current_player().discard_event(self.state, self.possible_actions, int(action.split("_")[-1]))
+            if len(self.possible_actions) == 0:
+                self.state.who_moves = self.state.in_queue.pop()
+                self.possible_actions = self.get_current_player().possible_actions
+                logger.info(f"triggered action finished who_moves = {self.state.who_moves},  self.possible_actions = "
+                            f"{ self.possible_actions}, self.state.in_queue = {self.state.in_queue}")
         # self.state.in_queue = []
 
     def process_action(self, action):
@@ -49,12 +49,8 @@ class GameController(QObject):
             self.process_triggered_action(action)
         else:
             if action == ACTION_NEXT:
-                if len(self.get_current_player().events) > self.get_current_player().max_events:
-                    self.state.player_phase = ACTION_DISCARD_EVENT   # if Dracula has more than 4 events at the round end
-                else:  # usual case
-                    self.get_current_player().end_turn(self.state)
-                    self.get_current_player().start_turn(self.state, self.possible_actions)
-
+                self.get_current_player().end_turn(self.state)
+                self.get_current_player().start_turn(self.state, self.possible_actions)
             elif action == ACTION_MOVE_BY_ROAD:
                 self.possible_actions = self.get_current_player().get_movements("roads")
             elif action == ACTION_MOVE_BY_SEA:
@@ -63,20 +59,17 @@ class GameController(QObject):
                 self.possible_actions = self.get_current_player().get_railway_movements(ticket_num=0)
 
             elif ACTION_LOCATION in action:
-                logger.info("ACTION_LOCATION in action")
-
-                loc_num_old = self.players[self.state.who_moves].location_num
                 loc_num_new = action.split("_")[-1]
-
                 if self.state.phase == Phase.FIRST_TURN:
-                    self.get_current_player().start_game(self.state, self.possible_actions, loc_num_new)
+                    self.get_current_player().start_game(self.state, self.possible_actions, self.players, loc_num_new)
                     if are_you_dracula() or (self.state.who_moves != DRACULA):  # hunter cannot see where Dracula begins
                         Loader.append_log(f"The {Loader.num_to_player(self.state.who_moves)} starts in { Loader.location_dict[loc_num_new]['name'] }. ")
                 else:
+                    loc_num_old = self.players[self.state.who_moves].location_num
                     if are_you_dracula() or not (self.state.who_moves == DRACULA):  # hunter cannot see where Dracula moves
                         Loader.append_log(f"{Loader.num_to_player(self.state.who_moves)} moves from "
                         f"{Loader.location_dict[loc_num_old]['name']} to {Loader.location_dict[loc_num_new]['name']}. ")
-                    self.get_current_player().set_location(self.state, self.possible_actions, loc_num_new)
+                    self.get_current_player().set_location(self.state, self.possible_actions, self.players, loc_num_new)
 
             elif action == ACTION_TAKE_TICKET:
                 self.get_current_player().take_ticket(self.state, self.possible_actions)
@@ -90,7 +83,6 @@ class GameController(QObject):
             elif action == ACTION_SUPPLY:
                 self.get_current_player().supply(self.state, self.possible_actions, self.players)
 
-        self.reveal_track()
         self.states.append(self.state)
         if len(self.possible_actions) == 0:
             self.possible_actions = [ACTION_NEXT]
@@ -104,17 +96,3 @@ class GameController(QObject):
         self.state.day_num = (self.state.day_num + 1) % 7
         Loader.append_log("{} of the week #{} begins. ".format(Loader.num_to_day(self.state.day_num), self.state.week_num + 1))
 
-    # TODO: move to Hunter set_location
-    def reveal_track(self):
-        logger.info("reveal_track")
-        for i in range(1, 5):
-            loc = self.players[i].location_num
-            for elem in self.players[0].track:
-                if loc == elem.location.name and not Loader.location_dict[loc]["isSea"] and not elem.location.is_opened:
-                    elem.location.is_opened = True
-                    if self.state.who_moves == 0:
-                        Loader.append_log("Brave Dracula is attacking {} during the day! ".format(Loader.num_to_player(i)))
-                    else:
-                        Loader.append_log("{} reveals the Dracula hideout in {}. ".format(Loader.num_to_player(i), Loader.location_dict[loc]["name"]))
-                        if loc == self.players[0].location_num:
-                            Loader.append_log("And it is current Dracula location! ")

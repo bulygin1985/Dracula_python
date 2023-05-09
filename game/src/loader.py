@@ -13,6 +13,7 @@ class Loader:
 
     @classmethod
     def load(cls, path):
+        logger.info(f"loading: {path}")
         image = QImage(path)
         if QImage.isNull(image):
             logger.info(f"cannot load {path}")
@@ -20,6 +21,7 @@ class Loader:
         return image
     @classmethod
     def load_media(cls):
+        logger.info("load_media")
         Loader.map_night = cls.load("./game/images/map/map_night.png")
         Loader.map_day = cls.load("./game/images/map/map_day.png")
         Loader.city = cls.load("./game/images/map/city.png")
@@ -32,6 +34,7 @@ class Loader:
         for i in range(5):
             Loader.player_figs.append(cls.load("./game/images/players/fig{}.png".format(i)))
             Loader.player_cards.append(cls.load("./game/images/players/card{}.png".format(i)))
+        logger.info("load fonts:")
         QFontDatabase.addApplicationFont("./game/fonts/dracula.TTF")
         QFontDatabase.addApplicationFont("./game/fonts/Neucha.ttf")
         QFontDatabase.addApplicationFont("./game/fonts/OpenSans-CondLight.ttf")

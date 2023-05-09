@@ -16,6 +16,7 @@ class Player(QObject):
     def __init__(self):
         super().__init__()
         self.location_num = ""  # it is string integer
+        self.name = "Player"
         self.health = -1
         self.max_health = -1
         self.events = []
@@ -23,7 +24,7 @@ class Player(QObject):
         self.max_events = 3
         self.possible_actions = []  # if player in queue
 
-    def start_game(self, state: GameState, possible_actions: list, location_num: str):
+    def start_game(self, state: GameState, possible_actions: list, players: list, location_num: str):
         self.location_num = location_num
         self.end_turn(state)
         possible_actions += self.get_first_turn_actions()  # possible actions for the next player
@@ -35,7 +36,7 @@ class Player(QObject):
         player_name = Loader.num_to_player(state.who_moves)
         Loader.append_log(f"\n{player_name} starts the {state.phase.name} turn. ")
 
-    def set_location(self, state: GameState, possible_actions: list, location_num: str):
+    def set_location(self, state: GameState, possible_actions: list, players: list, location_num: str):
         logger.info(f"location_num = {location_num}")
         self.location_num = location_num
 
@@ -62,12 +63,18 @@ class Player(QObject):
         return ["ActionLocation_"+str(loc) for loc in loc_dict.keys() if not loc_dict[loc]['isSea'] and loc!= SpecificLocations.DRACULA_CASTLE.value]
 
     def add_discard_events(self, possible_actions: list):
+        """
+        main idea for discard anything: if you need to discard several items then it is discarded one-by-one
+        For this if you discard, then it is checked if you need to discard more
+        :param possible_actions: clear list connected to gamecontroller.possible_actions
+        """
         if len(self.events) > self.max_events:
             possible_actions += [ACTION_DISCARD_EVENT + "_" + str(i) for i in range(len(self.events))]
 
     def discard_event(self, state: GameState, possible_actions: list, num: int):
         state.event_deck.discard(self.events.pop(num))
         Loader.append_log(f"{Loader.num_to_player(state.who_moves)} discard event. ")
+        possible_actions.clear()
         self.add_discard_events(possible_actions)
 
 
@@ -87,13 +94,24 @@ class Hunter(Player):
         Loader.append_log(f"{Loader.num_to_player(state.who_moves)} takes ticket. ")
         self.add_discard_tickets(possible_actions)
 
-    def set_location(self, state: GameState, possible_actions: list, location_num: str):
-        super().set_location(state, possible_actions, location_num)
+    def set_location(self, state: GameState, possible_actions: list, players: list, location_num: str):
+        super().set_location(state, possible_actions, players, location_num)
         if self.chosen_ticket_num is not None:  # e.g. railway
             ticket = self.tickets.pop(self.chosen_ticket_num)
             state.tickets_deck.discard(ticket)
             Loader.append_log(f"{Loader.num_to_player(state.who_moves)} has used ticket {ticket}. ")
             self.chosen_ticket_num = None
+        self.reveal_track(players)
+
+    def reveal_track(self, players: list):
+        logger.info("reveal_track")
+        for elem in players[0].track:
+            is_sea = Loader.location_dict[self.location_num]["isSea"]
+            if self.location_num == elem.location.name and not is_sea and not elem.location.is_opened:
+                elem.location.is_opened = True
+                Loader.append_log(f"{self.name} reveals the Dracula hideout in {Loader.location_dict[self.location_num]['name']}. ")
+                if self.location_num == players[0].location_num:
+                    Loader.append_log("And it is current Dracula location! ")
 
     def start_turn(self, state: GameState, possible_actions: list):
         super().start_turn(state, possible_actions)
@@ -125,31 +143,31 @@ class Hunter(Player):
                 self.events.append(event)
                 Loader.append_log(f"{Loader.num_to_player(state.who_moves)} draws Hunter event at day "
                                   f"from event deck front and takes it. ")
+                possible_actions.clear()
                 self.add_discard_events(possible_actions)
             else:
                 state.event_deck.discard(event)
                 Loader.append_log(f"{Loader.num_to_player(state.who_moves)} draws Dracula event at day "
                                   f"from event deck front and discards it. ")
         elif state.phase == Phase.NIGHT:
-            event = state.event_deck.draw(back=False)
+            event = state.event_deck.draw(back=True)
             if Loader.name_to_event[event]["isHunter"]:
                 self.events.append(event)
                 Loader.append_log(f"{Loader.num_to_player(state.who_moves)} draws Hunter event at night from"
                                   f" event deck back and takes it. ")
                 self.add_discard_events(possible_actions)
             else:
-                # self.draw_dracula_event.emit(event)
                 players[DRACULA].events.append(event)
                 Loader.append_log(f"{Loader.num_to_player(state.who_moves)} draws Dracula event at night "
                                   f"from event deck back and Dracula takes it. ")
 
                 if len(players[DRACULA].events) > players[DRACULA].max_events:
-                    self.possible_actions = possible_actions  # save possible actions for the current player
+                    self.possible_actions = possible_actions.copy()  # save possible actions for the current player, it could be only discard_item
+                    logger.info(f"save hunter possible actions: {self.possible_actions}")
                     state.in_queue.append(state.who_moves)
                     state.who_moves = DRACULA
                     possible_actions.clear()
                     players[DRACULA].add_discard_events(possible_actions)
-                    possible_actions += [ACTION_DISCARD_EVENT + "_" + str(i) for i in range(len(players[DRACULA].events))]
 
     def add_discard_items(self, possible_actions: list):
         if len(self.items) > self.max_items:
@@ -158,9 +176,11 @@ class Hunter(Player):
     def take_item(self, state: GameState, possible_actions: list):
         self.items.append(state.item_deck.draw())
         Loader.append_log(f"{Loader.num_to_player(state.who_moves)} takes item. ")
+        possible_actions.clear()
         self.add_discard_items(possible_actions)
 
     def supply(self, state: GameState, possible_actions: list, players: list):
+        logger.info("supply")
         if Loader.location_dict[self.location_num]["isCity"]:
             self.take_item(state, possible_actions)
         self.take_event(state, possible_actions, players)
@@ -168,22 +188,26 @@ class Hunter(Player):
     def discard_ticket(self, state: GameState, possible_actions: list, num: int):
         state.tickets_deck.discard(self.tickets.pop(num))
         Loader.append_log(f"{Loader.num_to_player(state.who_moves)} discard ticket. ")
+        possible_actions.clear()
         self.add_discard_tickets(possible_actions)
 
     def discard_item(self, state: GameState, possible_actions: list, num: int):
         state.item_deck.discard(self.items.pop(num))
         Loader.append_log(f"{Loader.num_to_player(state.who_moves)} discard item. ")
+        possible_actions.clear()
         self.add_discard_items(possible_actions)
         self.add_discard_events(possible_actions)
 
     def discard_event(self, state: GameState, possible_actions: list, num: int):
         super().discard_event(state, possible_actions, num)
         self.add_discard_items(possible_actions)
+        self.add_discard_events(possible_actions)
 
 
 class Lord(Hunter):
     def __init__(self):
         super().__init__()
+        self.name = "Lord Godalming"
         self.health = 11
         self.max_health = 11
         self.bites = 0
@@ -203,6 +227,7 @@ class Lord(Hunter):
 class Doctor(Hunter):
     def __init__(self):
         super().__init__()
+        self.name = "Dr. John Seward"
         self.max_items = 4
         self.max_events = 4
         self.health = 9
@@ -214,6 +239,7 @@ class Doctor(Hunter):
 class Helsing(Hunter):
     def __init__(self):
         super().__init__()
+        self.name = "Van Helsing"
         self.health = 8
         self.max_health = 8
         self.bites = 0
@@ -223,6 +249,7 @@ class Helsing(Hunter):
 class Mina(Hunter):
     def __init__(self):
         super().__init__()
+        self.name = "Mina Harker"
         self.health = 9
         self.max_health = 9
         self.bites = 0
