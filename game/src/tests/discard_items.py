@@ -25,10 +25,9 @@ if __name__ == '__main__':
     logger.info(f"working directory after : {os.getcwd()}")
     param = Param()
     Param.who_are_you = [0, 1, 2, 3, 4]
-    app = QApplication(sys.argv)
+    # app = QApplication(sys.argv)
     loader = Loader()
-    logger.info(Loader.location_dict)
-    Loader.load_media()
+    # Loader.load_media()
 
     if use_gui:
         mainScreen = MainScreen()
@@ -63,4 +62,4 @@ if __name__ == '__main__':
             raise Exception(f"LORD possible_actions have to be ['ActionNext'] but they are: {controller.possible_actions}")
         logger.info("Discard item tests are successfully passed!")
         exit()
-    app.exec()
+    # app.exec()

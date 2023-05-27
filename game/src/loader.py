@@ -10,6 +10,7 @@ class Loader:
     def __init__(self):
         Loader.log = ""
         Loader.location_dict = json.load(open("./game/info/locations.json"))
+        Loader.name_to_event = Loader.get_name_to_event(load_img=False)
 
     @classmethod
     def load(cls, path):
@@ -65,27 +66,31 @@ class Loader:
         for key in ["1_0", "1_1", "2_1", "2_2", "3_2"]:
             Loader.tickets[key] = cls.load(ticket_path + key + ".png")
         Loader.tickets["back"] = cls.load("./game/images/tickets/ticket_back.png")
-        Loader.name_to_item = Loader.get_name_to_item()
-        Loader.name_to_event = Loader.get_name_to_event()
         Loader.hunters_board = cls.load("./game/images/hunters_board.png")
         Loader.dracula_board = cls.load("./game/images/dracula_board.png")
         Loader.actions_board = cls.load("./game/images/actions_board.png")
+
+        Loader.name_to_item = Loader.get_name_to_item()
+        Loader.name_to_event = Loader.get_name_to_event()
+
         logger.info("all file are successfully loaded")
 
     @classmethod
-    def get_name_to_event(cls):
+    def get_name_to_event(cls, load_img=True):
         name_to_event = defaultdict(dict)
         for path in ["./game/images/events/dracula", "./game/images/events/hunter"]:
             filenames = os.listdir(path)
             for filename in filenames:
                 event = filename.split(".")[0]
                 if event in ["BACK_DRACULA", "BACK_HUNTER"]:
-                    name_to_event[event]["image"] = cls.load(os.path.join(path, filename))
+                    if load_img:
+                        name_to_event[event]["image"] = cls.load(os.path.join(path, filename))
                     continue
                 num = event.split("_")[-1]
                 name = event.replace("_" + num, "")
                 # logger.info(f"name={name}, num={num}")
-                name_to_event[name]["image"] = cls.load(os.path.join(path, filename))
+                if load_img:
+                    name_to_event[name]["image"] = cls.load(os.path.join(path, filename))
                 name_to_event[name]["number"] = int(num)
                 name_to_event[name]["isHunter"] = False if "dracula" in path else True
         return name_to_event
