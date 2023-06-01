@@ -5,6 +5,7 @@ from gui.main_screen import MainScreen
 from loader import Loader
 from game_param import Param
 from common.logger import logger
+import os
 
 class ParamWidget(QWidget):
     def __init__(self):
@@ -82,6 +83,9 @@ old_hook = sys.excepthook
 sys.excepthook = catch_exceptions
 
 if __name__ == '__main__':
+    print(f"current working directory: {os.getcwd()}")
+    os.chdir("../../")
+    print(f"now working directory is: {os.getcwd()}")
 
     app = QApplication(sys.argv)
 

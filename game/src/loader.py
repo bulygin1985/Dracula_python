@@ -10,7 +10,12 @@ class Loader:
     def __init__(self):
         Loader.log = ""
         Loader.location_dict = json.load(open("./game/info/locations.json"))
+
+
+    @classmethod
+    def load_without_media(cls):
         Loader.name_to_event = Loader.get_name_to_event(load_img=False)
+
 
     @classmethod
     def load(cls, path):
@@ -20,6 +25,8 @@ class Loader:
             logger.info(f"cannot load {path}")
             exit()
         return image
+
+
     @classmethod
     def load_media(cls):
         logger.info("load_media")

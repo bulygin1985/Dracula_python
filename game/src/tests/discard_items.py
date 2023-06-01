@@ -27,13 +27,14 @@ if __name__ == '__main__':
     Param.who_are_you = [0, 1, 2, 3, 4]
     # app = QApplication(sys.argv)
     loader = Loader()
-    # Loader.load_media()
 
     if use_gui:
+        Loader.load_media()
         mainScreen = MainScreen()
         mainScreen.show()
         controller = mainScreen.controller
     else:
+        Loader.load_without_media()
         controller = GameController()
 
      #First turn

@@ -38,7 +38,9 @@ class Dracula(Player):
         self.max_events = 4
         self.health = 15
         self.max_health = 15
-        self.track = []  # [ (loc_num_1,  isOpen_1, encounter_1) ,..., (loc_num_6,  isOpen_6, encounter_6)]
+        self.track = []  # list of TrackElement
+        self.max_encounter_num = 5
+        self.encounters = []
 
     def set_location(self, state: GameState, possible_actions: list, players: list, location_num):
         # TODO - first turn case, meet Hunter, Misdirect

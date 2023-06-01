@@ -20,10 +20,12 @@ class GameController(QObject):
         self.players = [Dracula(), Lord(), Doctor(), Helsing(), Mina()]
         self.states = []
         self.states.append(self.state)
-        self.possible_actions = self.players[1].get_first_turn_actions()
+        self.possible_actions = self.players[1].get_first_turn_actions(self.players)
         Loader.append_log("The first turn of {}. ".format(Loader.num_to_player(self.state.who_moves)))
         logger.info("possible_actions = {}".format(self.possible_actions))
         self.players[DRACULA].change_time_signal.connect(self.change_time)  # remove signal, move logic to Dracula class
+        for i in range(self.players[0].max_encounter_num):
+            self.players[0].encounters.append(self.state.encounter_deck.draw())
         logger.info("constructor is finished")
 
     # param : action - chosen action
@@ -57,6 +59,9 @@ class GameController(QObject):
                 self.possible_actions = self.get_current_player().get_movements("seas")
             elif action == ACTION_MOVE_BY_RAILWAY:
                 self.possible_actions = self.get_current_player().get_railway_movements(ticket_num=0)
+            elif action == TICKET_1 or action == TICKET_2:
+                num = int(action.split("_")[1]) - 1
+                self.possible_actions = self.get_current_player().get_railway_movements(ticket_num=num)
 
             elif ACTION_LOCATION in action:
                 loc_num_new = action.split("_")[-1]

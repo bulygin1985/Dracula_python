@@ -5,6 +5,8 @@ TURN_END = "turn_end"
 
 class SpecificLocations(Enum):
     DRACULA_CASTLE = "24"
+    KLAUSENBURG = "28"
+    GALATZ = "16"
 
 class Phase(Enum):
     FIRST_TURN = 0

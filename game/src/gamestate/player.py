@@ -27,7 +27,7 @@ class Player(QObject):
     def start_game(self, state: GameState, possible_actions: list, players: list, location_num: str):
         self.location_num = location_num
         self.end_turn(state)
-        possible_actions += self.get_first_turn_actions()  # possible actions for the next player
+        possible_actions += self.get_first_turn_actions(players)  # possible actions for the next player
 
     def end_turn(self, state: GameState):
         state.who_moves = (state.who_moves + 1) % 5
@@ -56,11 +56,14 @@ class Player(QObject):
             possible_actions.append(ACTION_MOVE_BY_SEA)
         return possible_actions
 
-    # TODO - see other restriction to start game
-    def get_first_turn_actions(self):
+    def get_first_turn_actions(self, players: list):
         logger.info("get_first_turn_actions")
         loc_dict = Loader.location_dict
-        return ["ActionLocation_"+str(loc) for loc in loc_dict.keys() if not loc_dict[loc]['isSea'] and loc!= SpecificLocations.DRACULA_CASTLE.value]
+        forbitten_loc = [SpecificLocations.DRACULA_CASTLE.value]
+        for player in players:
+            if player.location_num != "":
+                forbitten_loc.append(player.location_num)
+        return ["ActionLocation_"+str(loc) for loc in loc_dict.keys() if not loc_dict[loc]['isSea'] and loc not in forbitten_loc]
 
     def add_discard_events(self, possible_actions: list):
         """
@@ -124,8 +127,15 @@ class Hunter(Player):
 
     def get_movement_option(self):
         possible_actions = super().get_movement_option()
-        if len(self.get_movements("railways")) > 0:
-            possible_actions.append(ACTION_MOVE_BY_RAILWAY)
+        if len(self.tickets) == 0 or len(self.get_movements("railways")) == 0:
+            return possible_actions
+        else:
+            locations = []
+            for ticket in self.tickets:
+                locations = get_train_movement(self.location_num, ticket)
+                if len(locations) > 0:
+                    possible_actions.append(ACTION_MOVE_BY_RAILWAY)
+                    return possible_actions
         return possible_actions
     
     def get_railway_movements(self, ticket_num=0):
@@ -133,8 +143,9 @@ class Hunter(Player):
         locations = get_train_movement(self.location_num, self.tickets[ticket_num])
         possible_actions = ["ActionLocation_" + str(loc) for loc in locations]
         if len(self.tickets) > 0:
-            another_ticket = TICKET_1 if ticket_num == 1 else 0
+            another_ticket = TICKET_1 if ticket_num == 1 else TICKET_2
         possible_actions += [another_ticket]
+        return possible_actions
 
     def take_event(self, state: GameState, possible_actions: list, players: list):
         if state.phase == Phase.DAY:
