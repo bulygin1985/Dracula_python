@@ -1,29 +1,27 @@
 from gamestate.player import Player
-from common.common_classes import Card
+from common.common_classes import Card, Encounter
+from common import common_classes
 from common.logger import logger
 from gamestate.gamestate import GameState
 from loader import Loader
 from common.constants import *
 from PyQt6.QtCore import *
+from gamestate.deck import Deck
+from game_param import Param
 
 
 class TrackElement:
-    def __init__(self, location=None, encounters=None, powers=None):
+    def __init__(self, location=None, encounters=None, power=None):
         self.location = location
         self.encounters = encounters
-        self.powers = powers
+        self.power = power
 
     def __str__(self):
         encounters_str = ""
-        powers_str = ""
         if self.encounters is not None:
             for encounter in self.encounters:
                 encounters_str += encounter.name + " "
-        if self.powers is not None:
-            for power in self.powers:
-                powers_str += power.name + " "
-
-        return f"location_num = {self.location_num}, encounters = {self.encounters}, powers = {self.powers}"
+        return f"location_num = {self.location_num}, encounters = {self.encounters}, power = {self.power}"
 
     def __repr__(self):
         return self.__str__()
@@ -41,19 +39,54 @@ class Dracula(Player):
         self.track = []  # list of TrackElement
         self.max_encounter_num = 5
         self.encounters = []
+        self.outside_element = None  # when Dracula track is filled, the last track element is popped
+
+    def draw_encounter(self, encounter_deck:Deck):
+        encounter = encounter_deck.draw()
+        self.encounters.append(encounter)
 
     def set_location(self, state: GameState, possible_actions: list, players: list, location_num):
-        # TODO - first turn case, meet Hunter, Misdirect
         self.location_num = location_num
+        is_sea = Loader.location_dict[self.location_num]["isSea"]
         location = Card(name=location_num, is_opened=False)
         element = TrackElement(location=location)
         self.track.insert(0, element)
-        if len(self.track) > 6:
-            self.track.pop()
-        if self.attack_hunter(players):
-            return   # no encounter if Dracula attacks Hunter
-        # TODO - change to encounter action if there is no Hunter
-        # TODO - matured
+        if len(self.track) > TRACK_LENGTH:
+            self.outside_element = self.track.pop()
+        if self.attack_hunter(players) or is_sea:
+            self.process_outside_track_element(state, possible_actions)
+            return   # no encounter if Dracula attacks or it is  sea
+        possible_actions.append(ACTION_CHOOSE_ENCOUNTER)
+
+    def put_encounter(self, encounter_num: int, track_num: int):
+        encounter_obj = getattr(common_classes, self.encounters[encounter_num])
+        self.track[track_num].append(encounter_obj)
+
+    # in game rule it is 7th track element
+    def process_outside_track_element(self, state: GameState, players: list, possible_actions: list):
+        if self.outside_element is None:
+            logger.info("there is no outside track element")
+        else:
+            if self.outside_element.encounters is None:
+                self.outside_element = None  # TODO : powers maybe here -> counter of power using
+            else:
+                if self.outside_element.power == HIDE_POWER:
+                    for encounter in self.outside_element.encounters:
+                        state.encounter_deck.discard(encounter)
+                        return
+                if Param.use_lair:
+                    possible_actions.append(ACTION_PUT_LAIR)
+                    return
+                else:
+                    if len(self.outside_element.encounters) == 1:
+                        self.mature_encounter(state, players, possible_actions, 0)
+                    else:
+                        possible_actions.append(ACTION_CHOOSE_MATURED_ENCOUNTER)
+
+    def mature_encounter(self, state: GameState, players: list, possible_actions: list, encounter_num: int):
+        encounter = self.outside_element.encounters[encounter_num]
+        encounter.mature(state, players, possible_actions)
+        state.encounter_deck.discard(encounter)
 
     def attack_hunter(self,  players: list):
         logger.info("reveal_track")
@@ -94,7 +127,9 @@ class Dracula(Player):
         Loader.append_log(f"The day {state.day_num} of the week {state.week_num} begins. \n")
 
     def start_game(self, state: GameState, possible_actions: list, players: list, location_num: str):
-        self.set_location(state, possible_actions, players, location_num) # there is no possible action => only action "NEXT"
+        self.location_num = location_num
+        element = TrackElement(location=Card(name=location_num, is_opened=False))
+        self.track.insert(0, element)
 
     def take_event(self, event, state: GameState):
         self.events.append(event)  # TODO emit about Dracula event

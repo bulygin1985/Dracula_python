@@ -14,6 +14,7 @@ class GameState:
         self.player_phase = begin
         self.day_num = -1
         self.week_num = 0
+        self.card_on_board = None  # only this card is on play. Nothing happen until it resolves
         self.tickets_deck = Deck(cards=["3_2"] * 4 + ["2_2"] * 4 + 2 * ["1_1"] + 3 * ["2_1"] + 3 * ["1_0"],
                                  deck_name="Tickets_Pool")
         self.item_deck = Deck(cards=2 * ["CRUCIFIX"] + 2 * ["HOLY_CIRCLE"] + 3 * ["GARLIC_WREATH"] + 3 * ["KNIFE"] +

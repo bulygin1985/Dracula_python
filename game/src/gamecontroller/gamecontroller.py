@@ -46,7 +46,9 @@ class GameController(QObject):
 
     def process_action(self, action):
         logger.info(f"process_action({action})")
+        action_num = int(action.split("_")[-1]) if "_" in action else -1
         self.possible_actions = []
+        dracula = self.players[0]
         if len(self.state.in_queue) > 0:
             self.process_triggered_action(action)
         else:
@@ -80,13 +82,20 @@ class GameController(QObject):
                 self.get_current_player().take_ticket(self.state, self.possible_actions)
 
             elif ACTION_DISCARD_TICKET in action:
-                self.get_current_player().discard_ticket(self.state, self.possible_actions, int(action.split("_")[-1]))
+                self.get_current_player().discard_ticket(self.state, self.possible_actions, action_num)
             elif ACTION_DISCARD_ITEM in action:
-                self.get_current_player().discard_item(self.state, self.possible_actions, int(action.split("_")[-1]))
+                self.get_current_player().discard_item(self.state, self.possible_actions, action_num)
             elif ACTION_DISCARD_EVENT in action:
-                self.get_current_player().discard_event(self.state, self.possible_actions, int(action.split("_")[-1]))
+                self.get_current_player().discard_event(self.state, self.possible_actions, action_num)
             elif action == ACTION_SUPPLY:
                 self.get_current_player().supply(self.state, self.possible_actions, self.players)
+            elif ACTION_CHOOSE_ENCOUNTER in action:
+                dracula.put_encounter(action_num, 0)
+                if dracula.encounters < self.players[0].max_encounter_num:
+                    dracula.draw_encounter(self.state.encounter_deck)
+                dracula.process_outside_track_element(self.state, self.players, self.possible_actions)
+            elif ACTION_CHOOSE_MATURED_ENCOUNTER in action:
+                dracula.mature_encounter(self.state, self.possible_actions, self.players, action_num)
 
         self.states.append(self.state)
         if len(self.possible_actions) == 0:

@@ -1,54 +1,12 @@
-from PyQt6.QtWidgets import *
-import sys
-import os
-
-from common import logger
-from gui.main_screen import MainScreen
-from loader import Loader
-from game_param import Param
-from gamecontroller.gamecontroller import *
-
-# Qt5.5 do not show trace error. It could be showed in QMessageBox :
-# https://stackoverflow.com/questions/42621528/why-python-console-in-pycharm-doesnt-show-any-error-message-when-pyqt-is-used
-
-
-def catch_exceptions(t, val, tb):
-    logger.info("An exception was raised. Exception type: {}".format(t))
-    old_hook(t, val, tb)
-
-
-old_hook = sys.excepthook
-sys.excepthook = catch_exceptions
-
-
-def check_lists(y_true, y_pred):
-    if y_true != y_pred:
-        raise ValueError(f"possible actions for {name} has to be {y_true}, \n but they are : {y_pred} ")
-
-def check_sets(y_true, y_pred):
-    if y_true != y_pred:
-        raise ValueError(f"possible actions for {name} has to be {y_true}, \n but they are : "
-                         f"{y_pred} \n and difference: {y_pred.symmetric_difference(y_true)}")
+from common_in_tests import *
 
 
 if __name__ == '__main__':
-    use_gui = False
-
-    logger.info(f"working directory before : {os.getcwd()}")
-    os.chdir("../../../")
-    logger.info(f"working directory after : {os.getcwd()}")
-    param = Param()
-    Param.who_are_you = [0, 1, 2, 3, 4]
-    loader = Loader()
+    swith_on_exceptions()
+    use_gui = True
+    controller, app, mainScreen = get_controller(use_gui=use_gui)
     if use_gui:
-        app = QApplication(sys.argv)
-        Loader.load_media()
-        mainScreen = MainScreen()
         mainScreen.show()
-        controller = mainScreen.controller
-    else:
-        Loader.load_without_media()
-        controller = GameController()
 
     # create test decks
     controller.state.event_deck.cards = ["MONEY_TRAIL", "DARKESS_RETURNS", "LUCY_REVENGE", "ENRAGED", "PLANNED_AMBUSH",

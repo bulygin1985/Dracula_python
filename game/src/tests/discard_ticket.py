@@ -9,7 +9,9 @@ from gamecontroller.gamecontroller import *
 
 
 if __name__ == '__main__':
-    os.chdir("D:\Dracula\Dracula_python")
+    print(os.getcwd())
+    os.chdir("../../../")
+    print(os.getcwd())
     param = Param()
     Param.who_are_you = [0, 1, 2, 3, 4]
     app = QApplication(sys.argv)

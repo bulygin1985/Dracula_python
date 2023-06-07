@@ -1,5 +1,5 @@
 class Param:
-    def __init__(self):
-        Param.who_are_you = [0, 1, 2, 3, 4]
-        Param.is_dracula_ai = False
-        Param.hunter_ai = []
+    who_are_you = [0, 1, 2, 3, 4]
+    is_dracula_ai = False
+    hunter_ai = []
+    use_lair = False
