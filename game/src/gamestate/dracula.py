@@ -1,5 +1,5 @@
 from gamestate.player import Player
-from common.common_classes import Card, Encounter
+from common.common_classes import Card
 from common import common_classes
 from common.logger import logger
 from gamestate.gamestate import GameState
@@ -8,20 +8,20 @@ from common.constants import *
 from PyQt6.QtCore import *
 from gamestate.deck import Deck
 from game_param import Param
-
+from gamecontroller.encounters import *
 
 class TrackElement:
     def __init__(self, location=None, encounters=None, power=None):
         self.location = location
-        self.encounters = encounters
+        self.encounters = []
         self.power = power
 
     def __str__(self):
         encounters_str = ""
         if self.encounters is not None:
             for encounter in self.encounters:
-                encounters_str += encounter.name + " "
-        return f"location_num = {self.location_num}, encounters = {self.encounters}, power = {self.power}"
+                encounters_str += encounter.__class__.__name__ + " "
+        return f"location_num = {self.location.name}, encounters = {encounters_str}, power = {self.power}"
 
     def __repr__(self):
         return self.__str__()
@@ -59,8 +59,11 @@ class Dracula(Player):
         possible_actions.append(ACTION_CHOOSE_ENCOUNTER)
 
     def put_encounter(self, encounter_num: int, track_num: int):
-        encounter_obj = getattr(common_classes, self.encounters[encounter_num])
-        self.track[track_num].append(encounter_obj)
+        encounter_name = self.encounters.pop(encounter_num)
+        encounter_obj = eval(f"{encounter_name}()")  # encounter string name to class name
+        logger.info(f"Dracula puts {encounter_name} to hideout {track_num}")
+        self.track[track_num].encounters.append(encounter_obj)
+
 
     # in game rule it is 7th track element
     def process_outside_track_element(self, state: GameState, players: list, possible_actions: list):

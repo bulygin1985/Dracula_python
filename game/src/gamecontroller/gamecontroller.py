@@ -23,9 +23,10 @@ class GameController(QObject):
         self.possible_actions = self.players[1].get_first_turn_actions(self.players)
         Loader.append_log("The first turn of {}. ".format(Loader.num_to_player(self.state.who_moves)))
         logger.info("possible_actions = {}".format(self.possible_actions))
-        self.players[DRACULA].change_time_signal.connect(self.change_time)  # remove signal, move logic to Dracula class
-        for i in range(self.players[0].max_encounter_num):
-            self.players[0].encounters.append(self.state.encounter_deck.draw())
+        dracula = self.players[0]
+        dracula.change_time_signal.connect(self.change_time)  # remove signal, move logic to Dracula class
+        for i in range(dracula.max_encounter_num):
+            dracula.encounters.append(self.state.encounter_deck.draw())
         logger.info("constructor is finished")
 
     # param : action - chosen action
@@ -91,7 +92,7 @@ class GameController(QObject):
                 self.get_current_player().supply(self.state, self.possible_actions, self.players)
             elif ACTION_CHOOSE_ENCOUNTER in action:
                 dracula.put_encounter(action_num, 0)
-                if dracula.encounters < self.players[0].max_encounter_num:
+                if len(dracula.encounters) < dracula.max_encounter_num:
                     dracula.draw_encounter(self.state.encounter_deck)
                 dracula.process_outside_track_element(self.state, self.players, self.possible_actions)
             elif ACTION_CHOOSE_MATURED_ENCOUNTER in action:
