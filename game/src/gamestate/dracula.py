@@ -37,11 +37,12 @@ class Dracula(Player):
         self.health = 15
         self.max_health = 15
         self.track = []  # list of TrackElement
+        self.lairs = []
         self.max_encounter_num = 5
         self.encounters = []
         self.outside_element = None  # when Dracula track is filled, the last track element is popped
 
-    def draw_encounter(self, encounter_deck:Deck):
+    def draw_encounter(self, encounter_deck: Deck):
         encounter = encounter_deck.draw()
         self.encounters.append(encounter)
 
@@ -50,46 +51,77 @@ class Dracula(Player):
         is_sea = Loader.location_dict[self.location_num]["isSea"]
         location = Card(name=location_num, is_opened=False)
         element = TrackElement(location=location)
-        self.track.insert(0, element)
+        lair_idx = self.get_location_in_lairs(location_num)
+        if lair_idx is not None:
+            self.track.insert(0, self.lairs.pop(lair_idx))
+            self.track[0].location.is_opened = True
+        else:
+            self.track.insert(0, element)
         if len(self.track) > TRACK_LENGTH:
             self.outside_element = self.track.pop()
         if self.attack_hunter(players) or is_sea:
-            self.process_outside_track_element(state, possible_actions)
+            self.process_outside_track_element(state, players, possible_actions)
             return   # no encounter if Dracula attacks or it is  sea
         possible_actions.append(ACTION_CHOOSE_ENCOUNTER)
 
-    def put_encounter(self, encounter_num: int, track_num: int):
+    def get_location_in_lairs(self, location_num):
+        for idx, lair in enumerate(self.lairs):
+            if lair.location.name == location_num:
+                return idx
+        return None
+
+    def put_encounter_to_track(self, encounter_num: int, track_num: int):
         encounter_name = self.encounters.pop(encounter_num)
         encounter_obj = eval(f"{encounter_name}()")  # encounter string name to class name
         logger.info(f"Dracula puts {encounter_name} to hideout {track_num}")
         self.track[track_num].encounters.append(encounter_obj)
 
+    def put_encounter_to_lairs(self, state: GameState, players: list, possible_actions: list, additional_encounter: str):
+        logger.info(f"put_encounter_to_lairs with additional_encounter = {additional_encounter}")
+        encounter_obj = eval(f"{additional_encounter}()")  # encounter string name to class name
+        self.outside_element.encounters.append(encounter_obj)
+        self.lairs.insert(0, self.outside_element)
+        self.outside_element = None
+
+    def mature_encounters(self, state: GameState, players: list, possible_actions: list):
+        encounter_num = len(self.outside_element.encounters)
+        if encounter_num == 0:
+            return
+        elif encounter_num == 1:
+            self.mature_encounter(state, players, possible_actions, 0)
+        elif encounter_num > 1:
+            possible_actions.append(ACTION_CHOOSE_MATURED_ENCOUNTER)
+
+    def discard_lair(self, state: GameState, index):
+        for encounter in self.lairs[index].encounters:
+            state.put_encounter_to_discard(encounter)
+        self.lairs.pop(index)
 
     # in game rule it is 7th track element
     def process_outside_track_element(self, state: GameState, players: list, possible_actions: list):
+        logger.info("process_outside_track_element")
         if self.outside_element is None:
             logger.info("there is no outside track element")
-        else:
-            if self.outside_element.encounters is None:
-                self.outside_element = None  # TODO : powers maybe here -> counter of power using
-            else:
-                if self.outside_element.power == HIDE_POWER:
-                    for encounter in self.outside_element.encounters:
-                        state.encounter_deck.discard(encounter)
-                        return
-                if Param.use_lair:
-                    possible_actions.append(ACTION_PUT_LAIR)
-                    return
-                else:
-                    if len(self.outside_element.encounters) == 1:
-                        self.mature_encounter(state, players, possible_actions, 0)
-                    else:
-                        possible_actions.append(ACTION_CHOOSE_MATURED_ENCOUNTER)
+            return
+        logger.info("there is outside track element!")
+        if self.outside_element.power == HIDE_POWER:
+            logger.info("THe encounter on Hide power cannot be matured and this card cannot be sent to Dracula Lair")
+            for encounter in self.outside_element.encounters:
+                state.put_encounter_to_discard(encounter)
+                self.outside_element = None
+                return
+        if Param.use_lair and len(self.lairs) <= LAIR_LENGTH:  # game config
+            possible_actions.append(ACTION_IS_PUT_TO_LAIR)
+            return
+        self.mature_encounters(state, players, possible_actions)
+        self.outside_element = None
 
     def mature_encounter(self, state: GameState, players: list, possible_actions: list, encounter_num: int):
         encounter = self.outside_element.encounters[encounter_num]
         encounter.mature(state, players, possible_actions)
-        state.encounter_deck.discard(encounter)
+        for encounter in self.outside_element.encounters:
+            state.put_encounter_to_discard(encounter)
+        self.outside_element = None
 
     def attack_hunter(self,  players: list):
         logger.info("reveal_track")
@@ -112,6 +144,8 @@ class Dracula(Player):
 
     def start_turn(self, state: GameState, possible_actions: list):
         super().start_turn(state, possible_actions)
+        if len(self.lairs) > 0:
+            possible_actions.append(ACTION_DISCARD_LAIR)
         possible_actions += self.get_movement_option()
         if len(possible_actions) == 0:
             Loader.append_log("Dracula has no possible actions => track is cleared and Dracula health "

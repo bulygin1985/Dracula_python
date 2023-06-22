@@ -104,17 +104,27 @@ class Hunter(Player):
             state.tickets_deck.discard(ticket)
             Loader.append_log(f"{Loader.num_to_player(state.who_moves)} has used ticket {ticket}. ")
             self.chosen_ticket_num = None
-        self.reveal_track(players)
+        self.reveal_track(state, possible_actions, players)
 
-    def reveal_track(self, players: list):
+    def reveal_track(self, state: GameState, possible_actions: list, players: list):
         logger.info("reveal_track")
-        for elem in players[0].track:
+        for track_idx, elem in enumerate(players[0].track):
             is_sea = Loader.location_dict[self.location_num]["isSea"]
             if self.location_num == elem.location.name and not is_sea and not elem.location.is_opened:
                 elem.location.is_opened = True
+                if elem.power is not None:
+                    elem.power.is_opened = True  # e.g. open Hide power
                 Loader.append_log(f"{self.name} reveals the Dracula hideout in {Loader.location_dict[self.location_num]['name']}. ")
                 if self.location_num == players[0].location_num:
                     Loader.append_log("And it is current Dracula location! ")
+                if len(elem.encounters) > 0:
+                    logger.info(f"Dracula chooses to ambush {Loader.num_to_player(state.who_moves)} or not")
+                    state.in_queue.append(state.who_moves)
+                    state.who_moves = DRACULA
+                    self.possible_actions = possible_actions.copy()
+                    possible_actions.clear()
+                    possible_actions.append(ACTION_IS_AMBUSHED)
+                    state.encountered_in = track_idx
 
     def start_turn(self, state: GameState, possible_actions: list):
         super().start_turn(state, possible_actions)

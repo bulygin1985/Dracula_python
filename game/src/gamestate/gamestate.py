@@ -10,6 +10,9 @@ class GameState:
         logger.info(f"GameState constructor")
         self.who_moves = 1  # TODO - Enum
         self.in_queue = []  # who_moves in queue
+        self.encountered_in = None  # track element number where Hunters could be ambushed or None
+        self.ambushed_hunters = []
+        self.current_encounter_num = None  # case of several encounters inside track element
         self.phase = Phase.FIRST_TURN
         self.player_phase = begin
         self.day_num = -1
@@ -30,3 +33,6 @@ class GameState:
             if name not in ["BACK_DRACULA", "BACK_HUNTER"]:
                 event_cards += event["number"] * [name]
         self.event_deck = Deck(cards=event_cards, deck_name="Events")
+
+    def put_encounter_to_discard(self, encounter):
+        self.encounter_deck.discard(encounter.__class__.__name__)

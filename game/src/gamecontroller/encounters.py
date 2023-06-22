@@ -1,5 +1,6 @@
 from gamestate.gamestate import GameState
 from loader import Loader
+from common.constants import *
 
 
 class Encounter:
@@ -9,6 +10,11 @@ class Encounter:
     def mature(self, game_state: GameState, players:list, possible_actions: list):
         Loader.append_log(f"{self.__class__.__name__} is matured!")
         return
+
+    def discard(self, game_state: GameState, players: list):
+        encounter_name = self.__class__.__name__
+        game_state.encounter_deck.discard(encounter_name)
+        players[DRACULA].track[game_state.encountered_in].encounters.pop(game_state.current_encounter_num)
 
 
 class ARISTOCRATIC_VAMPIRE(Encounter):
@@ -38,6 +44,7 @@ class NEW_VAMPIRE(Encounter):
 
 class RATS(Encounter):
     def process(self, game_state: GameState, players: list, possible_actions: list):
+        self.discard(game_state, players)
         return
 
 

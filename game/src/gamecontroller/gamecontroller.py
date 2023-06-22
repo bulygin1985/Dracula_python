@@ -43,7 +43,20 @@ class GameController(QObject):
                 self.possible_actions = self.get_current_player().possible_actions
                 logger.info(f"triggered action finished who_moves = {self.state.who_moves},  self.possible_actions = "
                             f"{ self.possible_actions}, self.state.in_queue = {self.state.in_queue}")
-        # self.state.in_queue = []
+        elif ACTION_IS_AMBUSHED in action and self.state.who_moves == DRACULA:   # Dracula discard 5th event
+            is_ambushed = bool(action.split("_")[-1])  # 1 - is ambushed, 0 - is not ambushed
+            self.state.who_moves = self.state.in_queue.pop()
+            if is_ambushed:
+                track_elem = self.players[DRACULA].track[self.state.encountered_in]
+                self.state.card_on_board = track_elem.encounters
+                loc = self.get_current_player().location_num  # Dracula ambushes each player at the location
+                self.state.ambushed_hunters = [i for i in range(1, 5) if self.players[i].location_num == loc]
+                for num, encounter in enumerate(self.state.card_on_board):
+                    self.state.current_encounter_num = num
+                    encounter.process(self.state, self.players, self.possible_actions)
+            else:
+                Loader.append_log(f"Dracula does not ambush {Loader.num_to_player(self.state.who_moves)}")
+                self.possible_actions = self.get_current_player().possible_actions
 
     def process_action(self, action):
         logger.info(f"process_action({action})")
@@ -91,12 +104,26 @@ class GameController(QObject):
             elif action == ACTION_SUPPLY:
                 self.get_current_player().supply(self.state, self.possible_actions, self.players)
             elif ACTION_CHOOSE_ENCOUNTER in action:
-                dracula.put_encounter(action_num, 0)
+                dracula.put_encounter_to_track(action_num, 0)
                 if len(dracula.encounters) < dracula.max_encounter_num:
                     dracula.draw_encounter(self.state.encounter_deck)
                 dracula.process_outside_track_element(self.state, self.players, self.possible_actions)
             elif ACTION_CHOOSE_MATURED_ENCOUNTER in action:
                 dracula.mature_encounter(self.state, self.possible_actions, self.players, action_num)
+            elif ACTION_IS_PUT_TO_LAIR in action:
+                is_put = bool(action_num)
+                if is_put:
+                    self.possible_actions = [ACTION_CHOOSE_LAIR_ENCOUNTER]
+                else:
+                    dracula.mature_encounters(self.state, self.players, self.possible_actions)
+            elif ACTION_CHOOSE_LAIR_ENCOUNTER in action:
+                dracula.put_encounter_to_lairs(self.state, self.players, self.possible_actions, dracula.encounters[action_num])
+                if len(dracula.encounters) < dracula.max_encounter_num:
+                    dracula.draw_encounter(self.state.encounter_deck)
+            elif ACTION_DISCARD_LAIR in action:
+                self.possible_actions = [ACTION_CHOOSE_LAIR_TO_DISCARD]
+            elif ACTION_CHOOSE_LAIR_TO_DISCARD in action:
+                dracula.discard_lair(self.state, action_num)
 
         self.states.append(self.state)
         if len(self.possible_actions) == 0:
