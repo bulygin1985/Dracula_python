@@ -20,14 +20,22 @@ def swith_on_exceptions():
     sys.excepthook = catch_exceptions
 
 
+def check_who_moves(who_moves_true, who_moves_pred):
+    if who_moves_true != who_moves_pred:
+        raise Exception(f"It must be {Loader.num_to_player(who_moves_true)} turn, "
+                        f"but now is {Loader.num_to_player(who_moves_pred)} turn")
+
+
 def check_lists(y_true, y_pred):
     if y_true != y_pred:
         raise ValueError(f"possible actions has to be {y_true}, \n but they are : {y_pred} ")
+
 
 def check_sets(y_true, y_pred):
     if y_true != y_pred:
         raise ValueError(f"possible actions has to be {y_true}, \n but they are : "
                          f"{y_pred} \n and difference: {y_pred.symmetric_difference(y_true)}")
+
 
 def get_controller(use_gui=False):
     logger.info(f"working directory before : {os.getcwd()}")

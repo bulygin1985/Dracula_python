@@ -93,6 +93,7 @@ class Dracula(Player):
             possible_actions.append(ACTION_CHOOSE_MATURED_ENCOUNTER)
 
     def discard_lair(self, state: GameState, index):
+        logger.info(f"discard_lair with index {index}")
         for encounter in self.lairs[index].encounters:
             state.put_encounter_to_discard(encounter)
         self.lairs.pop(index)

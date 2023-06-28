@@ -101,18 +101,17 @@ class StuffView(QGraphicsView):
         shift = 0.15*w
 
         for idx, event in enumerate(self.controller.players[player_num].events):
-            if idx > 3:  # show only the first 4th events
-                break
-            if not Loader.name_to_event[event]["isHunter"] and are_you_hunter() and not are_you_dracula():
+            # if idx > 3:  # show only the first 4th events
+            #     break
+            if not Loader.name_to_event[event.name]["isHunter"] and are_you_hunter() and not are_you_dracula():
                 image = Loader.name_to_event["BACK_DRACULA"]["image"]
-            elif Loader.name_to_event[event]["isHunter"] and are_you_dracula() and not are_you_hunter():
+            elif Loader.name_to_event[event.name]["isHunter"] and are_you_dracula() and not are_you_hunter():
                 image = Loader.name_to_event["BACK_HUNTER"]["image"]
             else:
-                image = Loader.name_to_event[event]["image"]
+                image = Loader.name_to_event[event.name]["image"]
             image = image.scaledToWidth(int(0.8 * w), Qt.TransformationMode.SmoothTransformation)
             card_event = CardsStuff(image, 0.1 * w, 2 * h + 3 * 0.1 * w + idx * shift)
             self.scene.addItem(card_event)
-
 
             # TODO - Dracula and Hunter back
 
@@ -126,13 +125,13 @@ class StuffView(QGraphicsView):
         for idx, item in enumerate(self.controller.players[player_num].items):
             if idx > 3:  # show only the first 4th items
                 break
-            logger.info(f"item = {item}")
+            logger.info(f"item = {item.name}")
             x = num_to_pos[idx][0]
             y = num_to_pos[idx][1]
             is_left = True if idx % 2 == 0 else False
 
             if are_you_hunter():
-                image = Loader.name_to_item[item]
+                image = Loader.name_to_item[item.name]
             else:
                 image = Loader.name_to_item["BACK"]
 
@@ -178,10 +177,10 @@ class StuffView(QGraphicsView):
         for idx, ticket in enumerate(self.controller.players[player_num].tickets):
             if idx >= 2:
                 break  # show only fist two ticket in stuff view
-            logger.info(f"show ticket {ticket}")
+            logger.info(f"show ticket {ticket.name}")
             image = None
             if are_you_hunter():
-                image = Loader.tickets[ticket].scaledToWidth(w, Qt.TransformationMode.SmoothTransformation)
+                image = Loader.tickets[ticket.name].scaledToWidth(w, Qt.TransformationMode.SmoothTransformation)
             else:
                 image = Loader.tickets["back"].scaledToWidth(w, Qt.TransformationMode.SmoothTransformation)
             card_height = image.height()
@@ -226,7 +225,6 @@ class StuffView(QGraphicsView):
         y = player_card_items[0].y()
         player_card_items[0].setY(y + self.scene.width()*0.1)
         return player_card_items
-
 
     def remove_items(self):
         logger.info("remove_items")

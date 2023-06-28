@@ -4,6 +4,7 @@ from common.constants import *
 from common.common_func import *
 from common.logger import logger
 from PyQt6.QtCore import *
+from common.common_classes import Card
 
 
 class Test(QObject):
@@ -65,20 +66,22 @@ class Player(QObject):
                 forbitten_loc.append(player.location_num)
         return ["ActionLocation_"+str(loc) for loc in loc_dict.keys() if not loc_dict[loc]['isSea'] and loc not in forbitten_loc]
 
-    def add_discard_events(self, possible_actions: list):
+    def add_discard_event_action(self, possible_actions: list):
         """
         main idea for discard anything: if you need to discard several items then it is discarded one-by-one
         For this if you discard, then it is checked if you need to discard more
         :param possible_actions: clear list connected to gamecontroller.possible_actions
         """
+        logger.info("add_discard_event_action")
         if len(self.events) > self.max_events:
+            logger.info(f"{self.__class__.__name__} has to discard event")
             possible_actions += [ACTION_DISCARD_EVENT + "_" + str(i) for i in range(len(self.events))]
 
     def discard_event(self, state: GameState, possible_actions: list, num: int):
-        state.event_deck.discard(self.events.pop(num))
+        state.event_deck.discard(self.events.pop(num).name)
         Loader.append_log(f"{Loader.num_to_player(state.who_moves)} discard event. ")
         possible_actions.clear()
-        self.add_discard_events(possible_actions)
+        self.add_discard_event_action(possible_actions)
 
 
 class Hunter(Player):
@@ -93,7 +96,7 @@ class Hunter(Player):
             possible_actions += [ACTION_DISCARD_TICKET + "_" + str(i) for i in range(len(self.tickets))]
 
     def take_ticket(self, state: GameState, possible_actions: list):
-        self.tickets.append(state.tickets_deck.draw())
+        self.tickets.append(Card(state.tickets_deck.draw()))
         Loader.append_log(f"{Loader.num_to_player(state.who_moves)} takes ticket. ")
         self.add_discard_tickets(possible_actions)
 
@@ -101,8 +104,8 @@ class Hunter(Player):
         super().set_location(state, possible_actions, players, location_num)
         if self.chosen_ticket_num is not None:  # e.g. railway
             ticket = self.tickets.pop(self.chosen_ticket_num)
-            state.tickets_deck.discard(ticket)
-            Loader.append_log(f"{Loader.num_to_player(state.who_moves)} has used ticket {ticket}. ")
+            state.tickets_deck.discard(ticket.name)
+            Loader.append_log(f"{Loader.num_to_player(state.who_moves)} has used ticket {ticket.name}. ")
             self.chosen_ticket_num = None
         self.reveal_track(state, possible_actions, players)
 
@@ -142,7 +145,7 @@ class Hunter(Player):
         else:
             locations = []
             for ticket in self.tickets:
-                locations = get_train_movement(self.location_num, ticket)
+                locations = get_train_movement(self.location_num, ticket.name)
                 if len(locations) > 0:
                     possible_actions.append(ACTION_MOVE_BY_RAILWAY)
                     return possible_actions
@@ -150,7 +153,7 @@ class Hunter(Player):
     
     def get_railway_movements(self, ticket_num=0):
         self.chosen_ticket_num = ticket_num
-        locations = get_train_movement(self.location_num, self.tickets[ticket_num])
+        locations = get_train_movement(self.location_num, self.tickets[ticket_num].name)
         possible_actions = ["ActionLocation_" + str(loc) for loc in locations]
         if len(self.tickets) > 0:
             another_ticket = TICKET_1 if ticket_num == 1 else TICKET_2
@@ -159,24 +162,24 @@ class Hunter(Player):
 
     def take_event(self, state: GameState, possible_actions: list, players: list):
         if state.phase == Phase.DAY:
-            event = state.event_deck.draw()
-            if Loader.name_to_event[event]["isHunter"]:
+            event = Card(state.event_deck.draw())
+            if Loader.name_to_event[event.name]["isHunter"]:
                 self.events.append(event)
                 Loader.append_log(f"{Loader.num_to_player(state.who_moves)} draws Hunter event at day "
                                   f"from event deck front and takes it. ")
                 possible_actions.clear()
-                self.add_discard_events(possible_actions)
+                self.add_discard_event_action(possible_actions)
             else:
                 state.event_deck.discard(event)
                 Loader.append_log(f"{Loader.num_to_player(state.who_moves)} draws Dracula event at day "
                                   f"from event deck front and discards it. ")
         elif state.phase == Phase.NIGHT:
-            event = state.event_deck.draw(back=True)
-            if Loader.name_to_event[event]["isHunter"]:
+            event = Card(state.event_deck.draw(back=True))
+            if Loader.name_to_event[event.name]["isHunter"]:
                 self.events.append(event)
                 Loader.append_log(f"{Loader.num_to_player(state.who_moves)} draws Hunter event at night from"
                                   f" event deck back and takes it. ")
-                self.add_discard_events(possible_actions)
+                self.add_discard_event_action(possible_actions)
             else:
                 players[DRACULA].events.append(event)
                 Loader.append_log(f"{Loader.num_to_player(state.who_moves)} draws Dracula event at night "
@@ -188,14 +191,14 @@ class Hunter(Player):
                     state.in_queue.append(state.who_moves)
                     state.who_moves = DRACULA
                     possible_actions.clear()
-                    players[DRACULA].add_discard_events(possible_actions)
+                    players[DRACULA].add_discard_event_action(possible_actions)
 
     def add_discard_items(self, possible_actions: list):
         if len(self.items) > self.max_items:
             possible_actions += [ACTION_DISCARD_ITEM + "_" + str(i) for i in range(len(self.items))]
 
     def take_item(self, state: GameState, possible_actions: list):
-        self.items.append(state.item_deck.draw())
+        self.items.append(Card(state.item_deck.draw()))
         Loader.append_log(f"{Loader.num_to_player(state.who_moves)} takes item. ")
         possible_actions.clear()
         self.add_discard_items(possible_actions)
@@ -207,22 +210,22 @@ class Hunter(Player):
         self.take_event(state, possible_actions, players)
 
     def discard_ticket(self, state: GameState, possible_actions: list, num: int):
-        state.tickets_deck.discard(self.tickets.pop(num))
+        state.tickets_deck.discard(self.tickets.pop(num).name)
         Loader.append_log(f"{Loader.num_to_player(state.who_moves)} discard ticket. ")
         possible_actions.clear()
         self.add_discard_tickets(possible_actions)
 
     def discard_item(self, state: GameState, possible_actions: list, num: int):
-        state.item_deck.discard(self.items.pop(num))
+        state.item_deck.discard(self.items.pop(num).name)
         Loader.append_log(f"{Loader.num_to_player(state.who_moves)} discard item. ")
         possible_actions.clear()
         self.add_discard_items(possible_actions)
-        self.add_discard_events(possible_actions)
+        self.add_discard_event_action(possible_actions)
 
     def discard_event(self, state: GameState, possible_actions: list, num: int):
         super().discard_event(state, possible_actions, num)
         self.add_discard_items(possible_actions)
-        self.add_discard_events(possible_actions)
+        self.add_discard_event_action(possible_actions)
 
 
 class Lord(Hunter):
@@ -236,12 +239,12 @@ class Lord(Hunter):
 
     def take_item(self, state: GameState, possible_actions: list):
         Loader.append_log(f"Lord takes two item. ")
-        self.items.append(state.item_deck.draw())
+        self.items.append(Card(state.item_deck.draw()))
         super().take_item(state, possible_actions)
 
     def take_ticket(self, state: GameState, possible_actions: list):
         Loader.append_log(f"Lord takes two tickets. ")
-        self.tickets.append(state.tickets_deck.draw())
+        self.tickets.append(Card(state.tickets_deck.draw()))
         super().take_ticket(state, possible_actions)
 
 

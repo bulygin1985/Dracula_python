@@ -77,7 +77,8 @@ class Loader:
         Loader.dracula_board = cls.load("./game/images/dracula_board.png")
         Loader.actions_board = cls.load("./game/images/actions_board.png")
 
-        Loader.name_to_item = Loader.get_name_to_item()
+        Loader.name_to_item = Loader.get_name_to_item(path="./game/images/items")
+        Loader.name_to_encounter = Loader.get_name_to_item(path="./game/images/encounters")
         Loader.name_to_event = Loader.get_name_to_event()
 
         logger.info("all file are successfully loaded")
@@ -103,14 +104,13 @@ class Loader:
         return name_to_event
 
     @classmethod
-    def get_name_to_item(cls):
+    def get_name_to_item(cls, path):
         name_to_item = {}
         path = "./game/images/items"
         file_list = os.listdir(path)
 
         for file_name in file_list:
             name_to_item[file_name.split(".")[0]] = cls.load(os.path.join(path, file_name))
-        #name_to_item["BACK"] = "./game/images/items/BACK.png"
         return name_to_item
 
     @classmethod

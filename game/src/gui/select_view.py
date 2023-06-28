@@ -63,16 +63,18 @@ class SelectView(QGraphicsView):
         self.index = 0
 
         if is_in(ACTION_DISCARD_TICKET, self.controller.possible_actions):
-            logger.info(f"is_in(ACTION_DISCARD_TICKET, self.controller.possible_actions)")
+            logger.info("ACTION_DISCARD_TICKET in possible_actions")
             self.stuff = self.controller.get_current_player().tickets
             logger.info(f"self.stuff = {self.stuff}")
             self.set_geom_sizes(part_x=0.2, part_y=0.2, button_part_x=0.33, button_part_y=0.2)
             self.show_ticket()
         elif is_in(ACTION_DISCARD_ITEM, self.controller.possible_actions):
+            logger.info("ACTION_DISCARD_ITEM in possible_actions")
             self.stuff = self.controller.get_current_player().items
             self.set_geom_sizes(part_x=0.5, part_y=0.5, button_part_x=0.33, button_part_y=0.1)
             self.show_item()
         elif is_in(ACTION_DISCARD_EVENT, self.controller.possible_actions):
+            logger.info("ACTION_DISCARD_EVENT in possible_actions")
             self.stuff = self.controller.get_current_player().events
             self.set_geom_sizes(part_x=0.5, part_y=0.5, button_part_x=0.33, button_part_y=0.1)
             self.show_event()
@@ -84,7 +86,7 @@ class SelectView(QGraphicsView):
         w = int(0.6 * self.sceneRect().width())
         ticket = self.controller.get_current_player().tickets[self.index]
         logger.info(f"show ticket #{ticket}")
-        image = Loader.tickets[ticket].scaledToWidth(w, Qt.TransformationMode.SmoothTransformation)
+        image = Loader.tickets[ticket.name].scaledToWidth(w, Qt.TransformationMode.SmoothTransformation)
         self.show_image(image)
 
     def show_item(self):
@@ -92,7 +94,7 @@ class SelectView(QGraphicsView):
         h = int(0.8 * self.sceneRect().height())
         item = self.controller.get_current_player().items[self.index]
         logger.info(f"show item #{item}")
-        image = Loader.name_to_item[item].scaledToHeight(h, Qt.TransformationMode.SmoothTransformation)
+        image = Loader.name_to_item[item.name].scaledToHeight(h, Qt.TransformationMode.SmoothTransformation)
         self.show_image(image)
 
     def show_event(self):
@@ -100,7 +102,7 @@ class SelectView(QGraphicsView):
         h = int(0.8 * self.sceneRect().height())
         event = self.controller.get_current_player().events[self.index]
         logger.info(f"show event #{event}")
-        image = Loader.name_to_event[event]["image"].scaledToHeight(h, Qt.TransformationMode.SmoothTransformation)
+        image = Loader.name_to_event[event.name]["image"].scaledToHeight(h, Qt.TransformationMode.SmoothTransformation)
         self.show_image(image)
 
     def set_geom_sizes(self, part_x, part_y, button_part_x, button_part_y):
