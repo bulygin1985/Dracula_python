@@ -8,7 +8,7 @@ if __name__ == '__main__':
     Param.use_lair = True
 
     swith_on_exceptions()
-    use_gui = True
+    use_gui = False
     controller, app, mainScreen = get_controller(use_gui=use_gui)
     if use_gui:
         mainScreen.show()

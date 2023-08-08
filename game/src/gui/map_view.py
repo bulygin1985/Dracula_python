@@ -22,7 +22,7 @@ class MapView(QGraphicsView):
     player_movement = {"old_x": 0, "old_y": 0, "new_x": 0, "new_y": 0, "frame_num": 50, "frame": 0, "player_ind": -1}  # for player motion
 
     def __init__(self, width, height, controller):
-        logger.info("MapView constructor")
+        logger.debug("MapView constructor")
         super().__init__()
         self.controller = controller
         self.scene = QGraphicsScene()
@@ -70,7 +70,7 @@ class MapView(QGraphicsView):
         self.connection_to_railway = {}  # "num1_num2, num2 > num1"
         self.cities = []
         self.create_cities()
-        logger.info(f"step_final")
+        logger.debug(f"step_final")
 
     def get_path(self, key, end_loc, delta, sign):
         x1 = Loader.location_dict[key]["coor"][0] * self.map_width
@@ -92,7 +92,7 @@ class MapView(QGraphicsView):
         return path
 
     def create_cities(self):
-        logger.info(f"create_cities")
+        logger.debug(f"create_cities")
         for (key, val) in Loader.location_dict.items():
             for end_loc in val["roads"]:
                 if int(key) < int(end_loc):
@@ -163,7 +163,7 @@ class MapView(QGraphicsView):
             self.cities.append(item)
 
     def change_dusk_dawn(self, name):
-        logger.info("change_dusk_dawn: {}".format(name))
+        logger.debug("change_dusk_dawn: {}".format(name))
         if name == "day":
             self.map_item.setPixmap(QPixmap.fromImage(Loader.map_day))
         else:
@@ -171,18 +171,18 @@ class MapView(QGraphicsView):
 
     def visualize(self):
         self.remove_actions()
-        logger.info("visualize()")
+        logger.debug("visualize()")
         self.locate_players(self.controller)
         possible_movements = []
         for action in self.controller.possible_actions:
             if "ActionLocation" in action:
                 possible_movements.append(action.split("_")[-1])
-        logger.info("possible_movements = {}".format(possible_movements))
+        logger.debug("possible_movements = {}".format(possible_movements))
         self.visualize_action_movements(possible_movements)
 
     def process_action_done(self, name):
         self.remove_actions()
-        logger.info("mousePressEvent with on action : {}".format(name))
+        logger.debug("mousePressEvent with on action : {}".format(name))
         self.action_done.emit(name)
 
     def draw_location_names(self):
@@ -239,7 +239,7 @@ class MapView(QGraphicsView):
             item.setZValue(0.1)
 
     def locate_players(self, controller):
-        logger.info("locate_players")
+        logger.debug("locate_players")
         for i, player in enumerate(controller.players):
             if controller.state.who_moves == i:  # Motion for player, who moves
                 self.player_fig_items[i].scale_changing = 0.2
@@ -258,7 +258,7 @@ class MapView(QGraphicsView):
                         player_num.remove(j)
                         group.append(j)
                 groups.append(group)
-        logger.info("groups = {}".format(groups))
+        logger.debug("groups = {}".format(groups))
         for group in groups:
             loc = Loader.location_dict[str(controller.players[group[0]].location_num)]
             for idx, i in enumerate(group):
@@ -268,7 +268,7 @@ class MapView(QGraphicsView):
                 rad = self.locationRad
                 new_x = x + rad * (math.cos(phi) - 1 - int(len(group) == 1))
                 new_y = y + rad * (math.sin(phi) - 1)
-                logger.info("controller.state.phase = {}".format(controller.state.phase))
+                logger.debug("controller.state.phase = {}".format(controller.state.phase))
                 if (controller.state.phase != Phase.FIRST_TURN) and i == controller.state.who_moves: # if the first each player is placed
                     self.player_movement["old_x"] = self.player_fig_items[i].pos().x()
                     self.player_movement["old_y"] = self.player_fig_items[i].pos().y()
@@ -278,13 +278,14 @@ class MapView(QGraphicsView):
                     self.player_movement["frame"] = 0
                     self.timer.start(10)
                 else:
-                    logger.info("new_x = {}, new_y = {}".format(new_x, new_y))
+                    logger.debug("new_x = {}, new_y = {}".format(new_x, new_y))
                     self.player_fig_items[i].setPos(new_x, new_y)
                 self.player_fig_items[i].show()
         if 0 not in Param.who_are_you:  # do not show Dracula if you are not Dracula
             self.player_fig_items[0].hide()
 
     def player_motion(self):
+        logger.debug("player_motion")
         if self.player_movement["frame"] == self.player_movement["frame_num"] + 1:
             self.player_movement["frame"] = 0
             self.timer.stop()
@@ -297,6 +298,7 @@ class MapView(QGraphicsView):
 
     #TODO like in QT - add QGraphicsEllipseItem with hover events and remove after emit signal
     def visualize_action_movements(self, possible_movements):
+        logger.debug("visualize_action_movements")
         for location_num in possible_movements:
             val = Loader.location_dict[str(location_num)]
             x = val["coor"][0] * self.map_width
@@ -318,11 +320,13 @@ class MapView(QGraphicsView):
             loc_pointer_item.show()
 
     def remove_actions(self):
+        logger.debug("remove_actions")
         for item in self.location_items:
             self.scene.removeItem(item)
         self.location_items = []
 
     def locate_marker(self, location_num):
+        logger.debug("locate_marker")
         val = Loader.location_dict[str(location_num)]
         x = val["coor"][0] * self.map_width
         y = val["coor"][1] * self.map_height
@@ -334,32 +338,38 @@ class MapView(QGraphicsView):
         self.marker_item.show()
 
     def hide_marker(self):
+        logger.debug("hide_marker")
         self.marker_item.hide()
 
 
 class EllipseItem(QGraphicsEllipseItem):
     def __init__(self, x, y, rad, num, parent):
         super().__init__()
+        logger.debug("EllipseItem constructor")
         self.parent = parent
         self.setRect(x - rad, y - rad, 2 * rad, 2 * rad)
         self.setAcceptHoverEvents(True)
         self.num = num
 
     def mousePressEvent(self, event):
+        logger.debug("mousePressEvent")
         self.parent.process_action_done("ActionLocation_"+str(self.num))
 
 
 class MapItem(QGraphicsPixmapItem):
     def __init__(self, parent):
         super().__init__()
+        logger.debug("MapItem constructor")
         self.init_scale = 1.0
         self.delta_scale = 0.1
         self.parent = parent
 
     def mousePressEvent(self, event):
+        logger.debug("mousePressEvent")
         super().mousePressEvent(event)
 
     def wheelEvent(self, event):
+        logger.debug("wheelEvent")
         view = self.scene().views()[0]
         mult = 1 if event.delta() > 0 else -1
         new_scale = self.init_scale + mult * self.delta_scale

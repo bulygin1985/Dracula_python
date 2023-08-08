@@ -15,7 +15,7 @@ class GameController(QObject):
     # dusk_dawn_is_changed = pyqtSignal(str)
     def __init__(self):
         super().__init__()
-        logger.info(f"GameController constructor")
+        logger.debug(f"GameController constructor")
         self.state = GameState()
         self.players = [Dracula(), Lord(), Doctor(), Helsing(), Mina()]
         self.states = []
@@ -27,7 +27,7 @@ class GameController(QObject):
         dracula.change_time_signal.connect(self.change_time)  # remove signal, move logic to Dracula class
         for i in range(dracula.max_encounter_num):
             dracula.encounters.append(self.state.encounter_deck.draw())
-        logger.info("constructor is finished")
+        logger.debug("constructor is finished")
 
     # param : action - chosen action
     # change game_state and calc possible_actions
@@ -133,6 +133,7 @@ class GameController(QObject):
 
     # TODO - move to state
     def change_time(self):
+        logger.debug("change_time")
         if self.state.day_num == 6:
             self.state.week_num += 1
         self.state.day_num = (self.state.day_num + 1) % 7

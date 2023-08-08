@@ -106,7 +106,7 @@ class Loader:
     @classmethod
     def get_name_to_item(cls, path):
         name_to_item = {}
-        path = "./game/images/items"
+        # path = "./game/images/items"
         file_list = os.listdir(path)
 
         for file_name in file_list:

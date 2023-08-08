@@ -16,6 +16,11 @@ class Encounter:
         game_state.encounter_deck.discard(encounter_name)
         players[DRACULA].track[game_state.encountered_in].encounters.pop(game_state.current_encounter_num)
 
+    def __str__(self):
+        return f"name: {self.__class__.__name__}, is_opened: {self.is_opened}"
+    def __repr__(self):
+        return self.__str__()
+
 
 class ARISTOCRATIC_VAMPIRE(Encounter):
     def process(self, game_state: GameState, players: list, possible_actions: list):

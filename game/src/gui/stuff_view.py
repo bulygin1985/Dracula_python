@@ -31,7 +31,7 @@ class CardsStuff(QGraphicsPixmapItem):
 
 class ScalableStuff(QGraphicsPixmapItem):
     def __init__(self, image, x, y, w):
-        logger.info("ScalableStuff constructor")
+        logger.debug("ScalableStuff constructor")
         super().__init__()
         self.setAcceptHoverEvents(True)
         self.w = w
@@ -60,7 +60,7 @@ class StuffView(QGraphicsView):
     action_done = pyqtSignal(str)
 
     def __init__(self, width, height, controller):
-        logger.info("StuffView contructor")
+        logger.debug("StuffView contructor")
         super().__init__()
         self.controller = controller
         self.scene = QGraphicsScene()
@@ -76,7 +76,7 @@ class StuffView(QGraphicsView):
 
         self.scene.setSceneRect(0, 0, width, height)
 
-        logger.info("self.rect() = {}".format(self.sceneRect()))
+        logger.debug("self.rect() = {}".format(self.sceneRect()))
 
         self.tickets = []
         self.items = []
@@ -95,7 +95,7 @@ class StuffView(QGraphicsView):
         self.scene.addItem(self.background_item)
 
     def show_events(self, player_num):
-        logger.info("show_events")
+        logger.debug("show_events")
         w = self.scene.width()
         h = 1.5 * w * 0.35
         shift = 0.15*w
@@ -118,14 +118,14 @@ class StuffView(QGraphicsView):
             self.events.append(card_event)
 
     def show_items(self, player_num):
-        logger.info("show_items")
+        logger.debug("show_items")
         w = self.scene.width()
         h = 1.5 * w * 0.35
         num_to_pos = {0: [0.1*w, 0.1*w], 1: [0.55*w, 0.1*w], 2: [0.1*w, 0.1*w+h+0.1*w], 3:  [0.55*w, 0.1*w+h+0.1*w]}
         for idx, item in enumerate(self.controller.players[player_num].items):
             if idx > 3:  # show only the first 4th items
                 break
-            logger.info(f"item = {item.name}")
+            logger.debug(f"item = {item.name}")
             x = num_to_pos[idx][0]
             y = num_to_pos[idx][1]
             is_left = True if idx % 2 == 0 else False
@@ -144,7 +144,7 @@ class StuffView(QGraphicsView):
         self.show_stuff(self.controller.state.who_moves)
 
     def show_stuff(self, player_num):
-        logger.info(f"show_stuff({player_num})")
+        logger.debug(f"show_stuff({player_num})")
         # show background
         if player_num == DRACULA:
             image = Loader.dracula_board.scaled(int(self.scene.sceneRect().width()), int(self.scene.sceneRect().height()))
@@ -164,20 +164,20 @@ class StuffView(QGraphicsView):
         self.player_card_items[self.controller.state.who_moves].start(scale_changing=0.1)
 
     def show_tickets(self, player_num):
-        logger.info("show_tickets")
+        logger.debug("show_tickets")
         possible_ticket_num = None
         if TICKET_1 in self.controller.possible_actions:
             possible_ticket_num = 0
         elif TICKET_2 in self.controller.possible_actions:
             possible_ticket_num = 1
-        logger.info(f"possible_ticket_num = {possible_ticket_num}")
+        logger.debug(f"possible_ticket_num = {possible_ticket_num}")
 
         w = int(self.scene.width() * 0.35)
         shift = self.scene.width() * 0.1
         for idx, ticket in enumerate(self.controller.players[player_num].tickets):
             if idx >= 2:
                 break  # show only fist two ticket in stuff view
-            logger.info(f"show ticket {ticket.name}")
+            logger.debug(f"show ticket {ticket.name}")
             image = None
             if are_you_hunter():
                 image = Loader.tickets[ticket.name].scaledToWidth(w, Qt.TransformationMode.SmoothTransformation)
@@ -197,14 +197,14 @@ class StuffView(QGraphicsView):
             ticket_item.show()
 
     def process_action_done(self, name):
-        logger.info(f"stuff_view process_action_done({name})")
+        logger.debug(f"stuff_view process_action_done({name})")
         if isinstance(name, int): # player card is clicked
             self.show_stuff(name)
         else:  # ticket is chosen
             self.action_done.emit(name)
 
     def get_and_show_player_cards(self):
-        logger.info("show_player_cards")
+        logger.debug("show_player_cards")
         player_card_items = []
         for i in range(5):
             player_card_image = Loader.player_cards[i].scaledToWidth(int(0.3 * self.scene.width()), Qt.TransformationMode.SmoothTransformation)
@@ -227,7 +227,7 @@ class StuffView(QGraphicsView):
         return player_card_items
 
     def remove_items(self):
-        logger.info("remove_items")
+        logger.debug("remove_items")
         for item in self.tickets:
             self.scene.removeItem(item)
         self.tickets = []

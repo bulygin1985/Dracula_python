@@ -3,3 +3,4 @@ class Param:
     is_dracula_ai = False
     hunter_ai = []
     use_lair = True
+    track_length = 6

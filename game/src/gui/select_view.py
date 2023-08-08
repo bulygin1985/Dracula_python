@@ -59,22 +59,22 @@ class SelectView(QGraphicsView):
         return button, button_left, button_right
 
     def visualize(self):
-        logger.info(f"visualize, possible_actions = {self.controller.possible_actions}")
+        logger.debug(f"visualize, possible_actions = {self.controller.possible_actions}")
         self.index = 0
 
         if is_in(ACTION_DISCARD_TICKET, self.controller.possible_actions):
-            logger.info("ACTION_DISCARD_TICKET in possible_actions")
+            logger.debug("ACTION_DISCARD_TICKET in possible_actions")
             self.stuff = self.controller.get_current_player().tickets
-            logger.info(f"self.stuff = {self.stuff}")
+            logger.debug(f"self.stuff = {self.stuff}")
             self.set_geom_sizes(part_x=0.2, part_y=0.2, button_part_x=0.33, button_part_y=0.2)
             self.show_ticket()
         elif is_in(ACTION_DISCARD_ITEM, self.controller.possible_actions):
-            logger.info("ACTION_DISCARD_ITEM in possible_actions")
+            logger.debug("ACTION_DISCARD_ITEM in possible_actions")
             self.stuff = self.controller.get_current_player().items
             self.set_geom_sizes(part_x=0.5, part_y=0.5, button_part_x=0.33, button_part_y=0.1)
             self.show_item()
         elif is_in(ACTION_DISCARD_EVENT, self.controller.possible_actions):
-            logger.info("ACTION_DISCARD_EVENT in possible_actions")
+            logger.debug("ACTION_DISCARD_EVENT in possible_actions")
             self.stuff = self.controller.get_current_player().events
             self.set_geom_sizes(part_x=0.5, part_y=0.5, button_part_x=0.33, button_part_y=0.1)
             self.show_event()
@@ -82,31 +82,31 @@ class SelectView(QGraphicsView):
             self.hide()
 
     def show_ticket(self):
-        logger.info(f"show_ticket")
+        logger.debug(f"show_ticket")
         w = int(0.6 * self.sceneRect().width())
         ticket = self.controller.get_current_player().tickets[self.index]
-        logger.info(f"show ticket #{ticket}")
+        logger.debug(f"show ticket #{ticket}")
         image = Loader.tickets[ticket.name].scaledToWidth(w, Qt.TransformationMode.SmoothTransformation)
         self.show_image(image)
 
     def show_item(self):
-        logger.info(f"show_item")
+        logger.debug(f"show_item")
         h = int(0.8 * self.sceneRect().height())
         item = self.controller.get_current_player().items[self.index]
-        logger.info(f"show item #{item}")
+        logger.debug(f"show item #{item}")
         image = Loader.name_to_item[item.name].scaledToHeight(h, Qt.TransformationMode.SmoothTransformation)
         self.show_image(image)
 
     def show_event(self):
-        logger.info(f"show_event")
+        logger.debug(f"show_event")
         h = int(0.8 * self.sceneRect().height())
         event = self.controller.get_current_player().events[self.index]
-        logger.info(f"show event #{event}")
+        logger.debug(f"show event #{event}")
         image = Loader.name_to_event[event.name]["image"].scaledToHeight(h, Qt.TransformationMode.SmoothTransformation)
         self.show_image(image)
 
     def set_geom_sizes(self, part_x, part_y, button_part_x, button_part_y):
-        logger.info(f"set_geom_sizes")
+        logger.debug(f"set_geom_sizes")
         width = int(self.parent().width() * part_x)
         height = int(self.parent().height() * part_y)
         x = int(self.parent().width() / 2 - width / 2)
@@ -128,12 +128,12 @@ class SelectView(QGraphicsView):
 
     def right(self):
         self.index = (self.index + 1) % len(self.stuff)
-        logger.info(f"change index to {self.index}")
+        logger.debug(f"change index to {self.index}")
         self.show_stuff()
 
     def left(self):
         self.index = (self.index - 1) % len(self.stuff)
-        logger.info(f"change index to {self.index}")
+        logger.debug(f"change index to {self.index}")
         self.show_stuff()
 
     def selected(self):
@@ -143,11 +143,11 @@ class SelectView(QGraphicsView):
             action = ACTION_DISCARD_ITEM + "_" + str(self.index)
         elif is_in(ACTION_DISCARD_EVENT, self.controller.possible_actions):
             action = ACTION_DISCARD_EVENT + "_" + str(self.index)
-        logger.info(f"selected widget is sending action = {action}")
+        logger.debug(f"selected widget is sending action = {action}")
         self.action_done.emit(action)
 
     def show_stuff(self):
-        logger.info("show_stuff")
+        logger.debug("show_stuff")
         if is_in(ACTION_DISCARD_TICKET, self.controller.possible_actions):
             self.show_ticket()
         elif is_in(ACTION_DISCARD_ITEM, self.controller.possible_actions):
@@ -156,7 +156,7 @@ class SelectView(QGraphicsView):
             self.show_event()
 
     def show_image(self, image):
-        logger.info("show_image")
+        logger.debug("show_image")
         x_c = self.sceneRect().center().x()
         y_c = self.sceneRect().center().y()
         self.shown_item.setPixmap(QPixmap.fromImage(image))

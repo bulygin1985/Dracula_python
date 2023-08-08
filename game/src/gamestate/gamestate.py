@@ -7,7 +7,7 @@ from common.logger import logger
 # TODO - convert to dict-> save as json, __str__
 class GameState:
     def __init__(self, begin=TURN_BEGIN):
-        logger.info(f"GameState constructor")
+        logger.debug(f"GameState constructor")
         self.who_moves = 1  # TODO - Enum
         self.in_queue = []  # who_moves in queue
         self.encountered_in = None  # track element number where Hunters could be ambushed or None
@@ -35,4 +35,5 @@ class GameState:
         self.event_deck = Deck(cards=event_cards, deck_name="Events")
 
     def put_encounter_to_discard(self, encounter):
+        logger.debug(f"put_encounter_to_discard")
         self.encounter_deck.discard(encounter.__class__.__name__)

@@ -24,9 +24,9 @@ from common.logger import logger
 # Press the green button in the gutter to run the script.
 class MainScreen(QMainWindow):
     def __init__(self):
-        logger.info(f"MainScreen constructor")
+        logger.debug(f"MainScreen constructor")
         super().__init__()
-
+        self.setWindowIcon(QIcon('./game/images/icon.ico'))
         loader = Loader()  # load media files : images, fonts, sounds, animations, etc
         self.controller = GameController()  # TODO - guimanager
         if Param.is_dracula_ai:
@@ -114,14 +114,17 @@ class MainScreen(QMainWindow):
 
 
     def show_log_text(self):
+        logger.debug(f"show_log_text")
         if Loader.log != "":
             self.log_viewer.append(Loader.log)
             Loader.log = ""
 
     def keyPressEvent(self, event):
+        logger.debug(f"keyPressEvent")
         if event.key() == PyQt6.QtCore.Qt.Key.Key_Escape:
             self.close()
 
     def redraw(self):
+        logger.debug(f"redraw")
         opacity_effect = QGraphicsOpacityEffect(opacity=.5)
         self.text_edit.setGraphicsEffect(opacity_effect)

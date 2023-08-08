@@ -3,12 +3,13 @@ from PyQt6.QtWidgets import *
 import math
 from PyQt6.QtCore import Qt
 
-from common import logger
+from common.logger import logger
 
 
 class MotionItem(QGraphicsPixmapItem):
     def __init__(self):
         super().__init__()
+        logger.debug("MotionItem constructor")
         self.setTransformationMode(Qt.TransformationMode.SmoothTransformation)
         self.timer = QTimer()
         self.scale_changing = 0
@@ -19,28 +20,34 @@ class MotionItem(QGraphicsPixmapItem):
         self.name = None
 
     def stop(self):
+        logger.debug("stop")
         self.timer.stop()
         self.frame = 0
         self.setScale(1.0)
 
     def start(self, scale_changing):
+        logger.debug("start")
         self.scale_changing = scale_changing
         self.frame = 0
         self.timer.start(20)
 
     def set_parent(self, parent):
+        logger.debug("set_parent")
         self.parent = parent
 
     def show(self):
+        logger.debug("show")
         super().show()
         if self.scale_changing != 0:
             self.timer.start(20)
 
     def hide(self):
+        logger.debug("hide")
         super().hide()
         self.timer.stop()
 
     def change_scale(self):
+        logger.debug("change_scale")
         self.setTransformOriginPoint(self.pixmap().width() / 2,
                                      self.pixmap().height() / 2)  # TODO - the same for mapView
         if self.scale_changing != 0:
@@ -49,5 +56,6 @@ class MotionItem(QGraphicsPixmapItem):
             self.frame += 1
 
     def mousePressEvent(self, event):
+        logger.debug("mousePressEvent")
         if self.parent is not None and self.name is not None:
             self.parent.process_action_done(self.name)

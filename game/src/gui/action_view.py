@@ -19,7 +19,7 @@ class ActionView(QGraphicsView):
                    ACTION_SUPPLY, "ActionHealing", "ActionExchange", "ActionSpecial", ACTION_TAKE_TICKET]
 
     def __init__(self, width, height, controller):
-        logger.info("ActionView constructor")
+        logger.debug("ActionView constructor")
         super().__init__()
         self.controller = controller
         self.scene = QGraphicsScene()
@@ -58,7 +58,7 @@ class ActionView(QGraphicsView):
             self.actions.append(getattr(self, action_icon))
 
     def visualize(self):
-        logger.info("visualize possible_actions = {}".format(self.controller.possible_actions))
+        logger.debug("visualize possible_actions = {}".format(self.controller.possible_actions))
         self.remove_actions()
         i = 0
         for action in self.controller.possible_actions:
@@ -70,7 +70,7 @@ class ActionView(QGraphicsView):
                 getattr(self, action).show()
 
     def process_action_done(self, name):
-        logger.info(f"action_view process_action_done({name})")
+        logger.debug(f"action_view process_action_done({name})")
         self.remove_actions()
         self.action_done.emit(name)
 

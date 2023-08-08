@@ -13,13 +13,13 @@ class ScalableOpenableItem(QGraphicsPixmapItem):
         self.image_front = image_front
         self.image_back = image_back
 
-        self.x_small = x_small
-        self.y_small = y_small
-        self.width_small = width_small
+        self.x_small = int(x_small)
+        self.y_small = int(y_small)
+        self.width_small = int(width_small)
 
-        self.x_large = x_large
-        self.y_large = y_large
-        self.width_large = width_large
+        self.x_large = int(x_large)
+        self.y_large = int(y_large)
+        self.width_large = int(width_large)
 
         self.icon = image_back.scaledToWidth(self.width_small, Qt.TransformationMode.SmoothTransformation)
         self.setPixmap(QPixmap.fromImage(self.icon))
@@ -27,12 +27,14 @@ class ScalableOpenableItem(QGraphicsPixmapItem):
         self.setZValue(0.1)
 
     def hoverEnterEvent(self, event):
+        logger.debug("hoverEnterEvent")
         self.icon = self.image_front.scaledToWidth(self.width_large, Qt.TransformationMode.SmoothTransformation)
         self.setPixmap(QPixmap.fromImage(self.icon))
         self.setZValue(1)
         self.setPos(self.x_large, self.y_large)
 
     def hoverLeaveEvent(self, event):
+        logger.debug("hoverLeaveEvent")
         self.icon = self.image_back.scaledToWidth(self.width_small, Qt.TransformationMode.SmoothTransformation)
         self.setPixmap(QPixmap.fromImage(self.icon))
         self.setZValue(0.1)

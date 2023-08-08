@@ -10,6 +10,12 @@ from loader import Loader
 from PyQt6.QtCore import Qt
 from common.logger import logger
 from game_param import Param
+from gui.scalable_openable_item import ScalableOpenableItem
+from gamestate.dracula import Dracula, TrackElement
+from common.common_func import *
+
+
+ENCOUNTER_WIDTH_TO_HEIGHT = 710.0/1093.0
 
 
 class TrackView(QGraphicsView):
@@ -18,7 +24,9 @@ class TrackView(QGraphicsView):
 
     def __init__(self, width, height, controller):
         super().__init__()
-        logger.info(f"TrackView constructor")
+        logger.debug(f"TrackView constructor")
+        self.width = width
+        self.height = height
         self.controller = controller
         self.scene = QGraphicsScene()
         self.setScene(self.scene)
@@ -33,46 +41,68 @@ class TrackView(QGraphicsView):
         #self.setSceneRect(0, 0, width, height)
         self.track_items = []
 
+        self.shift = self.scene.width() * 0.1  # shift from top to card
+        self.step = (self.scene.height() - self.shift) / 6
+
     def emitSignalInsideTrack(self, i):
-        logger.info("emitSignalInsideTrack")
+        logger.debug("emitSignalInsideTrack")
         self.inside_track.emit(i)
 
     def emitSignalOutsideTrack(self):
-        logger.info("emitSignalOutsideTrack")
+        logger.debug("emitSignalOutsideTrack")
         self.outside_track.emit()
 
+    def visualize_elem(self, idx: int, elem: TrackElement):
+        logger.debug(f"visualize track elem: {elem}")
+        map_item = TrackItem(int(elem.location.name), elem.location.is_opened, self)
+        map_item.setZValue(0.9)
+        map_item.setPos(0.0 * self.shift, self.shift + idx * self.step)
+        self.track_items.append(map_item)
+        self.scene.addItem(map_item)
+        w = self.scene.width()
+        loc_height = 0.5 * w
+        encounter_width = loc_height * ENCOUNTER_WIDTH_TO_HEIGHT
+        for i, encounter in enumerate(elem.encounters):
+            name = encounter.__class__.__name__
+            image_front = Loader.name_to_encounter[name] if are_you_dracula() or encounter.is_opened else Loader.name_to_encounter["BACK"]
+            image_back = Loader.name_to_encounter[name] if encounter.is_opened else Loader.name_to_encounter["BACK"]
+            x_small = 0.5 * w + ((i + 1) / (len(elem.encounters) + 1)) * w * 0.5 - 0.5 * encounter_width
+            width_large = 0.9 * w
+            y_large = self.shift + idx * self.step
+            height_large = width_large / ENCOUNTER_WIDTH_TO_HEIGHT
+            if height_large + y_large > self.scene.height():
+                y_large = self.scene.height() - height_large
+            encounter_item = ScalableOpenableItem(image_front=image_front,
+                                                  image_back=image_back,
+                                                  width_large=width_large,
+                                                  width_small=encounter_width,
+                                                  x_large=0.1 * w,
+                                                  y_large=y_large,
+                                                  x_small=x_small,
+                                                  y_small=self.shift + idx * self.step)
+            self.track_items.append(encounter_item)
+            self.scene.addItem(encounter_item)
+
+            # draw arrow after location
+            if idx < Param.track_length - 1:
+                arrow_height = self.step - map_item.pixmap().height() * map_item.scale()
+                image = Loader.arrow.scaledToWidth(int(arrow_height), Qt.TransformationMode.SmoothTransformation)
+                arrow_item = QGraphicsPixmapItem(QPixmap.fromImage(image))
+                y = self.shift + map_item.pixmap().height() * map_item.scale() + idx * self.step
+                arrow_item.setPos(int(self.scene.width() / 2.0 - arrow_item.pixmap().width() / 2.0), y)
+                arrow_item.setZValue(0)
+                self.track_items.append(arrow_item)
+                self.scene.addItem(arrow_item)
+
     def visualize(self):
-        logger.info("visualize track")
-        # logger.info("visualize track = {}".format(self.controller.state.players[0].track))
+        logger.debug("visualize track")
+        # logger.debug()("visualize track = {}".format(self.controller.state.players[0].track))
         self.remove_items()
         # from gamestate.player import TrackElement
         # self.controller.state.players[0].track = [TrackElement(i) for i in range(6)]
         # self.controller.state.players[0].track[5].is_opened_location = True
         for idx, elem in enumerate(self.controller.players[0].track):
-            map_item = TrackItem(int(elem.location.name), elem.location.is_opened, self)
-            map_item.setZValue(1)
-            shift = self.scene.width()
-            step = (self.scene.height() - 0.1 * shift) / 6
-            # if idx == 5:  # the last track element
-            #     h = map_item.pixmap().height() * map_item.scale()
-            #     # 1.11 is magic number. I cannot understand how setTransformOriginPoint + setPos are worked
-            #     map_item.setPos(0.1 * shift, 0.1 * shift + idx * step - h*1.11)
-            #     map_item.setTransformOriginPoint(0, map_item.pixmap().height())
-            # else:
-            map_item.setPos(0.0 * shift, 0.1 * shift + idx * step)
-            self.track_items.append(map_item)
-            self.scene.addItem(map_item)
-
-            #draw arrow after location
-            if idx < 5:
-                arrow_height = step - map_item.pixmap().height() * map_item.scale()
-                image = Loader.arrow.scaledToWidth(int(arrow_height), Qt.TransformationMode.SmoothTransformation)
-                arrow_item = QGraphicsPixmapItem(QPixmap.fromImage(image))
-                y = 0.1 * shift + map_item.pixmap().height() * map_item.scale() + idx * step
-                arrow_item.setPos(int(self.scene.width() / 2.0 - arrow_item.pixmap().width() / 2.0), y)
-                arrow_item.setZValue(0)
-                self.track_items.append(arrow_item)
-                self.scene.addItem(arrow_item)
+            self.visualize_elem(idx, elem)
 
     def remove_items(self):
         for item in self.track_items:
@@ -99,7 +129,7 @@ class TrackItem(QGraphicsPixmapItem):
         self.setScale(scale)
 
     def show_front_back(self):
-        logger.info("show_front_back")
+        logger.debug("show_front_back")
         if self.is_opened:
             self.setPixmap(QPixmap.fromImage(self.front_image))
             self.text_item.show()
@@ -113,7 +143,7 @@ class TrackItem(QGraphicsPixmapItem):
     def hoverEnterEvent(self, event):
         if self.is_opened or 0 in Param.who_are_you:  # or card is Opened, or you are Dracula
             super().hoverEnterEvent(event)
-            self.setPixmap(QPixmap.fromImage(self.front_image))  #TODO - if you_are_dracula
+            self.setPixmap(QPixmap.fromImage(self.front_image))
             self.text_item.show()
             self.marker_item.show()
             scale = 0.5 * self.parent.scene.width() / self.pixmap().width()

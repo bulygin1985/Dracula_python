@@ -10,6 +10,7 @@ from gamestate.deck import Deck
 from game_param import Param
 from gamecontroller.encounters import *
 
+
 class TrackElement:
     def __init__(self, location=None, encounters=None, power=None):
         self.location = location
@@ -20,8 +21,8 @@ class TrackElement:
         encounters_str = ""
         if self.encounters is not None:
             for encounter in self.encounters:
-                encounters_str += encounter.__class__.__name__ + " "
-        return f"location_num = {self.location.name}, encounters = {encounters_str}, power = {self.power}"
+                encounters_str += f"{encounter}, "
+        return f"location_num = {self.location.name}, encounters = {encounters_str} power = {self.power}"
 
     def __repr__(self):
         return self.__str__()
@@ -37,7 +38,7 @@ class Dracula(Player):
         self.health = 15
         self.max_health = 15
         self.track = []  # list of TrackElement
-        self.lairs = []
+        self.lairs = []  # list of TrackElement
         self.max_encounter_num = 5
         self.encounters = []
         self.outside_element = None  # when Dracula track is filled, the last track element is popped
@@ -73,11 +74,11 @@ class Dracula(Player):
     def put_encounter_to_track(self, encounter_num: int, track_num: int):
         encounter_name = self.encounters.pop(encounter_num)
         encounter_obj = eval(f"{encounter_name}()")  # encounter string name to class name
-        logger.info(f"Dracula puts {encounter_name} to hideout {track_num}")
+        logger.debug(f"Dracula puts {encounter_name} to hideout {track_num}")
         self.track[track_num].encounters.append(encounter_obj)
 
     def put_encounter_to_lairs(self, state: GameState, players: list, possible_actions: list, additional_encounter: str):
-        logger.info(f"put_encounter_to_lairs with additional_encounter = {additional_encounter}")
+        logger.debug(f"put_encounter_to_lairs with additional_encounter = {additional_encounter}")
         encounter_obj = eval(f"{additional_encounter}()")  # encounter string name to class name
         self.outside_element.encounters.append(encounter_obj)
         self.lairs.insert(0, self.outside_element)
@@ -93,20 +94,20 @@ class Dracula(Player):
             possible_actions.append(ACTION_CHOOSE_MATURED_ENCOUNTER)
 
     def discard_lair(self, state: GameState, index):
-        logger.info(f"discard_lair with index {index}")
+        logger.debug(f"discard_lair with index {index}")
         for encounter in self.lairs[index].encounters:
             state.put_encounter_to_discard(encounter)
         self.lairs.pop(index)
 
     # in game rule it is 7th track element
     def process_outside_track_element(self, state: GameState, players: list, possible_actions: list):
-        logger.info("process_outside_track_element")
+        logger.debug("process_outside_track_element")
         if self.outside_element is None:
-            logger.info("there is no outside track element")
+            logger.debug("there is no outside track element")
             return
         logger.info("there is outside track element!")
         if self.outside_element.power == HIDE_POWER:
-            logger.info("THe encounter on Hide power cannot be matured and this card cannot be sent to Dracula Lair")
+            logger.info("The encounter on Hide power cannot be matured and this card cannot be sent to Dracula Lair")
             for encounter in self.outside_element.encounters:
                 state.put_encounter_to_discard(encounter)
                 self.outside_element = None
@@ -118,6 +119,7 @@ class Dracula(Player):
         self.outside_element = None
 
     def mature_encounter(self, state: GameState, players: list, possible_actions: list, encounter_num: int):
+        logger.debug("mature_encounter")
         encounter = self.outside_element.encounters[encounter_num]
         encounter.mature(state, players, possible_actions)
         for encounter in self.outside_element.encounters:
@@ -125,7 +127,7 @@ class Dracula(Player):
         self.outside_element = None
 
     def attack_hunter(self,  players: list):
-        logger.info("reveal_track")
+        logger.debug("reveal_track")
         is_sea = Loader.location_dict[self.location_num]["isSea"]
         if is_sea:
             return False
@@ -137,6 +139,7 @@ class Dracula(Player):
         return False
 
     def get_movements(self, kind="roads"):
+        logger.debug("get_movements")
         locations = super().get_movements(kind)
         for elem in self.track:
             if "ActionLocation_" + elem.location.name in locations:
@@ -144,6 +147,7 @@ class Dracula(Player):
         return locations
 
     def start_turn(self, state: GameState, possible_actions: list):
+        logger.debug("start_turn")
         super().start_turn(state, possible_actions)
         if len(self.lairs) > 0:
             possible_actions.append(ACTION_DISCARD_LAIR)
@@ -157,6 +161,7 @@ class Dracula(Player):
 
     # TODO - no emit, do everything here
     def end_turn(self, state: GameState):
+        logger.debug("end_turn")
         super().end_turn(state)
         self.change_time_signal.emit()
         # gamecontroller.change_time()
@@ -165,11 +170,13 @@ class Dracula(Player):
         Loader.append_log(f"The day {state.day_num} of the week {state.week_num} begins. \n")
 
     def start_game(self, state: GameState, possible_actions: list, players: list, location_num: str):
+        logger.debug("start_game")
         self.location_num = location_num
         element = TrackElement(location=Card(name=location_num, is_opened=False))
         self.track.insert(0, element)
 
     def take_event(self, event, state: GameState):
+        logger.debug("take_event")
         self.events.append(event)  # TODO emit about Dracula event
         Loader.append_log(f"{Loader.num_to_player(state.who_moves)} draws Dracula event at night "
                           f"from event deck back and Dracula takes it. ")
